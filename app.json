@@ -1,5 +1,7 @@
 {
   "expo": {
+    "name": "client",
+    "slug": "client",
     "scheme": "acme",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
@@ -14,7 +16,33 @@
         }
       ]
     ],
-    "name": "client",
-    "slug": "client"
+    "extra": {
+      "eas": {
+        "projectId": "3e85c530-a460-42e5-a07e-45a4396e8b13"
+      }
+    },
+    "android": {
+        "gradleCommand": ":app:assembleDebug",
+      "package": "com.kmc.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.kmc.app",
+      "buildNumber": "1.0.0",
+      "supportsTablet": true,
+      "splash": {
+        "image": "./assets/icon.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
+    }
   }
 }
