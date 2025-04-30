@@ -6,12 +6,16 @@ import {
   TextInput,
   Image,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useAuth } from "@clerk/clerk-expo";
 
 export default function ProfileContent() {
+  const { signOut } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [profileData, setProfileData] = useState({
     name: "Sarah Anderson",
     phone: "+1 (555) 123-4567",
@@ -49,8 +53,17 @@ export default function ProfileContent() {
     },
   ]);
 
-  const handleLogout = () => {
-    router.replace("/login");
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await signOut();
+      router.replace("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      alert("Failed to sign out. Please try again.");
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   const ProfileField = ({ label, value, onEdit }) => (
@@ -117,29 +130,25 @@ export default function ProfileContent() {
         <View className="mb-6">
           <View className="flex-row border-b border-gray-100">
             <TouchableOpacity
-              className={`flex-1 pb-3 ${
-                !isEditing ? "border-b-2 border-orange-500" : ""
-              }`}
+              className={`flex-1 pb-3 ${!isEditing ? "border-b-2 border-orange-500" : ""
+                }`}
               onPress={() => setIsEditing(false)}
             >
               <Text
-                className={`text-center font-medium ${
-                  !isEditing ? "text-orange-500" : "text-gray-500"
-                }`}
+                className={`text-center font-medium ${!isEditing ? "text-orange-500" : "text-gray-500"
+                  }`}
               >
                 Personal Info
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`flex-1 pb-3 ${
-                isEditing ? "border-b-2 border-orange-500" : ""
-              }`}
+              className={`flex-1 pb-3 ${isEditing ? "border-b-2 border-orange-500" : ""
+                }`}
               onPress={() => setIsEditing(true)}
             >
               <Text
-                className={`text-center font-medium ${
-                  isEditing ? "text-orange-500" : "text-gray-500"
-                }`}
+                className={`text-center font-medium ${isEditing ? "text-orange-500" : "text-gray-500"
+                  }`}
               >
                 Family Members
               </Text>
@@ -281,13 +290,21 @@ export default function ProfileContent() {
         )}
 
         {/* Logout Button */}
-        <TouchableOpacity
-          className="bg-red-500 py-3.5 rounded-xl items-center"
-          onPress={handleLogout}
-        >
-          <Text className="text-white font-medium">Logout</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        {isLoggingOut ? (
+          <View className="flex-row justify-center items-center">
+            <ActivityIndicator size="large" color="#f97316" />
+          </View>
+        ) :
+          (
+            <TouchableOpacity
+              className="bg-red-500 py-3.5 rounded-xl items-center"
+              onPress={handleLogout}
+            >
+              <Text className="text-white font-medium">Logout</Text>
+            </TouchableOpacity>
+          )
+        }
+      </View >
+    </ScrollView >
   );
 }

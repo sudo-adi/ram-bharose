@@ -1,83 +1,71 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, ActivityIndicator } from "react-native";
 import { useSSO, useUser, useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as AuthSession from "expo-auth-session";
+
 
 // Warm up browser hook
 export const useWarmUpBrowser = () => {
   useEffect(() => {
-    // Preloads the browser for Android devices to reduce authentication load time
+    // Warm up the android browser to improve UX
+    // https://docs.expo.dev/guides/authentication/#improving-user-experience
     void WebBrowser.warmUpAsync();
     return () => {
-      // Cleanup: closes browser when component unmounts
       void WebBrowser.coolDownAsync();
     };
   }, []);
 };
 
-// Handle any pending authentication sessions
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login() {
   useWarmUpBrowser();
-
-  const { startSSOFlow } = useSSO();
-  const { isSignedIn, user } = useUser();
   const router = useRouter();
-
-  useEffect(() => {
-    if (isSignedIn) {
-      router.push("/(tabs)");
-    }
-  }, [isSignedIn]);
+  const { startSSOFlow } = useSSO();
+  const [isLoading, setIsLoading] = useState(false);
 
   const onPress = async () => {
+    setIsLoading(true);
     try {
-      const { createdSessionId, setActive, signIn, signUp } =
-        await startSSOFlow({
-          strategy: "oauth_google",
-          redirectUrl: AuthSession.makeRedirectUri(),
-        });
+      const redirectUrl = AuthSession.makeRedirectUri({
+        scheme: "ram-bharose"
+      });
+
+      const { createdSessionId, setActive, signIn, signUp } = await startSSOFlow({
+        strategy: "oauth_google",
+        redirectUrl,
+      });
 
       if (createdSessionId) {
-        setActive!({ session: createdSessionId });
-        router.push("/(tabs)");
+        await setActive?.({ session: createdSessionId });
+        router.replace("/(tabs)");
+      } else if (signIn || signUp) {
+        try {
+          if (signIn) {
+            const result = await signIn.create({});
+            await setActive?.({ session: result.createdSessionId });
+            router.replace("/(tabs)");
+          } else if (signUp) {
+            const result = await signUp.create({});
+            await setActive?.({ session: result.createdSessionId });
+            router.replace("/(tabs)");
+          }
+        } catch (authError) {
+          console.error("Authentication completion error:", authError);
+          alert("Failed to complete authentication. Please try again.");
+        }
       } else {
-        console.log("Additional authentication steps required");
+        throw new Error("Failed to create session or authenticate");
       }
     } catch (err) {
-      console.error("OAuth error", err);
+      console.error("OAuth error:", err);
+      alert("Failed to sign in with Google. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  if (isSignedIn && user) {
-    return (
-      <View className="flex-1 bg-white p-6 justify-center">
-        <View className="items-center mb-12">
-          <Image
-            source={{ uri: user.imageUrl }}
-            className="w-24 h-24 rounded-full"
-          />
-          <Text className="text-2xl font-bold text-gray-800 mt-6">
-            Welcome back, {user.firstName}!
-          </Text>
-          <Text className="text-gray-500 text-center mt-2">
-            {user.emailAddresses[0].emailAddress}
-          </Text>
-          <TouchableOpacity
-            onPress={() => router.push("/(tabs)")}
-            className="bg-orange-500 py-4 px-8 rounded-xl mt-6"
-          >
-            <Text className="text-white font-semibold text-lg">
-              Go to Homepage
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View className="flex-1 bg-white p-6 justify-center">
@@ -95,18 +83,24 @@ export default function Login() {
         </Text>
       </View>
 
-      <TouchableOpacity
-        onPress={onPress}
-        className="bg-orange-500 py-4 rounded-xl flex-row justify-center items-center"
-      >
-        <Image
-          source={{ uri: "https://www.google.com/favicon.ico" }}
-          className="w-5 h-5 mr-2"
-        />
-        <Text className="text-white font-semibold text-lg">
-          Continue with Google
-        </Text>
-      </TouchableOpacity>
+      {isLoading ? (
+        <View className="flex-row justify-center items-center">
+          <ActivityIndicator size="large" color="#f97316" />
+        </View>
+      ) : (
+        <TouchableOpacity
+          onPress={onPress}
+          className="bg-orange-500 py-4 rounded-xl flex-row justify-center items-center"
+        >
+          <Image
+            source={{ uri: "https://www.google.com/favicon.ico" }}
+            className="w-5 h-5 mr-2"
+          />
+          <Text className="text-white font-semibold text-lg">
+            Continue with Google
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

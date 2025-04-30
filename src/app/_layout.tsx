@@ -1,5 +1,5 @@
-import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
-import { Stack, useRouter } from "expo-router";
+import { ClerkProvider, ClerkLoaded, useAuth, useUser } from "@clerk/clerk-expo";
+import { Stack, useRouter, usePathname } from "expo-router";
 import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import SplashScreen from "@/components/ui/common/SplashScreen";
@@ -28,34 +28,36 @@ export default function RootLayout() {
       tokenCache={tokenCache}
       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
     >
-      <SafeAreaProvider>
-        <AuthenticationWrapper />
-      </SafeAreaProvider>
+      <ClerkLoaded>
+        <SafeAreaProvider>
+          <AuthenticationWrapper />
+        </SafeAreaProvider>
+      </ClerkLoaded>
     </ClerkProvider>
   );
 }
 
 function AuthenticationWrapper() {
   const { isLoaded, isSignedIn } = useAuth();
+  const pathName = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoaded) return;
-
-    if (isSignedIn) {
-      router.push("/(tabs)");
+    if (!isSignedIn) {
+      router.replace("/(auth)/login");
     }
-  }, [isLoaded]);
+
+    if (isSignedIn && pathName === "/login") {
+      router.replace("/(tabs)");
+    }
+
+  }, [isLoaded, pathName]);
+
+
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="login"
-        options={{
-          headerShown: false,
-          presentation: "fullScreenModal",
-        }}
-      />
+
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
         name="birthdays"

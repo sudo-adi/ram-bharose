@@ -1,15 +1,14 @@
 import "@/global.css";
 import { Tabs } from "expo-router";
-import { useEffect, useState } from "react";
+import SplashScreen from "@/components/ui/common/SplashScreen";
 import { Ionicons } from "@expo/vector-icons";
-import SplashScreen from "../../components/ui/common/SplashScreen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useEffect, useState } from "react";
 
 export default function TabLayout() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading time for splash screen
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
@@ -22,7 +21,7 @@ export default function TabLayout() {
       <SafeAreaProvider>
         <SplashScreen />
       </SafeAreaProvider>
-    );
+    )
   }
 
   return (
