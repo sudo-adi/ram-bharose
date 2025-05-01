@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import SplashScreen from "@/components/ui/common/SplashScreen";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
+import React from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function RootLayout() {
   const [isLoading, setIsLoading] = useState(true);
@@ -45,12 +47,30 @@ function AuthenticationWrapper() {
   useEffect(() => {
     if (!isSignedIn) {
       router.replace("/(auth)/login");
+      return;
     }
 
-    if (isSignedIn && pathName === "/login") {
-      router.replace("/(tabs)");
+    if (pathName === "/login") {
+      router.replace("/(auth)/family-verification");
+      return;
     }
 
+
+    // Check if user has completed family verification
+    const checkFamilyVerification = async () => {
+      const { user } = useUser();
+      const { data: familyMember } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', user?.emailAddresses[0]?.emailAddress)
+        .single();
+      console.log(familyMember);
+      if (!familyMember) {
+        router.replace('/(auth)/family-verification');
+      }
+    };
+
+    checkFamilyVerification();
   }, [isLoaded, pathName]);
 
 

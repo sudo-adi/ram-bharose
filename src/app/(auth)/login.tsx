@@ -1,5 +1,6 @@
+import React from "react";
 import { View, Text, TouchableOpacity, Image, ActivityIndicator } from "react-native";
-import { useSSO, useUser, useAuth } from "@clerk/clerk-expo";
+import { useSSO } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
