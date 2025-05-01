@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,48 +10,99 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
+import { supabase } from "@/lib/supabase";
 
 export default function ProfileContent() {
   const { signOut } = useAuth();
+  const { user } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: "Sarah Anderson",
-    phone: "+1 (555) 123-4567",
-    address: "123 Maple Street, Seattle, WA",
-    dateOfBirth: "March 15, 1985",
-    email: "sarah.anderson@email.com",
-  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [profileData, setProfileData] = useState(null);
+  const [familyMembers, setFamilyMembers] = useState([]);
 
-  const [familyMembers, setFamilyMembers] = useState([
-    {
-      id: 1,
-      name: "John Anderson",
-      relation: "Spouse",
-      age: "42 years",
-      gender: "Male",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
-    },
-    {
-      id: 2,
-      name: "Emma Anderson",
-      relation: "Daughter",
-      age: "12 years",
-      gender: "Female",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500",
-    },
-    {
-      id: 3,
-      name: "Lucas Anderson",
-      relation: "Son",
-      age: "8 years",
-      gender: "Male",
-      image: "https://images.unsplash.com/photo-1555009393-f20bdb245c4d?w=500",
-    },
-  ]);
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const userEmail = user?.emailAddresses[0]?.emailAddress;
+        if (!userEmail) return;
+
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', userEmail)
+          .single();
+
+        if (error) throw error;
+
+        if (profile) {
+          setProfileData({
+            name: `${profile.name}`,
+            phone: profile.mobile_no1 || '',
+            address: [
+              profile.residential_address_line1,
+              profile.residential_address_city,
+              profile.residential_address_state
+            ].filter(Boolean).join(', '),
+            dateOfBirth: profile.date_of_birth || '',
+            email: profile.email || '',
+            profile_pic: profile.profile_pic,
+            cover_pic: profile.family_cover_pic,
+          });
+
+          // Fetch family members
+          const { data: members, error: membersError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('family_no', profile.family_no)
+            .neq('email', userEmail);
+
+          if (membersError) throw membersError;
+
+          setFamilyMembers(members.map(member => ({
+            id: member.id,
+            name: member.name,
+            relation: member.relationship,
+            age: calculateAge(member.date_of_birth),
+            gender: member.gender,
+            image: member.profile_pic || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500',
+          })));
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        alert('Failed to load profile data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const calculateAge = (birthDate) => {
+      if (!birthDate) return '';
+
+      // Parse date in format "YY-MM-DD"
+      const [year, month, day] = birthDate.split('-');
+
+      // Create Date object
+      const birth = new Date(
+        parseInt(year),
+        parseInt(month) - 1, // Months are 0-indexed in JS Date
+        parseInt(day)
+      );
+
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+
+      return `${age} years`;
+    };
+
+    fetchProfileData();
+  }, [user]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -78,6 +129,22 @@ export default function ProfileContent() {
     </View>
   );
 
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <ActivityIndicator size="large" color="#f97316" />
+      </View>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <Text className="text-gray-500">Failed to load profile data</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView className="flex-1 bg-white pt-14">
       <View className="px-5 pt-4 pb-20">
@@ -87,7 +154,7 @@ export default function ProfileContent() {
           <View className="relative h-40 mb-12">
             <Image
               source={{
-                uri: "https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=1000",
+                uri: profileData.cover_pic || "https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=1000",
               }}
               className="w-full h-full rounded-xl"
               resizeMode="cover"
@@ -103,7 +170,7 @@ export default function ProfileContent() {
               <View className="relative">
                 <Image
                   source={{
-                    uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500",
+                    uri: profileData.profile_pic || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500",
                   }}
                   className="w-24 h-24 rounded-full border-4 border-white"
                 />
@@ -217,7 +284,11 @@ export default function ProfileContent() {
                 </View>
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-800 text-base">
-                    {profileData.dateOfBirth}
+                    {profileData.dateOfBirth ? new Date(profileData.dateOfBirth).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    }) : 'Not set'}
                   </Text>
                   <TouchableOpacity>
                     <Ionicons name="pencil" size={18} color="#ff7e54" />
