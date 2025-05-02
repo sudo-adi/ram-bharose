@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -10,46 +10,13 @@ import {
 } from "react-native";
 import { useLocalSearchParams, Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { supabase } from "@/lib/supabase";
+import { useProfile } from "@/hooks/useSupabase";
 
 export default function MemberDetailScreen() {
   const params = useLocalSearchParams();
   const memberId = params.memberId;
-  const [member, setMember] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    console.log("Member detail screen loaded with ID:", memberId);
-    if (memberId) {
-      fetchMemberDetails();
-    } else {
-      console.error("No member ID provided in params:", params);
-      setLoading(false);
-    }
-  }, [memberId]);
-
-  const fetchMemberDetails = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", memberId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching member details:", error);
-        return;
-      }
-
-      console.log("Member data fetched successfully");
-      setMember(data);
-    } catch (error) {
-      console.error("Unexpected error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: member, loading, error } = useProfile(Number(memberId));
 
   const calculateAge = (dob) => {
     if (!dob) return "Unknown";

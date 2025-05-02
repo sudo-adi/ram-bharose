@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUser } from '@clerk/clerk-expo';
 import { supabase } from '@/lib/supabase';
+import { useFamilyVerification } from '@/hooks/useSupabase';
 
 type FamilyMember = {
     id: number;
@@ -56,40 +57,40 @@ export default function FamilyVerification() {
         date_of_demise: ''
     });
 
+    const { data: familyData, error: familyError, refetch: verifyFamily } = useFamilyVerification(familyCode);
+
     const verifyFamilyCode = async () => {
         setIsLoading(true);
         setError('');
+
         try {
-            const userEmail = user?.emailAddresses[0]?.emailAddress;
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('family_no', familyCode);
+            await verifyFamily();
 
-            if (error) throw error;
+            if (familyError) {
+                setError('Error verifying family code');
+                return;
+            }
 
-            if (!data || data.length === 0) {
+            if (!familyData || familyData.length === 0) {
                 setError('Invalid family code');
                 return;
             }
 
-            // Check if user's email already exists in the family
-            const existingMember = data.find(member => member.email === userEmail);
+            const userEmail = user?.emailAddresses[0]?.emailAddress;
+            const existingMember = familyData.find(member => member.email === userEmail);
+
             if (existingMember) {
                 router.replace('/(tabs)');
                 return;
             }
 
-            // Find the member with relationship 'self'
-            const selfMember = data.find(member => member.relationship.toLowerCase() === 'self');
+            const selfMember = familyData.find(member => member.relationship.toLowerCase() === 'self');
             if (!selfMember || !selfMember.mobile_no1) {
                 setError('Unable to find primary family member');
                 return;
             }
 
-            // TODO: Implement OTP sending logic here
-            // For now, we'll just move to OTP step
-            setFamilyMembers(data);
+            setFamilyMembers(familyData);
             setStep('otp');
         } catch (err) {
             setError('Error verifying family code');
@@ -117,7 +118,7 @@ export default function FamilyVerification() {
                 .from('profiles')
                 .update({ email: user?.emailAddresses[0]?.emailAddress })
                 .eq('id', member.id)
-                .select();  // Add select() to get proper RLS policy check
+                .select();
 
             if (error) {
                 console.error('Supabase error:', error);
@@ -160,6 +161,7 @@ export default function FamilyVerification() {
             </View>
         );
     }
+
 
     return (
         <ScrollView className="flex-1 bg-white p-6">

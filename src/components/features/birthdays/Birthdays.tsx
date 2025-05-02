@@ -9,155 +9,13 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { supabase } from "@/lib/supabase";
+import { useBirthdays } from "@/hooks/useSupabase";
 
 export default function BirthdaysContent() {
   const [activeTab, setActiveTab] = useState<"today" | "month" | "all">(
     "today"
   );
-  const [birthdays, setBirthdays] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchBirthdays();
-  }, [activeTab]);
-
-  const fetchBirthdays = async () => {
-    try {
-      setLoading(true);
-
-      // Get current date components
-      const now = new Date();
-      const currentMonth = now.getMonth(); // 0-indexed (0=Jan, 1=Feb, etc.)
-      const currentDay = now.getDate();
-
-      // Month abbreviations
-      const monthAbbreviations = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-      const currentMonthAbbr = monthAbbreviations[currentMonth];
-
-      // First fetch all birthdays (we'll filter in JavaScript for more complex date handling)
-      let query = supabase
-        .from("profiles")
-        .select("name, surname, date_of_birth, profile_pic, mobile_no1, email")
-        .not("date_of_birth", "is", null);
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching birthdays:", error);
-        return;
-      }
-
-      // Transform and filter the data
-      const transformedData = data
-        .map((profile) => {
-          if (!profile.date_of_birth) return null;
-
-          // Parse date in format "22/Nov/51"
-          const dobParts = profile.date_of_birth.split("/");
-          if (dobParts.length !== 3) return null;
-
-          const day = parseInt(dobParts[0]);
-          const monthAbbr = dobParts[1];
-          const yearPart = dobParts[2];
-
-          // Find month index (0-11)
-          const monthIndex = monthAbbreviations.findIndex(
-            (m) => m.toLowerCase() === monthAbbr.toLowerCase()
-          );
-          if (monthIndex === -1) return null;
-
-          // Handle 2-digit year (assuming 51 = 1951, 05 = 2005)
-          let fullYear;
-          if (yearPart.length === 2) {
-            const yearNum = parseInt(yearPart);
-            fullYear = yearNum < 50 ? 2000 + yearNum : 1900 + yearNum;
-          } else {
-            fullYear = parseInt(yearPart);
-          }
-
-          // Create birth date (using monthIndex)
-          const birthDate = new Date(fullYear, monthIndex, day);
-
-          // Calculate age
-          const today = new Date();
-          let age = today.getFullYear() - birthDate.getFullYear();
-
-          // Adjust age if birthday hasn't occurred yet this year
-          if (
-            today.getMonth() < monthIndex ||
-            (today.getMonth() === monthIndex && today.getDate() < day)
-          ) {
-            age--;
-          }
-
-          // Format display date (current year)
-          const displayDate = new Date(
-            today.getFullYear(),
-            monthIndex,
-            day
-          ).toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric",
-          });
-
-          return {
-            id: `${profile.name}-${profile.date_of_birth}`,
-            name: `${profile.name} ${profile.surname || ""}`.trim(),
-            age: age.toString(),
-            date: displayDate,
-            image:
-              profile.profile_pic ||
-              "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg",
-            phone: profile.mobile_no1,
-            email: profile.email,
-            monthIndex, // For filtering
-            day, // For filtering
-          };
-        })
-        .filter(Boolean) // Remove any null entries from failed parsing
-        .filter((birthday) => {
-          // Apply tab-specific filtering
-          if (activeTab === "today") {
-            return (
-              birthday.monthIndex === currentMonth &&
-              birthday.day === currentDay
-            );
-          } else if (activeTab === "month") {
-            return birthday.monthIndex === currentMonth;
-          }
-          return true; // "all" tab shows everything
-        });
-
-      // Sort by upcoming date (next birthday first)
-      transformedData.sort((a, b) => {
-        // Compare month and day only (using current year)
-        if (a.monthIndex !== b.monthIndex) {
-          return a.monthIndex - b.monthIndex;
-        }
-        return a.day - b.day;
-      });
-
-      setBirthdays(transformedData);
-    } catch (error) {
-      console.error("Unexpected error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: birthdays, loading, error } = useBirthdays(activeTab);
 
   // ... rest of the component remains the same ...
   const handleWhatsApp = (phoneNumber: string) => {
@@ -196,8 +54,8 @@ export default function BirthdaysContent() {
               {activeTab === "today"
                 ? "Today"
                 : activeTab === "month"
-                ? "This Month"
-                : "All Birthdays"}
+                  ? "This Month"
+                  : "All Birthdays"}
             </Text>
             <Text className="text-2xl font-bold text-gray-800 mt-1">
               {getBirthdayCountText()}
@@ -220,16 +78,14 @@ export default function BirthdaysContent() {
             <TouchableOpacity
               key={tab.key}
               onPress={() => setActiveTab(tab.key as "today" | "month" | "all")}
-              className={`flex-1 py-3 px-1 ${
-                activeTab === tab.key
-                  ? "border-b-2 border-orange-500"
-                  : "border-b-2 border-transparent"
-              }`}
+              className={`flex-1 py-3 px-1 ${activeTab === tab.key
+                ? "border-b-2 border-orange-500"
+                : "border-b-2 border-transparent"
+                }`}
             >
               <Text
-                className={`text-center font-medium ${
-                  activeTab === tab.key ? "text-orange-500" : "text-gray-500"
-                }`}
+                className={`text-center font-medium ${activeTab === tab.key ? "text-orange-500" : "text-gray-500"
+                  }`}
               >
                 {tab.title}
               </Text>
@@ -259,7 +115,7 @@ export default function BirthdaysContent() {
                 <View className="p-4">
                   <View className="flex-row items-center">
                     <Image
-                      source={{ uri: birthday.image }}
+                      source={{ uri: birthday.profile_pic }}
                       className="w-16 h-16 rounded-full border-2 border-orange-100"
                     />
                     <View className="flex-1 ml-4">
@@ -267,10 +123,10 @@ export default function BirthdaysContent() {
                         {birthday.name}
                       </Text>
                       <Text className="text-orange-500 font-medium">
-                        Turning {birthday.age}
+                        Turning {new Date().getFullYear() - new Date(birthday.date_of_birth).getFullYear()}
                       </Text>
                       <Text className="text-gray-500 text-sm mt-0.5">
-                        {birthday.date}
+                        {birthday.date_of_birth}
                       </Text>
                     </View>
                   </View>
@@ -278,7 +134,7 @@ export default function BirthdaysContent() {
                   <View className="flex-row mt-4 pt-4 border-t border-gray-100">
                     <TouchableOpacity
                       className="flex-1 flex-row items-center justify-center bg-green-500/10 py-2.5 rounded-xl mr-2"
-                      onPress={() => handleWhatsApp(birthday.phone)}
+                      onPress={() => handleWhatsApp(birthday.mobile_no1)}
                     >
                       <Ionicons
                         name="logo-whatsapp"
@@ -291,7 +147,7 @@ export default function BirthdaysContent() {
                     </TouchableOpacity>
                     <TouchableOpacity
                       className="flex-1 flex-row items-center justify-center bg-blue-500/10 py-2.5 rounded-xl"
-                      onPress={() => handleMessage(birthday.phone)}
+                      onPress={() => handleMessage(birthday.mobile_no1)}
                     >
                       <Ionicons
                         name="chatbubble-outline"
@@ -314,8 +170,8 @@ export default function BirthdaysContent() {
                 {activeTab === "today"
                   ? "today"
                   : activeTab === "month"
-                  ? "this month"
-                  : "any time"}
+                    ? "this month"
+                    : "any time"}
               </Text>
             </View>
           )}
