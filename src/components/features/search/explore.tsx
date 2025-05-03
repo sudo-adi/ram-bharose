@@ -39,12 +39,6 @@ export default function ExploreContent() {
         "https://images.unsplash.com/photo-1558636508-e0db3814bd1d?q=80&w=2070",
     },
     {
-      id: 5,
-      title: "E-VastiPatrak",
-      image:
-        "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2070",
-    },
-    {
       id: 6,
       title: "Application Forms",
       image:
