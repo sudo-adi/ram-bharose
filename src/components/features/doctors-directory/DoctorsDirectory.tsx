@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function DirectoryContent() {
+export default function DoctorsDirectoryContent() {
   const contacts = [
     { id: "1", name: "John Doe", role: "Developer" },
     { id: "2", name: "Jane Smith", role: "Designer" },

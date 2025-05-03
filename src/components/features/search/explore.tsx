@@ -111,6 +111,8 @@ export default function ExploreContent() {
                   router.push("/family-profile");
                 } else if (category.title === "Birthdays") {
                   router.push("/birthdays");
+                } else if (category.title === "Application Forms") {
+                  router.push("/application-form");
                 }
               }}
             >

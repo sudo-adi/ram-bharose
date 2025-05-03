@@ -1,4 +1,9 @@
-import { ClerkProvider, ClerkLoaded, useAuth, useUser } from "@clerk/clerk-expo";
+import {
+  ClerkProvider,
+  ClerkLoaded,
+  useAuth,
+  useUser,
+} from "@clerk/clerk-expo";
 import { Stack, useRouter, usePathname } from "expo-router";
 import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -55,29 +60,25 @@ function AuthenticationWrapper() {
       return;
     }
 
-
     // Check if user has completed family verification
     const checkFamilyVerification = async () => {
       const { user } = useUser();
       const { data: familyMember } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', user?.emailAddresses[0]?.emailAddress)
+        .from("profiles")
+        .select("id")
+        .eq("email", user?.emailAddresses[0]?.emailAddress)
         .single();
       console.log(familyMember);
       if (!familyMember) {
-        router.replace('/(auth)/family-verification');
+        router.replace("/(auth)/family-verification");
       }
     };
 
     checkFamilyVerification();
   }, [isLoaded, pathName]);
 
-
-
   return (
     <Stack screenOptions={{ headerShown: false }}>
-
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
         name="birthdays"

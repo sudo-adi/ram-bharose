@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  Dimensions,
-} from "react-native";
+import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function EventsContent() {

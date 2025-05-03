@@ -1,26 +1,27 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import { useSSO } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as AuthSession from "expo-auth-session";
 
-
 // Warm up browser hook
 export const useWarmUpBrowser = () => {
   useEffect(() => {
-    // Warm up the android browser to improve UX
-    // https://docs.expo.dev/guides/authentication/#improving-user-experience
     void WebBrowser.warmUpAsync();
     return () => {
       void WebBrowser.coolDownAsync();
     };
   }, []);
 };
-
 WebBrowser.maybeCompleteAuthSession();
-
 export default function Login() {
   useWarmUpBrowser();
   const router = useRouter();
@@ -31,13 +32,14 @@ export default function Login() {
     setIsLoading(true);
     try {
       const redirectUrl = AuthSession.makeRedirectUri({
-        scheme: "ram-bharose"
+        scheme: "ram-bharose",
       });
 
-      const { createdSessionId, setActive, signIn, signUp } = await startSSOFlow({
-        strategy: "oauth_google",
-        redirectUrl,
-      });
+      const { createdSessionId, setActive, signIn, signUp } =
+        await startSSOFlow({
+          strategy: "oauth_google",
+          redirectUrl,
+        });
 
       if (createdSessionId) {
         await setActive?.({ session: createdSessionId });
