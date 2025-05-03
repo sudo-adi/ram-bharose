@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function CalendarContent() {
   return (
-    <View className="px-4 py-6 pt-14">
+    <View className="px-4 py-6">
       <Text className="text-2xl font-bold mb-4">Calendar</Text>
 
       <View className="bg-gray-50 rounded-lg p-4 mb-6">

@@ -46,7 +46,7 @@ export default function EventsContent() {
   const currentYear = selectedDate.getFullYear();
 
   return (
-    <ScrollView className="flex-1 bg-white pt-14">
+    <ScrollView className="flex-1 bg-white">
       {/* Calendar Section */}
       <View className="bg-white px-4 pt-4 pb-6">
         <Text className="text-2xl font-bold text-gray-800 mb-4">

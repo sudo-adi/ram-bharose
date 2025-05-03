@@ -146,7 +146,7 @@ export default function ProfileContent() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-white pt-14">
+    <ScrollView className="flex-1 bg-white">
       <View className="px-5 pt-4 pb-20">
         {/* Profile Header */}
         <View className="mb-8">

@@ -194,7 +194,7 @@ export default function DoctorsDirectory() {
   );
 
   return (
-    <View className="flex-1 bg-white pt-14">
+    <View className="flex-1 bg-white">
       {/* Header */}
       <View className="px-5 py-4">
         <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3 mb-6">

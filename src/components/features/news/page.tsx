@@ -70,7 +70,7 @@ const News = () => {
 
   // News List View
   const renderNewsList = () => (
-    <ScrollView className="flex-1 bg-white pt-14">
+    <ScrollView className="flex-1 bg-white">
       <View className="px-5 py-4">
         <Text className="text-2xl font-bold text-gray-800 mb-1">
           News & Updates
@@ -152,7 +152,7 @@ const News = () => {
     return (
       <View className="flex-1 bg-white">
         {/* Header with back button */}
-        <View className="pt-14 px-4 flex-row items-center">
+        <View className="px-4 flex-row items-center">
           <TouchableOpacity
             onPress={handleBackPress}
             className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"

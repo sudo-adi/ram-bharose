@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase";
 import { useUser } from "@clerk/clerk-expo";
 
 import {
@@ -14,8 +14,8 @@ import {
   KeyboardTypeOptions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from 'expo-image-picker';
-import { useFormSubmission } from '@/hooks/useSupabase';
+import * as ImagePicker from "expo-image-picker";
+import { useFormSubmission } from "@/hooks/useSupabase";
 
 export default function ApplicationForm() {
   const [activeTab, setActiveTab] = useState("event");
@@ -23,7 +23,7 @@ export default function ApplicationForm() {
   return (
     <View className="flex-1 bg-white">
       {/* Header */}
-      <View className="px-5 pt-14 pb-4">
+      <View className="px-5 pb-4">
         <Text className="text-2xl font-bold text-gray-800">
           Application Form
         </Text>
@@ -35,27 +35,31 @@ export default function ApplicationForm() {
       {/* Tab Navigation */}
       <View className="flex-row border-b border-gray-200 mx-4">
         <TouchableOpacity
-          className={`flex-1 items-center py-3 border-b-2 ${activeTab === "event" ? "border-orange-500" : "border-transparent"
-            }`}
+          className={`flex-1 items-center py-3 border-b-2 ${
+            activeTab === "event" ? "border-orange-500" : "border-transparent"
+          }`}
           onPress={() => setActiveTab("event")}
         >
           <Text
-            className={`font-medium ${activeTab === "event" ? "text-orange-500" : "text-gray-500"
-              }`}
+            className={`font-medium ${
+              activeTab === "event" ? "text-orange-500" : "text-gray-500"
+            }`}
           >
             Event
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-1 items-center py-3 border-b-2 ${activeTab === "donation"
-            ? "border-orange-500"
-            : "border-transparent"
-            }`}
+          className={`flex-1 items-center py-3 border-b-2 ${
+            activeTab === "donation"
+              ? "border-orange-500"
+              : "border-transparent"
+          }`}
           onPress={() => setActiveTab("donation")}
         >
           <Text
-            className={`font-medium ${activeTab === "donation" ? "text-orange-500" : "text-gray-500"
-              }`}
+            className={`font-medium ${
+              activeTab === "donation" ? "text-orange-500" : "text-gray-500"
+            }`}
           >
             Donation
           </Text>
@@ -77,8 +81,11 @@ function ImageUploadCard({ onImageSelect, selectedImage }) {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant camera roll permissions to upload images.');
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission needed",
+        "Please grant camera roll permissions to upload images."
+      );
       return;
     }
 
@@ -116,33 +123,40 @@ function ImageUploadCard({ onImageSelect, selectedImage }) {
 function EventForm() {
   const { user } = useUser();
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    startTime: '',
-    duration: '',
-    organizers: '',
-    image: null
+    name: "",
+    description: "",
+    startTime: "",
+    duration: "",
+    organizers: "",
+    image: null,
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.name?.trim()) newErrors.name = 'Name is required';
-    if (!formData.description?.trim()) newErrors.description = 'Description is required';
-    if (!formData.startTime?.trim()) newErrors.startTime = 'Start time is required';
-    if (!formData.duration?.trim()) newErrors.duration = 'Duration is required';
-    if (!formData.organizers?.trim()) newErrors.organizers = 'Organizers are required';
-    if (!formData.image) newErrors.image = 'Image is required';
+    if (!formData.name?.trim()) newErrors.name = "Name is required";
+    if (!formData.description?.trim())
+      newErrors.description = "Description is required";
+    if (!formData.startTime?.trim())
+      newErrors.startTime = "Start time is required";
+    if (!formData.duration?.trim()) newErrors.duration = "Duration is required";
+    if (!formData.organizers?.trim())
+      newErrors.organizers = "Organizers are required";
+    if (!formData.image) newErrors.image = "Image is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const { submitEvent, loading: submitting, error: submitError } = useFormSubmission();
+  const {
+    submitEvent,
+    loading: submitting,
+    error: submitError,
+  } = useFormSubmission();
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert('Validation Error', 'Please fill in all required fields');
+      Alert.alert("Validation Error", "Please fill in all required fields");
       return;
     }
     const userEmail = user?.primaryEmailAddress?.emailAddress;
@@ -154,22 +168,25 @@ function EventForm() {
       description: formData.description,
       startTime: formData.startTime,
       duration: formData.duration,
-      organizers: formData.organizers.split(',').map(org => org.trim()),
-      image: formData.image
+      organizers: formData.organizers.split(",").map((org) => org.trim()),
+      image: formData.image,
     });
 
     if (success) {
-      Alert.alert('Success', 'Event submitted successfully');
+      Alert.alert("Success", "Event submitted successfully");
       setFormData({
-        name: '',
-        description: '',
-        startTime: '',
-        duration: '',
-        organizers: '',
-        image: null
+        name: "",
+        description: "",
+        startTime: "",
+        duration: "",
+        organizers: "",
+        image: null,
       });
     } else {
-      Alert.alert('Error', submitError || 'Failed to submit event. Please try again.');
+      Alert.alert(
+        "Error",
+        submitError || "Failed to submit event. Please try again."
+      );
     }
   };
 
@@ -226,11 +243,14 @@ function EventForm() {
       />
 
       <TouchableOpacity
-        className={`bg-orange-500 py-4 rounded-xl mt-6 ${loading ? 'opacity-50' : ''}`}
+        className={`bg-orange-500 py-4 rounded-xl mt-6 ${
+          loading ? "opacity-50" : ""
+        }`}
         onPress={handleSubmit}
-        disabled={loading}>
+        disabled={loading}
+      >
         <Text className="text-white text-center font-semibold text-lg">
-          {loading ? 'Submitting...' : 'Submit Event'}
+          {loading ? "Submitting..." : "Submit Event"}
         </Text>
       </TouchableOpacity>
 
@@ -245,13 +265,13 @@ function EventForm() {
 
 async function getUserIdByEmail(email: string) {
   const { data, error } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('email', email)
+    .from("profiles")
+    .select("id")
+    .eq("email", email)
     .single();
 
   if (error) {
-    console.error('Error fetching user_id:', error);
+    console.error("Error fetching user_id:", error);
     return null;
   }
 
@@ -261,32 +281,38 @@ async function getUserIdByEmail(email: string) {
 function DonationForm() {
   const { user } = useUser();
   const [formData, setFormData] = useState({
-    amount: '',
-    description: '',
-    cause: '',
-    openTill: '',
-    image: null
+    amount: "",
+    description: "",
+    cause: "",
+    openTill: "",
+    image: null,
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.amount) newErrors.amount = 'Amount is required';
-    if (isNaN(Number(formData.amount))) newErrors.amount = 'Amount must be a number';
-    if (!formData.description) newErrors.description = 'Description is required';
-    if (!formData.cause) newErrors.cause = 'Cause is required';
-    if (!formData.openTill) newErrors.openTill = 'Open till date is required';
-    if (!formData.image) newErrors.image = 'Image is required';
+    if (!formData.amount) newErrors.amount = "Amount is required";
+    if (isNaN(Number(formData.amount)))
+      newErrors.amount = "Amount must be a number";
+    if (!formData.description)
+      newErrors.description = "Description is required";
+    if (!formData.cause) newErrors.cause = "Cause is required";
+    if (!formData.openTill) newErrors.openTill = "Open till date is required";
+    if (!formData.image) newErrors.image = "Image is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const { submitDonation, loading: submitting, error: submitError } = useFormSubmission();
+  const {
+    submitDonation,
+    loading: submitting,
+    error: submitError,
+  } = useFormSubmission();
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert('Validation Error', 'Please fill in all required fields');
+      Alert.alert("Validation Error", "Please fill in all required fields");
       return;
     }
 
@@ -299,20 +325,23 @@ function DonationForm() {
       description: formData.description,
       cause: formData.cause,
       openTill: formData.openTill,
-      image: formData.image
+      image: formData.image,
     });
 
     if (success) {
-      Alert.alert('Success', 'Donation request submitted successfully');
+      Alert.alert("Success", "Donation request submitted successfully");
       setFormData({
-        amount: '',
-        description: '',
-        cause: '',
-        openTill: '',
-        image: null
+        amount: "",
+        description: "",
+        cause: "",
+        openTill: "",
+        image: null,
       });
     } else {
-      Alert.alert('Error', submitError || 'Failed to submit donation request. Please try again.');
+      Alert.alert(
+        "Error",
+        submitError || "Failed to submit donation request. Please try again."
+      );
     }
   };
 
@@ -363,11 +392,14 @@ function DonationForm() {
       />
 
       <TouchableOpacity
-        className={`bg-orange-500 py-4 rounded-xl mt-6 ${loading ? 'opacity-50' : ''}`}
+        className={`bg-orange-500 py-4 rounded-xl mt-6 ${
+          loading ? "opacity-50" : ""
+        }`}
         onPress={handleSubmit}
-        disabled={loading}>
+        disabled={loading}
+      >
         <Text className="text-white text-center font-semibold text-lg">
-          {loading ? 'Submitting...' : 'Submit Donation'}
+          {loading ? "Submitting..." : "Submit Donation"}
         </Text>
       </TouchableOpacity>
 
@@ -387,13 +419,15 @@ function FormField({
   keyboardType = "default",
   value,
   onChangeText,
-  error
+  error,
 }) {
   return (
     <View className="mb-4">
       <Text className="text-gray-700 mb-2">{label}</Text>
       <TextInput
-        className={`border rounded-lg p-3 text-gray-800 bg-gray-50 ${error ? 'border-red-500' : 'border-gray-300'}`}
+        className={`border rounded-lg p-3 text-gray-800 bg-gray-50 ${
+          error ? "border-red-500" : "border-gray-300"
+        }`}
         placeholder={placeholder}
         multiline={multiline}
         numberOfLines={multiline ? 4 : 1}
@@ -402,9 +436,7 @@ function FormField({
         onChangeText={onChangeText}
         keyboardType={keyboardType as KeyboardTypeOptions}
       />
-      {error && (
-        <Text className="text-red-500 text-xs mt-1">{error}</Text>
-      )}
+      {error && <Text className="text-red-500 text-xs mt-1">{error}</Text>}
     </View>
   );
 }

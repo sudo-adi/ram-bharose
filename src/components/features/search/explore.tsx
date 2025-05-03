@@ -83,7 +83,7 @@ export default function ExploreContent() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-white pt-14">
+    <ScrollView className="flex-1 bg-white">
       {/* Search Bar */}
       <View className="px-5 py-4">
         <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3">
@@ -113,6 +113,16 @@ export default function ExploreContent() {
                   router.push("/birthdays");
                 } else if (category.title === "Application Forms") {
                   router.push("/application-form");
+                } else if (category.title === "News & Community") {
+                  router.push("/news");
+                } else if (category.title === "Doctors Directory") {
+                  router.push("/doctors-directory");
+                } else if (category.title === "Committees") {
+                  router.push("/committees");
+                } else if (category.title === "Nari Sahas") {
+                  router.push("/businesses");
+                } else if (category.title === "Shubh Chintak") {
+                  router.push("/shubh-chintak");
                 }
               }}
             >

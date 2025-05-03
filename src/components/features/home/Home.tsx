@@ -6,8 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  StatusBar,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Home() {
   const userName = "Harshadbhai";
@@ -55,7 +57,7 @@ export default function Home() {
     const intervalId = setInterval(() => {
       if (eventScrollViewRef.current) {
         const nextIndex = (currentEventIndex + 1) % events.length;
-        const scrollX = nextIndex * (screenWidth - 20); // Account for margin
+        const scrollX = nextIndex * (screenWidth - 40); // Account for padding
         eventScrollViewRef.current.scrollTo({ x: scrollX, animated: true });
         setCurrentEventIndex(nextIndex);
       }
@@ -67,7 +69,7 @@ export default function Home() {
   // Handle manual scroll end to update current index
   const handleEventScroll = (event) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const newIndex = Math.round(contentOffsetX / (screenWidth - 20)); // Account for margin
+    const newIndex = Math.round(contentOffsetX / (screenWidth - 40)); // Account for padding
     if (
       newIndex !== currentEventIndex &&
       newIndex >= 0 &&
@@ -79,54 +81,82 @@ export default function Home() {
 
   // Screen dimensions
   const screenWidth = Dimensions.get("window").width;
-  const cardMargin = 10; // Space between cards
 
   return (
-    <View className="flex-1 bg-white">
-      {/* Sticky Header - Moved outside ScrollView */}
-      <View className="px-5 py-4 mt-12 bg-white">
-        <View className="flex-row justify-between items-center">
+    <View className="flex-1 bg-gray-50">
+      <StatusBar barStyle="light-content" />
+
+      {/* Header with gradient */}
+      <LinearGradient
+        colors={["#ff8c37", "#ff5f37"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        className="pt-12 pb-6 px-5 rounded-b-3xl shadow-lg"
+      >
+        <View className="flex-row justify-between items-center mb-6">
           <View>
-            <Text className="text-gray-500">{getGreeting()} ☀️</Text>
-            <Text className="text-2xl font-bold text-gray-800">
-              Welcome, {userName}!
+            <Text className="text-white text-sm opacity-90">
+              {getGreeting()} ☀️
+            </Text>
+            <Text className="text-2xl font-bold text-white">
+              Namaste, {userName}
             </Text>
           </View>
-          <TouchableOpacity className="w-10 h-10 bg-orange-50 rounded-full items-center justify-center">
+          <TouchableOpacity className="w-10 h-10 bg-white/20 rounded-full items-center justify-center">
             <View className="relative">
-              <Ionicons
-                name="notifications-outline"
-                size={22}
-                color="#f97316"
-              />
+              <Ionicons name="notifications-outline" size={22} color="white" />
               <View className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
             </View>
           </TouchableOpacity>
         </View>
-      </View>
+
+        {/* Community Stats - Moved to top */}
+        <View className="flex-row justify-between bg-white/15 p-4 rounded-2xl mb-2">
+          <View className="items-center">
+            <Text className="text-2xl font-bold text-white">4,027</Text>
+            <Text className="text-white text-xs mt-1">Total Members</Text>
+          </View>
+          <View className="h-full w-px bg-white/20" />
+          <View className="items-center">
+            <Text className="text-2xl font-bold text-white">2,069</Text>
+            <Text className="text-white text-xs mt-1">Males</Text>
+          </View>
+          <View className="h-full w-px bg-white/20" />
+          <View className="items-center">
+            <Text className="text-2xl font-bold text-white">1,958</Text>
+            <Text className="text-white text-xs mt-1">Females</Text>
+          </View>
+        </View>
+      </LinearGradient>
 
       <ScrollView
-        className="flex-1"
+        className="flex-1 pt-6"
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Remove the old header and spacer */}
         {/* Events Carousel */}
-        <View className="pb-6">
-          <Text className="text-xl font-bold text-gray-800 mb-4 px-5">
-            Upcoming Events
-          </Text>
+        <View className="mb-8">
+          <View className="flex-row justify-between items-center px-5 mb-4">
+            <Text className="text-lg font-bold text-gray-800">
+              Upcoming Events
+            </Text>
+            <TouchableOpacity>
+              <Text className="text-orange-500 text-sm font-medium">
+                View All
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <ScrollView
             ref={eventScrollViewRef}
             horizontal
             showsHorizontalScrollIndicator={false}
             pagingEnabled
             onMomentumScrollEnd={handleEventScroll}
-            snapToInterval={screenWidth - 20}
+            snapToInterval={screenWidth - 40}
             decelerationRate="fast"
             contentContainerStyle={{
               paddingHorizontal: 20,
-              paddingRight: 20,
             }}
           >
             {events.map((event, index) => (
@@ -134,26 +164,33 @@ export default function Home() {
                 key={event.id}
                 style={{
                   width: screenWidth - 40,
-                  marginRight: index < events.length - 1 ? cardMargin : 0,
+                  marginRight: 20,
                 }}
+                className="overflow-hidden"
               >
-                <View className="h-[180px] overflow-hidden relative rounded-xl shadow-sm">
+                <View className="h-[200px] rounded-2xl overflow-hidden shadow-md">
                   <Image
                     source={{ uri: event.image }}
                     className="w-full h-full"
                     resizeMode="cover"
                   />
-                  <View className="absolute inset-0 bg-black/30 p-4 flex justify-end">
-                    <Text className="text-white font-bold text-lg">
+                  <LinearGradient
+                    colors={["transparent", "rgba(0,0,0,0.8)"]}
+                    className="absolute inset-0 flex justify-end p-5"
+                  >
+                    <Text className="text-white font-bold text-xl">
                       {event.title}
                     </Text>
-                    <Text className="text-white text-sm mt-1">
+                    <Text className="text-white/90 text-sm mt-1">
                       {event.description}
                     </Text>
-                    <Text className="text-white/80 text-xs mt-2">
-                      {event.time}
-                    </Text>
-                  </View>
+                    <View className="flex-row items-center mt-2">
+                      <Ionicons name="time-outline" size={14} color="white" />
+                      <Text className="text-white/80 text-xs ml-1">
+                        {event.time}
+                      </Text>
+                    </View>
+                  </LinearGradient>
                 </View>
               </TouchableOpacity>
             ))}
@@ -175,49 +212,45 @@ export default function Home() {
         </View>
 
         {/* Family Updates */}
-        <View className="px-5 pb-6">
-          <Text className="text-xl font-bold text-gray-800 mb-4">
+        <View className="px-5 mb-8">
+          <Text className="text-lg font-bold text-gray-800 mb-4">
             Family Updates ❤️
           </Text>
           <View className="flex-row justify-between">
-            <TouchableOpacity className="bg-pink-50 rounded-xl p-4 w-[48%] border border-pink-100">
-              <View className="flex-row items-center">
-                <View className="bg-pink-100 p-2 rounded-full">
-                  <Ionicons name="people" size={20} color="#be185d" />
+            <TouchableOpacity className="bg-white rounded-2xl p-5 w-[48%] shadow-sm border border-gray-100">
+              <View className="items-center mb-3">
+                <View className="bg-orange-100 p-3 rounded-full mb-2">
+                  <Ionicons name="people" size={24} color="#ff8c37" />
                 </View>
-                <View className="ml-3 flex-1">
-                  <Text className="font-bold text-gray-800 text-sm">
-                    My Family
-                  </Text>
-                  <Text className="text-gray-600 text-xs mt-1">
-                    View members
-                  </Text>
-                </View>
+                <Text className="font-bold text-gray-800 text-sm text-center">
+                  My Family
+                </Text>
+                <Text className="text-gray-500 text-xs mt-1 text-center">
+                  View members
+                </Text>
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity className="bg-indigo-50 rounded-xl p-4 w-[48%] border border-indigo-100">
-              <View className="flex-row items-center">
-                <View className="bg-indigo-100 p-2 rounded-full">
-                  <Ionicons name="git-network" size={20} color="#4338ca" />
+            <TouchableOpacity className="bg-white rounded-2xl p-5 w-[48%] shadow-sm border border-gray-100">
+              <View className="items-center mb-3">
+                <View className="bg-orange-100 p-3 rounded-full mb-2">
+                  <Ionicons name="git-network" size={24} color="#ff8c37" />
                 </View>
-                <View className="ml-3 flex-1">
-                  <Text className="font-bold text-gray-800 text-sm">
-                    Family Tree
-                  </Text>
-                  <Text className="text-gray-600 text-xs mt-1">
-                    View lineage
-                  </Text>
-                </View>
+                <Text className="font-bold text-gray-800 text-sm text-center">
+                  Family Tree
+                </Text>
+                <Text className="text-gray-500 text-xs mt-1 text-center">
+                  View lineage
+                </Text>
               </View>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Women-Led Businesses */}
-        <View className="px-5 pb-6">
-          <View className="flex-row justify-between items-center mb-4 px-1">
-            <Text className="text-xl font-bold text-gray-800">
+        <View className="mb-8">
+          <View className="flex-row justify-between items-center px-5 mb-4">
+            <Text className="text-lg font-bold text-gray-800">
               Women-Led Businesses 🏆
             </Text>
             <TouchableOpacity>
@@ -226,11 +259,11 @@ export default function Home() {
               </Text>
             </TouchableOpacity>
           </View>
+
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingRight: 20 }}
-            className="p-1"
+            contentContainerStyle={{ paddingLeft: 20, paddingRight: 20 }}
           >
             {[
               {
@@ -260,36 +293,42 @@ export default function Home() {
             ].map((business, index) => (
               <TouchableOpacity
                 key={index}
-                className="bg-white rounded-xl p-4 w-56 mr-3 shadow-sm border border-gray-100"
+                className="bg-white rounded-2xl mr-4 shadow-sm overflow-hidden w-64 border border-gray-100"
               >
-                <View className="flex-row items-center mb-3">
+                <View className="h-28 w-full">
                   <Image
                     source={{ uri: business.image }}
-                    className="w-10 h-10 rounded-full"
+                    className="w-full h-full"
+                    resizeMode="cover"
                   />
-                  <View className="ml-3">
-                    <Text className="font-bold text-sm">{business.name}</Text>
-                    <Text className="text-gray-500 text-xs">
-                      {business.category}
-                    </Text>
+                  <View className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-lg">
+                    <View className="flex-row items-center">
+                      <Ionicons name="star" size={12} color="#FFB800" />
+                      <Text className="ml-1 font-bold text-xs text-gray-800">
+                        {business.rating}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-                <View className="flex-row items-center">
-                  <Ionicons name="location-outline" size={14} color="#666" />
-                  <Text className="text-gray-600 text-xs ml-1">
-                    {business.location}
+
+                <View className="p-4">
+                  <Text className="font-bold text-gray-800">
+                    {business.name}
                   </Text>
-                </View>
-                <View className="flex-row items-center justify-between mt-3">
-                  <View className="flex-row items-center">
-                    <Ionicons name="star" size={14} color="#FFB800" />
-                    <Text className="ml-1 font-medium text-xs">
-                      {business.rating}
+                  <Text className="text-gray-500 text-xs mt-1">
+                    {business.category}
+                  </Text>
+
+                  <View className="flex-row items-center mt-2">
+                    <Ionicons name="location-outline" size={14} color="#666" />
+                    <Text className="text-gray-600 text-xs ml-1">
+                      {business.location}
                     </Text>
                   </View>
-                  <TouchableOpacity className="bg-orange-100 px-2 py-1 rounded-md">
-                    <Text className="text-orange-600 font-medium text-xs">
-                      Visit
+
+                  <TouchableOpacity className="mt-3 bg-orange-50 rounded-lg py-2">
+                    <Text className="text-orange-500 font-medium text-xs text-center">
+                      Visit Business
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -299,15 +338,22 @@ export default function Home() {
         </View>
 
         {/* Community Support */}
-        <View className="px-5 pb-6">
-          <Text className="text-xl font-bold text-gray-800 mb-4 p-1">
-            Community Support 💛
-          </Text>
+        <View className="mb-8">
+          <View className="flex-row justify-between items-center px-5 mb-4">
+            <Text className="text-lg font-bold text-gray-800">
+              Community Support 💛
+            </Text>
+            <TouchableOpacity>
+              <Text className="text-orange-500 text-sm font-medium">
+                View All
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingRight: 20 }}
-            className="p-1"
+            contentContainerStyle={{ paddingLeft: 20, paddingRight: 20 }}
           >
             {[
               {
@@ -345,66 +391,66 @@ export default function Home() {
             ].map((cause, index) => (
               <TouchableOpacity
                 key={index}
-                className="bg-white rounded-xl p-4 w-80 mr-3 shadow-sm border border-gray-100"
+                className="bg-white rounded-2xl overflow-hidden mr-4 shadow-sm w-80 border border-gray-100"
               >
-                <View className="relative">
-                  <Image
-                    source={{ uri: cause.image }}
-                    className="w-full h-32 rounded-lg mb-3"
-                    resizeMode="cover"
+                <Image
+                  source={{ uri: cause.image }}
+                  className="w-full h-40"
+                  resizeMode="cover"
+                />
+                <View className="absolute top-3 left-3 bg-white/90 p-2 rounded-lg">
+                  <MaterialCommunityIcons
+                    name={cause.icon as any}
+                    size={18}
+                    color="#ff8c37"
                   />
-                  <View className="absolute top-2 right-2 bg-rose-500/90 p-2 rounded-full">
-                    <MaterialCommunityIcons
-                      name={cause.icon as any}
-                      size={16}
-                      color="white"
+                </View>
+
+                <View className="p-4">
+                  <Text className="font-bold text-gray-800 text-base">
+                    {cause.title}
+                  </Text>
+                  <Text className="text-gray-500 text-xs mt-1 mb-3">
+                    {cause.description}
+                  </Text>
+
+                  <View className="h-2 bg-gray-100 rounded-full mb-2">
+                    <View
+                      className="h-2 rounded-full"
+                      style={{
+                        width: `${cause.progress}%`,
+                        backgroundColor: "#ff8c37",
+                      }}
                     />
                   </View>
+
+                  <View className="flex-row justify-between mb-4">
+                    <Text className="text-gray-500 text-xs">
+                      {cause.progress}% of {cause.goal}
+                    </Text>
+                    <Text className="text-orange-500 text-xs font-medium">
+                      {cause.raised} raised
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity
+                    className="py-3 rounded-xl"
+                    style={{ backgroundColor: "#ff8c37" }}
+                  >
+                    <Text className="text-white font-medium text-center text-sm">
+                      🙏 Donate Now
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-
-                <Text className="font-bold text-gray-800 text-sm mb-1">
-                  {cause.title}
-                </Text>
-                <Text className="text-gray-500 text-xs mb-3">
-                  {cause.description}
-                </Text>
-
-                <View className="h-1.5 bg-gray-200 rounded-full mb-1">
-                  <View
-                    className="h-1.5 rounded-full"
-                    style={{
-                      width: `${cause.progress}%`,
-                      backgroundColor: "#f43f5e", // rose-500
-                    }}
-                  />
-                </View>
-
-                <View className="flex-row justify-between mb-3">
-                  <Text className="text-gray-500 text-xs">
-                    {cause.progress}% of {cause.goal}
-                  </Text>
-                  <Text className="text-rose-600 text-xs font-medium">
-                    {cause.raised} raised
-                  </Text>
-                </View>
-
-                <TouchableOpacity
-                  className="py-2 rounded-lg mt-1"
-                  style={{ backgroundColor: "#fb923c" }} // amber-400
-                >
-                  <Text className="text-white font-medium text-center text-sm">
-                    🙏 Donate Now
-                  </Text>
-                </TouchableOpacity>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
 
-        {/* Enhanced Directory & Members Section */}
-        <View className="px-5 pb-8">
+        {/* Directory & Members Section - Redesigned as a grid */}
+        <View className="px-5 mb-8">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-xl font-bold text-gray-800">
+            <Text className="text-lg font-bold text-gray-800">
               Directory & Members 🏢
             </Text>
             <TouchableOpacity>
@@ -414,81 +460,70 @@ export default function Home() {
             </TouchableOpacity>
           </View>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingRight: 20 }}
-            className="pb-2"
-          >
+          <View className="flex-row flex-wrap justify-between">
             {[
               {
                 icon: "people",
-                color: "#3b82f6",
+                color: "#ff8c37",
                 title: "E-VastiPatrak",
                 description: "Member search",
-                image:
-                  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500",
               },
               {
                 icon: "medkit",
-                color: "#10b981",
+                color: "#ff8c37",
                 title: "Doctors",
                 description: "Healthcare",
-                image:
-                  "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=500",
               },
               {
                 icon: "business",
-                color: "#f59e0b",
+                color: "#ff8c37",
                 title: "Businesses",
                 description: "Local services",
-                image:
-                  "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500",
               },
               {
                 icon: "home",
-                color: "#8b5cf6",
+                color: "#ff8c37",
                 title: "Housing",
                 description: "Rentals & PG",
-                image:
-                  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500",
               },
             ].map((item, index) => (
               <TouchableOpacity
                 key={index}
-                className="bg-white rounded-xl p-4 w-36 mr-3 shadow-sm border border-gray-100 items-center"
+                className="bg-white rounded-2xl p-4 w-[48%] shadow-sm border border-gray-100 mb-3"
               >
-                <View
-                  className="p-4 rounded-full mb-3"
-                  style={{ backgroundColor: `${item.color}10` }}
-                >
-                  <Ionicons
-                    name={
-                      item.icon as React.ComponentProps<typeof Ionicons>["name"]
-                    }
-                    size={24}
-                    color={item.color}
-                  />
+                <View className="flex-row items-center mb-2">
+                  <View
+                    className="p-2 rounded-full mr-3"
+                    style={{ backgroundColor: `${item.color}15` }}
+                  >
+                    <Ionicons
+                      name={item.icon as any}
+                      size={20}
+                      color={item.color}
+                    />
+                  </View>
+                  <View>
+                    <Text className="font-bold text-gray-800 text-sm">
+                      {item.title}
+                    </Text>
+                    <Text className="text-gray-500 text-xs">
+                      {item.description}
+                    </Text>
+                  </View>
                 </View>
-                <Text className="font-bold text-gray-800 text-center text-sm">
-                  {item.title}
-                </Text>
-                <Text className="text-gray-500 text-xs mt-1 text-center">
-                  {item.description}
-                </Text>
-                <View className="w-full h-px bg-gray-100 my-3" />
-                <Text className="text-xs text-blue-500 font-medium">
+                <View className="w-full h-px bg-gray-100 mb-2" />
+                <Text className="text-xs text-orange-500 font-medium text-right">
                   View →
                 </Text>
               </TouchableOpacity>
             ))}
-          </ScrollView>
+          </View>
         </View>
 
-        {/* Stay Updated */}
-        <View className="px-5 pb-6">
-          <View className="flex-row justify-between items-center mb-4 px-1">
-            <Text className="text-xl font-bold text-gray-800">
+        {/* Stay Updated - News */}
+        <View className="mb-8">
+          <View className="flex-row justify-between items-center px-5 mb-4">
+            <Text className="text-lg font-bold text-gray-800">
               Stay Updated 📰
             </Text>
             <TouchableOpacity>
@@ -497,11 +532,11 @@ export default function Home() {
               </Text>
             </TouchableOpacity>
           </View>
+
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingRight: 20 }}
-            className="p-1"
+            contentContainerStyle={{ paddingLeft: 20, paddingRight: 20 }}
           >
             {[
               {
@@ -531,80 +566,42 @@ export default function Home() {
             ].map((news, index) => (
               <TouchableOpacity
                 key={index}
-                className="bg-white rounded-xl p-4 w-64 mr-3 shadow-sm border border-gray-100"
+                className="bg-white rounded-2xl mr-4 shadow-sm overflow-hidden w-72 border border-gray-100"
               >
                 <Image
                   source={{ uri: news.image }}
-                  className="w-full h-32 rounded-lg mb-3"
+                  className="w-full h-36"
                   resizeMode="cover"
                 />
-                <Text className="font-bold text-gray-800 text-sm mb-1">
-                  {news.title}
-                </Text>
-                <Text className="text-gray-500 text-xs mb-3">
-                  {news.description}
-                </Text>
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-gray-400 text-xs">{news.time}</Text>
-                  <TouchableOpacity className="flex-row items-center">
-                    <Text className="text-orange-500 text-xs font-medium mr-1">
-                      Read More
-                    </Text>
-                    <Ionicons
-                      name="chevron-forward"
-                      size={12}
-                      color="#f97316"
-                    />
-                  </TouchableOpacity>
+                <View className="p-4">
+                  <Text className="font-bold text-gray-800 text-base mb-1">
+                    {news.title}
+                  </Text>
+                  <Text className="text-gray-500 text-xs mb-3">
+                    {news.description}
+                  </Text>
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                      <Ionicons name="time-outline" size={12} color="#9ca3af" />
+                      <Text className="text-gray-400 text-xs ml-1">
+                        {news.time}
+                      </Text>
+                    </View>
+                    <TouchableOpacity className="flex-row items-center">
+                      <Text className="text-orange-500 text-xs font-medium mr-1">
+                        Read More
+                      </Text>
+                      <Ionicons
+                        name="chevron-forward"
+                        size={12}
+                        color="#ff8c37"
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
-
-        {/* Community Overview */}
-        <View
-          className="mx-5 mb-8 rounded-2xl p-6 overflow-hidden"
-          style={{
-            backgroundColor: "#ff8c37",
-            shadowColor: "#ff8c37",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-          }}
-        >
-          <View className="flex-row items-center mb-4">
-            <Text className="text-2xl font-bold text-white">
-              Community Overview
-            </Text>
-            <Text className="text-2xl ml-2">🌟</Text>
-          </View>
-
-          <View className="flex-row justify-between">
-            <View className="items-center bg-white/10 px-4 py-3 rounded-xl">
-              <Text className="text-3xl font-bold text-white mb-1">4,027</Text>
-              <View className="flex-row items-center">
-                <Text className="text-white text-sm mr-1">👥</Text>
-                <Text className="text-white text-sm">Total Members</Text>
-              </View>
-            </View>
-
-            <View className="items-center bg-white/10 px-4 py-3 rounded-xl">
-              <Text className="text-3xl font-bold text-white mb-1">2,069</Text>
-              <View className="flex-row items-center">
-                <Text className="text-white text-sm mr-1">👨</Text>
-                <Text className="text-white text-sm">Males</Text>
-              </View>
-            </View>
-
-            <View className="items-center bg-white/10 px-4 py-3 rounded-xl">
-              <Text className="text-3xl font-bold text-white mb-1">1,958</Text>
-              <View className="flex-row items-center">
-                <Text className="text-white text-sm mr-1">👩</Text>
-                <Text className="text-white text-sm">Females</Text>
-              </View>
-            </View>
-          </View>
         </View>
       </ScrollView>
     </View>
