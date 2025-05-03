@@ -156,13 +156,13 @@ export default function FamilyVerification() {
     }
   };
 
-    if (isLoading) {
-        return (
-            <View className="flex-1 justify-center items-center">
-                <ActivityIndicator size="large" color="#f97316" />
-            </View>
-        );
-    }
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#f97316" />
+      </View>
+    );
+  }
 
 
   return (
