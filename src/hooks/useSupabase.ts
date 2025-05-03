@@ -66,6 +66,29 @@ type UseQueryResult<T> = {
     loading: boolean;
 };
 
+interface FamilyMember {
+    id: string;
+    name: string;
+    profile_pic: string;
+    relationship: string;
+    occupation: string;
+}
+
+interface HeadOfFamily {
+    name: string;
+    profile_pic: string;
+    occupation: string;
+}
+
+interface FamilyData {
+    family_no: string;
+    family_cover_pic: string;
+    surname: string;
+    address: string;
+    head_of_family: HeadOfFamily;
+    familyMembers: FamilyMember[];
+}
+
 // Hooks for Profile-related queries
 export const useProfiles = () => {
     const [result, setResult] = useState<UseQueryResult<Profile[]>>({
@@ -137,6 +160,108 @@ export const useProfile = (id: number) => {
     }, [id]);
 
     return { ...result, refetch: fetchProfile };
+};
+
+export const useFamily = () => {
+    const [error, setError] = useState<string | null>(null);
+    const [result, setResult] = useState<FamilyData>({
+        family_no: '',
+        family_cover_pic: 'https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=1000',
+        surname: '',
+        address: '',
+        head_of_family: {
+            name: '',
+            profile_pic: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500',
+            occupation: ''
+        },
+        familyMembers: []
+    });
+
+    const fetchFamily = async (email: string | undefined) => {
+        if (!email) return;
+
+        try {
+            const { data: userData, error: userError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('email', email)
+                .single();
+
+            if (userError || !userData) {
+                throw userError || new Error('User not found');
+            }
+
+            const { data: familyData, error: familyError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('family_no', userData.family_no);
+
+            if (familyError || !familyData) {
+                throw familyError || new Error('Family data not found');
+            }
+
+            const headOfFamily = familyData.find(member => member.relationship?.toLowerCase() === 'self') || userData;
+            const address = [
+                userData.residential_address_line1,
+                userData.residential_address_city,
+                userData.residential_address_state
+            ].filter(Boolean).join(', ');
+
+            // Get the family cover image URL from Supabase storage
+            const coverImagePath = userData.family_cover_pic;
+            const { data: coverImageUrl } = await supabase
+                .storage
+                .from('family-cover-images')
+                .getPublicUrl(coverImagePath || '');
+
+            // Get profile picture URLs for head of family and all family members
+            const { data: headProfileUrl } = await supabase
+                .storage
+                .from('profile-pictures')
+                .getPublicUrl(headOfFamily.profile_pic || '');
+
+            // Transform family data to include public URLs for profile pictures
+            const transformedFamilyData = await Promise.all(familyData.map(async (member) => {
+                const { data: profileUrl } = await supabase
+                    .storage
+                    .from('profile-pictures')
+                    .getPublicUrl(member.profile_pic || '');
+                return {
+                    ...member,
+                    profile_pic: profileUrl?.publicUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'
+                };
+            }));
+
+            setResult({
+                family_no: userData.family_no,
+                family_cover_pic: coverImageUrl?.publicUrl || 'https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=1000',
+                surname: userData.surname,
+                address: address,
+                head_of_family: {
+                    name: headOfFamily.name,
+                    profile_pic: headProfileUrl?.publicUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500',
+                    occupation: headOfFamily.occupation || 'Not specified'
+                },
+                familyMembers: transformedFamilyData
+            });
+        } catch (error) {
+            setResult({
+                family_no: '',
+                family_cover_pic: '',
+                surname: '',
+                address: '',
+                head_of_family: null,
+                familyMembers: []
+            });
+            setError(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchFamily('');
+    }, []);
+
+    return { result, fetchFamily, error };
 };
 
 // Form submission hooks
