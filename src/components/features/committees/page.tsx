@@ -12,8 +12,10 @@ import {
   StatusBar,
   SafeAreaView,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useCommittees, useCommitteeImages } from "@/hooks/useSupabase";
 
 // Define types for our data structures
 type Member = {
@@ -24,8 +26,8 @@ type Member = {
   position?: string;
 };
 
-type Committee = {
-  id: string;
+type CommitteeWithMembers = {
+  id: number;
   name: string;
   image: string;
   totalMembers: number;
@@ -35,311 +37,89 @@ type Committee = {
 export default function Committees() {
   // State for modal visibility and selected committee
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(
-    null
-  );
+  const [selectedCommittee, setSelectedCommittee] =
+    useState<CommitteeWithMembers | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredCommittees, setFilteredCommittees] = useState<Committee[]>([]);
+  const [filteredCommittees, setFilteredCommittees] = useState<
+    CommitteeWithMembers[]
+  >([]);
+  const [processedCommittees, setProcessedCommittees] = useState<
+    CommitteeWithMembers[]
+  >([]);
 
-  // Mock data for committees
-  const committees: Committee[] = [
-    {
-      id: "1",
-      name: "Executive Committee",
-      image:
-        "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=300",
-      totalMembers: 8,
-      members: [
-        {
-          id: "1",
-          name: "Rajesh Kumar",
-          phone: "+91 9876543210",
-          image:
-            "https://images.unsplash.com/photo-1566492031773-4f4e44671857?q=80&w=100",
-          position: "President",
-        },
-        {
-          id: "2",
-          name: "Priya Sharma",
-          phone: "+91 9876543211",
-          image:
-            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100",
-          position: "Vice President",
-        },
-        {
-          id: "3",
-          name: "Amit Patel",
-          phone: "+91 9876543212",
-          image:
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100",
-          position: "Secretary",
-        },
-        {
-          id: "4",
-          name: "Neha Singh",
-          phone: "+91 9876543213",
-          image:
-            "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=100",
-          position: "Treasurer",
-        },
-        {
-          id: "5",
-          name: "Vikram Mehta",
-          phone: "+91 9876543214",
-          image:
-            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "6",
-          name: "Ananya Gupta",
-          phone: "+91 9876543215",
-          image:
-            "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "7",
-          name: "Rahul Verma",
-          phone: "+91 9876543216",
-          image:
-            "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "8",
-          name: "Meera Reddy",
-          phone: "+91 9876543217",
-          image:
-            "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100",
-          position: "Member",
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "Cultural Committee",
-      image:
-        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=300",
-      totalMembers: 6,
-      members: [
-        {
-          id: "9",
-          name: "Sanjay Joshi",
-          phone: "+91 9876543218",
-          image:
-            "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100",
-          position: "Head",
-        },
-        {
-          id: "10",
-          name: "Kavita Nair",
-          phone: "+91 9876543219",
-          image:
-            "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=100",
-          position: "Co-Head",
-        },
-        {
-          id: "11",
-          name: "Deepak Sharma",
-          phone: "+91 9876543220",
-          image:
-            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "12",
-          name: "Ritu Kapoor",
-          phone: "+91 9876543221",
-          image:
-            "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "13",
-          name: "Arjun Malhotra",
-          phone: "+91 9876543222",
-          image:
-            "https://images.unsplash.com/photo-1463453091185-61582044d556?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "14",
-          name: "Pooja Desai",
-          phone: "+91 9876543223",
-          image:
-            "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=100",
-          position: "Member",
-        },
-      ],
-    },
-    {
-      id: "3",
-      name: "Sports Committee",
-      image:
-        "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=300",
-      totalMembers: 5,
-      members: [
-        {
-          id: "15",
-          name: "Vikas Khanna",
-          phone: "+91 9876543224",
-          image:
-            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100",
-          position: "Head",
-        },
-        {
-          id: "16",
-          name: "Nisha Patel",
-          phone: "+91 9876543225",
-          image:
-            "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=100",
-          position: "Co-Head",
-        },
-        {
-          id: "17",
-          name: "Rohit Sharma",
-          phone: "+91 9876543226",
-          image:
-            "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "18",
-          name: "Anjali Desai",
-          phone: "+91 9876543227",
-          image:
-            "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "19",
-          name: "Karan Malhotra",
-          phone: "+91 9876543228",
-          image:
-            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100",
-          position: "Member",
-        },
-      ],
-    },
-    {
-      id: "4",
-      name: "Education Committee",
-      image:
-        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=300",
-      totalMembers: 7,
-      members: [
-        {
-          id: "20",
-          name: "Suresh Iyer",
-          phone: "+91 9876543229",
-          image:
-            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100",
-          position: "Head",
-        },
-        {
-          id: "21",
-          name: "Lakshmi Nair",
-          phone: "+91 9876543230",
-          image:
-            "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=100",
-          position: "Co-Head",
-        },
-        {
-          id: "22",
-          name: "Ramesh Kumar",
-          phone: "+91 9876543231",
-          image:
-            "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "23",
-          name: "Sunita Sharma",
-          phone: "+91 9876543232",
-          image:
-            "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "24",
-          name: "Prakash Jha",
-          phone: "+91 9876543233",
-          image:
-            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "25",
-          name: "Geeta Patel",
-          phone: "+91 9876543234",
-          image:
-            "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "26",
-          name: "Mohan Desai",
-          phone: "+91 9876543235",
-          image:
-            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100",
-          position: "Member",
-        },
-      ],
-    },
-    {
-      id: "5",
-      name: "Finance Committee",
-      image:
-        "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=300",
-      totalMembers: 4,
-      members: [
-        {
-          id: "27",
-          name: "Anil Kapoor",
-          phone: "+91 9876543236",
-          image:
-            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100",
-          position: "Head",
-        },
-        {
-          id: "28",
-          name: "Shobha Iyer",
-          phone: "+91 9876543237",
-          image:
-            "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=100",
-          position: "Co-Head",
-        },
-        {
-          id: "29",
-          name: "Vijay Mehta",
-          phone: "+91 9876543238",
-          image:
-            "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=100",
-          position: "Member",
-        },
-        {
-          id: "30",
-          name: "Radha Nair",
-          phone: "+91 9876543239",
-          image:
-            "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=100",
-          position: "Member",
-        },
-      ],
-    },
-  ];
+  // Fetch committees and committee images from Supabase
+  const {
+    data: committeesData,
+    loading: committeesLoading,
+    error: committeesError,
+  } = useCommittees();
+  const {
+    data: committeeImages,
+    loading: imagesLoading,
+    error: imagesError,
+  } = useCommitteeImages();
+
+  // Process the committee data and images
+  useEffect(() => {
+    if (committeesData && committeeImages) {
+      // Group committees by name to create member lists
+      const committeeGroups: Record<string, any[]> = {};
+
+      committeesData.forEach((committee) => {
+        if (!committeeGroups[committee.name]) {
+          committeeGroups[committee.name] = [];
+        }
+        committeeGroups[committee.name].push(committee);
+      });
+
+      // Create processed committees with members
+      const processed = Object.entries(committeeGroups).map(
+        ([name, members]) => {
+          // Find image URL for this committee
+          const imageFile = committeeImages.find(
+            (img) =>
+              img.name.toLowerCase().replace(/\.[^/.]+$/, "") ===
+              name.toLowerCase().trim()
+          );
+
+          // Create member objects
+          const membersList = members.map((member, index) => ({
+            id: `${member.id}`,
+            name: member.member_name,
+            phone: member.phone,
+            image:
+              "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg", // Default image
+            position: index === 0 ? "Head" : "Member", // Assign positions (you may want to adjust this logic)
+          }));
+
+          return {
+            id: members[0].id,
+            name: name,
+            image:
+              imageFile?.url ||
+              "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=300", // Default image if not found
+            totalMembers: members.length,
+            members: membersList,
+          };
+        }
+      );
+
+      setProcessedCommittees(processed);
+    }
+  }, [committeesData, committeeImages]);
 
   // Filter committees based on search query
   useEffect(() => {
-    const filtered = committees.filter((committee) =>
-      committee.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredCommittees(filtered);
-  }, [searchQuery]);
+    if (processedCommittees.length > 0) {
+      const filtered = processedCommittees.filter((committee) =>
+        committee.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredCommittees(filtered);
+    }
+  }, [searchQuery, processedCommittees]);
 
   // Handle opening the committee details modal
-  const handleCommitteePress = (committee: Committee) => {
+  const handleCommitteePress = (committee: CommitteeWithMembers) => {
     setSelectedCommittee(committee);
     setModalVisible(true);
   };
@@ -388,6 +168,39 @@ export default function Committees() {
     </View>
   );
 
+  // Show loading indicator while data is being fetched
+  if (committeesLoading || imagesLoading) {
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#F97316" />
+        <Text className="mt-4 text-orange-800">Loading committees...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  // Show error message if there's an error
+  if (committeesError || imagesError) {
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center p-4">
+        <Ionicons name="alert-circle-outline" size={48} color="#F97316" />
+        <Text className="mt-4 text-orange-800 text-center">
+          {committeesError?.message ||
+            imagesError?.message ||
+            "An error occurred while loading committees"}
+        </Text>
+        <TouchableOpacity
+          className="mt-4 bg-orange-600 py-2 px-4 rounded-lg"
+          onPress={() => {
+            if (committeesError) useCommittees().refetch();
+            if (imagesError) useCommitteeImages().refetch();
+          }}
+        >
+          <Text className="text-white font-medium">Try Again</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1">
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
@@ -421,30 +234,41 @@ export default function Committees() {
         contentContainerStyle={{ padding: 16 }}
         showsVerticalScrollIndicator={false}
       >
-        {filteredCommittees.map((committee) => (
-          <TouchableOpacity
-            key={committee.id}
-            className="bg-white rounded-xl overflow-hidden shadow-md mb-4"
-            onPress={() => handleCommitteePress(committee)}
-          >
-            <Image
-              source={{ uri: committee.image }}
-              className="w-full h-40 rounded-t-xl"
-              resizeMode="cover"
-            />
-            <View className="p-4">
-              <Text className="text-lg font-bold text-orange-800">
-                {committee.name}
-              </Text>
-              <View className="flex-row items-center mt-1">
-                <Ionicons name="people-outline" size={16} color="#D03801" />
-                <Text className="text-orange-600 ml-2">
-                  {committee.totalMembers} Members
+        {filteredCommittees.length > 0 ? (
+          filteredCommittees.map((committee) => (
+            <TouchableOpacity
+              key={committee.id}
+              className="bg-white rounded-xl overflow-hidden shadow-md mb-4"
+              onPress={() => handleCommitteePress(committee)}
+            >
+              <Image
+                source={{ uri: committee.image }}
+                className="w-full h-40 rounded-t-xl"
+                resizeMode="cover"
+              />
+              <View className="p-4">
+                <Text className="text-lg font-bold text-orange-800">
+                  {committee.name}
                 </Text>
+                <View className="flex-row items-center mt-1">
+                  <Ionicons name="people-outline" size={16} color="#D03801" />
+                  <Text className="text-orange-600 ml-2">
+                    {committee.totalMembers} Members
+                  </Text>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View className="flex-1 justify-center items-center py-20">
+            <Ionicons name="people-outline" size={48} color="#D03801" />
+            <Text className="mt-4 text-orange-800 text-center">
+              {searchQuery
+                ? "No committees match your search"
+                : "No committees found"}
+            </Text>
+          </View>
+        )}
       </ScrollView>
 
       {/* Members Modal */}

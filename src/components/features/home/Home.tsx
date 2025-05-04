@@ -9,7 +9,6 @@ import {
   StatusBar,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 
 export default function Home() {
   const userName = "Harshadbhai";
@@ -86,12 +85,14 @@ export default function Home() {
     <View className="flex-1 bg-gray-50">
       <StatusBar barStyle="light-content" />
 
-      {/* Header with gradient */}
-      <LinearGradient
-        colors={["#ff8c37", "#ff5f37"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+      {/* Header with solid color instead of gradient */}
+      <View
         className="pt-12 pb-6 px-5 rounded-b-3xl shadow-lg"
+        style={{
+          backgroundColor: "#ff8c37", // Using the first color from the gradient
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
+        }}
       >
         <View className="flex-row justify-between items-center mb-6">
           <View>
@@ -127,7 +128,7 @@ export default function Home() {
             <Text className="text-white text-xs mt-1">Females</Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
 
       <ScrollView
         className="flex-1 pt-6"
@@ -174,9 +175,18 @@ export default function Home() {
                     className="w-full h-full"
                     resizeMode="cover"
                   />
-                  <LinearGradient
-                    colors={["transparent", "rgba(0,0,0,0.8)"]}
-                    className="absolute inset-0 flex justify-end p-5"
+                  {/* Replace LinearGradient with View */}
+                  <View
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      justifyContent: "flex-end",
+                      padding: 20,
+                      backgroundColor: "rgba(0,0,0,0.5)", // Solid semi-transparent black instead of gradient
+                    }}
                   >
                     <Text className="text-white font-bold text-xl">
                       {event.title}
@@ -190,7 +200,7 @@ export default function Home() {
                         {event.time}
                       </Text>
                     </View>
-                  </LinearGradient>
+                  </View>
                 </View>
               </TouchableOpacity>
             ))}

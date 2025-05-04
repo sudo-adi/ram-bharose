@@ -1,4 +1,4 @@
-import MembersContent from "@/components/features/members/Members";
+import MembersContent from "@/components/features/members/page";
 import React from "react";
 
 export default function DirectoryPage() {

@@ -11,22 +11,23 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { supabase } from "@/lib/supabase";
-import { router } from "expo-router";
+import { useProfiles } from "@/hooks/useSupabase";
+import MemberDetailBottomSheet from "./MemberDetailBottomSheet";
 
 export default function MembersContent() {
   const [viewType, setViewType] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [showProfessionDropdown, setShowProfessionDropdown] = useState(false);
   const [professionFilter, setProfessionFilter] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
   const PAGE_SIZE = 10;
 
-  // Filters state
+  const { data: profilesData, loading, error, refetch } = useProfiles();
+
   const [activeFilters, setActiveFilters] = useState({
     gender: [],
     age: [],
@@ -50,33 +51,11 @@ export default function MembersContent() {
     },
   ];
 
-  // Fetch members from Supabase with pagination
-  const fetchMembers = async (reset = false) => {
-    try {
-      const currentPage = reset ? 1 : page;
-      setLoading(reset);
-      setLoadingMore(!reset);
-
-      const from = (currentPage - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
-      let query = supabase
-        .from("profiles")
-        .select("*")
-        .order("surname", { ascending: true })
-        .range(from, to);
-
-      const { data, error, count } = await query;
-
-      if (error) {
-        console.error("Error fetching members:", error);
-        return;
-      }
-
-      // Transform data for display
-      const transformedData = data.map((member) => ({
+  useEffect(() => {
+    if (profilesData) {
+      const transformedData = profilesData.map((member) => ({
         ...member,
-        id: member.id, // This is the UUID from Supabase
+        id: member.id,
         displayName: `${member.name} ${member.surname || ""}`.trim(),
         location: member.residential_address_city || "Unknown",
         displayImage:
@@ -88,40 +67,17 @@ export default function MembersContent() {
         email: member.email || "Not available",
         age: calculateAge(member.date_of_birth),
       }));
-
-      if (reset) {
-        setMembers(transformedData);
-      } else {
-        setMembers((prev) => [...prev, ...transformedData]);
-      }
-
-      setHasMore(data.length === PAGE_SIZE);
-      if (reset) setPage(2);
-      else setPage((prev) => prev + 1);
-    } catch (error) {
-      console.error("Unexpected error:", error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      setMembers(transformedData);
+      setHasMore(false);
     }
-  };
+  }, [profilesData]);
 
-  // Load more data when reaching end of list
-  const loadMore = () => {
-    if (!loadingMore && hasMore) {
-      fetchMembers();
-    }
-  };
-
-  // Initial load
   useEffect(() => {
-    fetchMembers(true);
+    refetch();
   }, []);
 
-  // Helper function to calculate age from date of birth
   const calculateAge = (dob) => {
     if (!dob) return "Unknown";
-
     const parts = dob.split("/");
     if (parts.length !== 3) return "Unknown";
 
@@ -167,14 +123,12 @@ export default function MembersContent() {
     return age.toString();
   };
 
-  // Handle phone call
   const handleCall = (phoneNumber) => {
     if (phoneNumber && phoneNumber !== "Not available") {
       Linking.openURL(`tel:${phoneNumber}`);
     }
   };
 
-  // Handle WhatsApp message
   const handleWhatsApp = (phoneNumber) => {
     if (phoneNumber && phoneNumber !== "Not available") {
       const formattedNumber = phoneNumber.replace(/\D/g, "");
@@ -182,9 +136,7 @@ export default function MembersContent() {
     }
   };
 
-  // Filter members based on active filters and search query
   const filteredMembers = members.filter((member) => {
-    // Filter by search query
     const matchesSearch =
       searchQuery === "" ||
       member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -193,12 +145,10 @@ export default function MembersContent() {
       (member.profession &&
         member.profession.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    // Check if any filters are active
     const hasActiveGenderFilters = activeFilters.gender.length > 0;
     const hasActiveAgeFilters = activeFilters.age.length > 0;
     const hasActiveProfessionFilter = activeFilters.profession !== "";
 
-    // If no filters are active, show all results that match search
     if (
       !hasActiveGenderFilters &&
       !hasActiveAgeFilters &&
@@ -207,11 +157,9 @@ export default function MembersContent() {
       return matchesSearch;
     }
 
-    // Check gender filter
     const matchesGender =
       !hasActiveGenderFilters || activeFilters.gender.includes(member.gender);
 
-    // Check age filter
     let matchesAge = !hasActiveAgeFilters;
     if (hasActiveAgeFilters) {
       const age = parseInt(member.age);
@@ -227,7 +175,6 @@ export default function MembersContent() {
       }
     }
 
-    // Check profession filter
     const matchesProfession =
       !hasActiveProfessionFilter ||
       (member.profession &&
@@ -238,10 +185,8 @@ export default function MembersContent() {
     return matchesSearch && matchesGender && matchesAge && matchesProfession;
   });
 
-  // Handle filter selection
   const handleFilterPress = (filter) => {
     if (filter.type === "reset") {
-      // Reset all filters
       setActiveFilters({
         gender: [],
         age: [],
@@ -249,9 +194,8 @@ export default function MembersContent() {
       });
       setProfessionFilter("");
       setShowProfessionDropdown(false);
-      fetchMembers(true);
+      refetch();
     } else if (filter.type === "gender") {
-      // Toggle gender filter
       setActiveFilters((prev) => {
         const newGenders = prev.gender.includes(filter.id)
           ? prev.gender.filter((g) => g !== filter.id)
@@ -259,7 +203,6 @@ export default function MembersContent() {
         return { ...prev, gender: newGenders };
       });
     } else if (filter.type === "age") {
-      // Toggle age filter
       setActiveFilters((prev) => {
         const newAges = prev.age.includes(filter.id)
           ? prev.age.filter((a) => a !== filter.id)
@@ -271,7 +214,6 @@ export default function MembersContent() {
     }
   };
 
-  // Check if a filter is active
   const isFilterActive = (filter) => {
     if (filter.type === "gender") {
       return activeFilters.gender.includes(filter.id);
@@ -287,17 +229,26 @@ export default function MembersContent() {
     return false;
   };
 
-  // Navigate to member detail screen
   const handleMemberPress = (member) => {
-    router.push({
-      pathname: "/member-detail",
-      params: { memberId: member.id },
-    });
+    // Find the original member data with all fields
+    const originalMember = profilesData.find((m) => m.id === member.id);
+    if (originalMember) {
+      setSelectedMember(originalMember);
+      setBottomSheetVisible(true);
+    }
+  };
+
+  const paginatedMembers = filteredMembers.slice(0, page * PAGE_SIZE);
+
+  const loadMore = () => {
+    if (paginatedMembers.length < filteredMembers.length) {
+      setPage(page + 1);
+    }
   };
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      key={`member-${item.id}`} // Updated key to ensure uniqueness
+      key={`member-${item.id}`}
       className={`bg-white rounded-2xl mb-4 overflow-hidden ${
         viewType === "grid" ? "w-[48%]" : "w-full"
       }`}
@@ -353,7 +304,7 @@ export default function MembersContent() {
         </View>
 
         {viewType === "grid" && (
-          <View className="flex-row justify-center mt-2 space-x-2">
+          <View className="flex-row justify-center mt-2 space-x-2 gap-2">
             <Text className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
               {item.age} years
             </Text>
@@ -386,7 +337,7 @@ export default function MembersContent() {
   );
 
   return (
-    <View className="flex-1 bg-gray-50 pt-20">
+    <View className="flex-1 bg-gray-50">
       {/* Search Bar */}
       <View className="px-4 pb-2">
         <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3">
@@ -396,11 +347,7 @@ export default function MembersContent() {
             className="flex-1 ml-2 text-base text-gray-800"
             placeholderTextColor="#666"
             value={searchQuery}
-            onChangeText={(text) => {
-              setSearchQuery(text);
-              // Reset to first page when search changes
-              fetchMembers(true);
-            }}
+            onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery("")}>
@@ -451,7 +398,6 @@ export default function MembersContent() {
           </View>
         </ScrollView>
 
-        {/* Profession filter input */}
         {showProfessionDropdown && (
           <View className="mt-2">
             <TextInput
@@ -510,9 +456,9 @@ export default function MembersContent() {
           </View>
         ) : (
           <FlatList
-            data={filteredMembers}
+            data={paginatedMembers}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id} // Use the UUID from Supabase
+            keyExtractor={(item) => item.id}
             numColumns={viewType === "grid" ? 2 : 1}
             columnWrapperStyle={
               viewType === "grid" ? { justifyContent: "space-between" } : null
@@ -522,7 +468,7 @@ export default function MembersContent() {
             onEndReached={loadMore}
             onEndReachedThreshold={0.5}
             ListFooterComponent={
-              loadingMore ? (
+              paginatedMembers.length < filteredMembers.length ? (
                 <View className="py-4">
                   <ActivityIndicator size="small" color="#f97316" />
                 </View>
@@ -537,6 +483,11 @@ export default function MembersContent() {
           />
         )}
       </View>
+      <MemberDetailBottomSheet
+        visible={bottomSheetVisible}
+        onClose={() => setBottomSheetVisible(false)}
+        member={selectedMember}
+      />
     </View>
   );
 }
