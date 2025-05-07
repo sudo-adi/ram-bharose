@@ -87,7 +87,7 @@ const MemberCard = ({ member, viewType, onPress }: MemberCardProps) => {
                         <Ionicons
                           name="call-outline"
                           size={16}
-                          color="#10b981"
+                          color="#3b82f6"
                         />
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -97,7 +97,7 @@ const MemberCard = ({ member, viewType, onPress }: MemberCardProps) => {
                         <Ionicons
                           name="logo-whatsapp"
                           size={16}
-                          color="#3b82f6"
+                          color="#10b981"
                         />
                       </TouchableOpacity>
                     </>
@@ -173,13 +173,13 @@ const MemberCard = ({ member, viewType, onPress }: MemberCardProps) => {
                     className="bg-green-100 p-2 rounded-full mr-2"
                     onPress={() => handleCall(member.phone)}
                   >
-                    <Ionicons name="call-outline" size={16} color="#10b981" />
+                    <Ionicons name="call-outline" size={16} color="#3b82f6" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="bg-blue-100 p-2 rounded-full mr-2"
                     onPress={() => handleWhatsApp(member.phone)}
                   >
-                    <Ionicons name="logo-whatsapp" size={16} color="#3b82f6" />
+                    <Ionicons name="logo-whatsapp" size={16} color="#10b981" />
                   </TouchableOpacity>
                 </>
               )}

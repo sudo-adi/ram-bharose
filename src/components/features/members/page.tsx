@@ -325,7 +325,7 @@ export default function MembersContent() {
                         <Ionicons
                           name="call-outline"
                           size={16}
-                          color="#10b981"
+                          color="#3b82f6"
                         />
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -335,7 +335,7 @@ export default function MembersContent() {
                         <Ionicons
                           name="logo-whatsapp"
                           size={16}
-                          color="#3b82f6"
+                          color="#10b981"
                         />
                       </TouchableOpacity>
                     </>

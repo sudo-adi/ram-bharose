@@ -7,6 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -16,6 +17,12 @@ import { updateProfileDetails, uploadCoverImage } from "@/hooks/useSupabase";
 import * as ImagePicker from "expo-image-picker";
 import { useState, useEffect } from "react";
 import React from "react";
+
+// Import components
+import ProfileHeader from "./sub-components/ProfileHeader";
+import ProfileTabs from "./sub-components/ProfileTabs";
+import PersonalInfoSection from "./sub-components/PersonalInfoSection";
+import FamilyMembersSection from "./sub-components/FamilyMembersSection";
 
 export default function ProfileContent() {
   const { signOut } = useAuth();
@@ -313,337 +320,41 @@ export default function ProfileContent() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      <View className="px-5 pt-4 pb-20">
-        {/* Profile Header */}
-        <View className="mb-8">
-          {/* Cover Image */}
-          <View className="relative h-40 mb-12">
-            <Image
-              source={{
-                uri:
-                  profileData.cover_pic ||
-                  "https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=1000",
-              }}
-              className="w-full h-full rounded-xl"
-              resizeMode="cover"
-            />
-            {/* <View className="absolute inset-0 bg-black/10 rounded-xl" /> */}
-            {isUploading ? (
-              <View className="absolute bottom-3 right-3 bg-black/50 px-3 py-2 rounded-lg flex-row items-center">
-                <ActivityIndicator size="small" color="white" />
-                <Text className="text-white text-sm ml-2">Uploading...</Text>
-              </View>
-            ) : (
-              <TouchableOpacity
-                className="absolute bottom-3 right-3 bg-black/30 px-3 py-2 rounded-lg flex-row items-center"
-                onPress={() => pickCoverImage("family-cover-images")}
-              >
-                <Ionicons name="camera-outline" size={18} color="white" />
-                <Text className="text-white text-sm ml-1">Edit Cover</Text>
-              </TouchableOpacity>
-            )}
+    <SafeAreaView className="flex-1 bg-white">
+      {/* Sticky Header */}
+      <View
+        className="bg-white shadow-none px-5 pt-4 z-10"
+        style={{ elevation: 4 }}
+      >
+        <ProfileHeader
+          profileData={profileData}
+          isEditing={isEditing}
+          isUploading={isUploading}
+          activeTab={activeTab}
+          setProfileData={setProfileData}
+          setIsEditing={setIsEditing}
+          pickCoverImage={pickCoverImage}
+        />
 
-            {/* Profile Image */}
-            <View className="absolute -bottom-10 left-5">
-              <View className="relative">
-                <Image
-                  source={{
-                    uri:
-                      profileData.profile_pic ||
-                      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500",
-                  }}
-                  className="w-24 h-24 rounded-full border-4 border-white"
-                />
-                <TouchableOpacity
-                  className="absolute bottom-0 right-0 bg-orange-500 p-2 rounded-full"
-                  style={{ elevation: 2 }}
-                  onPress={() => pickCoverImage("profile-pictures")}
-                >
-                  <Ionicons name="camera" size={16} color="white" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-
-          {/* Name and Edit Profile */}
-          <View className="ml-5">
-            {isEditing ? (
-              <TextInput
-                value={profileData.name}
-                onChangeText={(text) =>
-                  setProfileData({ ...profileData, name: text })
-                }
-                className="text-xl font-bold"
-              />
-            ) : (
-              <Text className="text-xl font-bold">{profileData.name}</Text>
-            )}
-            {activeTab === "personal" && !isEditing && (
-              <TouchableOpacity
-                onPress={() => setIsEditing(true)}
-                className="mt-1"
-              >
-                <Text className="text-orange-500 font-medium">
-                  Edit Profile
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        {/* Profile Tabs */}
-        <View className="mb-6">
-          <View className="flex-row border-b border-gray-100">
-            <TouchableOpacity
-              className={`flex-1 pb-3 ${activeTab === "personal" ? "border-b-2 border-orange-500" : ""
-                }`}
-              onPress={() => setActiveTab("personal")}
-            >
-              <Text
-                className={`text-center font-medium ${activeTab === "personal" ? "text-orange-500" : "text-gray-500"
-                  }`}
-              >
-                Personal Info
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className={`flex-1 pb-3 ${activeTab === "family" ? "border-b-2 border-orange-500" : ""
-                }`}
-              onPress={() => setActiveTab("family")}
-            >
-              <Text
-                className={`text-center font-medium ${activeTab === "family" ? "text-orange-500" : "text-gray-500"
-                  }`}
-              >
-                Family Members
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Conditional Rendering based on selected tab */}
-        {activeTab === "personal" ? (
-          <View className="mb-6">
-            <Text className="text-xl font-bold text-gray-800 mb-4">
-              Personal Information
-            </Text>
-
-            <View className="flex flex-col gap-2">
-              <View className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                <View className="flex-row items-center mb-2">
-                  <View className="bg-red-100 p-2 rounded-full">
-                    <Ionicons name="person-outline" size={20} color="#ef4444" />
-                  </View>
-                  <Text className="text-gray-400 text-sm ml-3">Name</Text>
-                </View>
-                <View className="flex-row items-center justify-between">
-                  {isEditing ? (
-                    <TextInput
-                      value={profileData.name}
-                      onChangeText={(text) =>
-                        setProfileData({ ...profileData, name: text })
-                      }
-                      className="flex-1 text-gray-800 text-base"
-                    />
-                  ) : (
-                    <Text className="text-gray-800 text-base">
-                      {profileData.name}
-                    </Text>
-                  )}
-                  <TouchableOpacity onPress={() => setIsEditing(true)}>
-                    <Ionicons name="pencil" size={18} color="#ff7e54" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                <View className="flex-row items-center mb-2">
-                  <View className="bg-blue-100 p-2 rounded-full">
-                    <Ionicons name="call-outline" size={20} color="#3b82f6" />
-                  </View>
-                  <Text className="text-gray-400 text-sm ml-3">Phone</Text>
-                </View>
-                <View className="flex-row items-center justify-between">
-                  {isEditing ? (
-                    <TextInput
-                      value={profileData.phone}
-                      onChangeText={(text) =>
-                        setProfileData({ ...profileData, phone: text })
-                      }
-                      className="flex-1 text-gray-800 text-base"
-                    />
-                  ) : (
-                    <Text className="text-gray-800 text-base">
-                      {profileData.phone}
-                    </Text>
-                  )}
-                  <TouchableOpacity onPress={() => setIsEditing(true)}>
-                    <Ionicons name="pencil" size={18} color="#ff7e54" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                <View className="flex-row items-center mb-2">
-                  <View className="bg-green-100 p-2 rounded-full">
-                    <Ionicons
-                      name="location-outline"
-                      size={20}
-                      color="#10b981"
-                    />
-                  </View>
-                  <Text className="text-gray-400 text-sm ml-3">Address</Text>
-                </View>
-                <View className="flex-row items-center justify-between">
-                  {isEditing ? (
-                    <TextInput
-                      value={profileData.address}
-                      onChangeText={(text) =>
-                        setProfileData({ ...profileData, address: text })
-                      }
-                      className="flex-1 text-gray-800 text-base"
-                    />
-                  ) : (
-                    <Text className="text-gray-800 text-base">
-                      {profileData.address}
-                    </Text>
-                  )}
-                  <TouchableOpacity onPress={() => setIsEditing(true)}>
-                    <Ionicons name="pencil" size={18} color="#ff7e54" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                <View className="flex-row items-center mb-2">
-                  <View className="bg-purple-100 p-2 rounded-full">
-                    <Ionicons
-                      name="calendar-outline"
-                      size={20}
-                      color="#8b5cf6"
-                    />
-                  </View>
-                  <Text className="text-gray-400 text-sm ml-3">
-                    Date of Birth
-                  </Text>
-                </View>
-                <View className="flex-row items-center justify-between">
-                  {isEditing ? (
-                    <TextInput
-                      value={profileData.dateOfBirth}
-                      onChangeText={(text) =>
-                        setProfileData({ ...profileData, dateOfBirth: text })
-                      }
-                      className="flex-1 text-gray-800 text-base"
-                    />
-                  ) : (
-                    <Text className="text-gray-800 text-base">
-                      {profileData.dateOfBirth
-                        ? new Date(profileData.dateOfBirth).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )
-                        : "Not set"}
-                    </Text>
-                  )}
-                  <TouchableOpacity onPress={() => setIsEditing(true)}>
-                    <Ionicons name="pencil" size={18} color="#ff7e54" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                <View className="flex-row items-center mb-2">
-                  <View className="bg-orange-100 p-2 rounded-full">
-                    <Ionicons name="mail-outline" size={20} color="#f97316" />
-                  </View>
-                  <Text className="text-gray-400 text-sm ml-3">Email</Text>
-                </View>
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-gray-800 text-base">
-                    {profileData.email}
-                  </Text>
-                  {/* No edit button for email */}
-                </View>
-              </View>
-            </View>
-
-            {/* Add Save/Cancel buttons when in edit mode */}
-            {isEditing && (
-              <View className="flex-row justify-between mt-4">
-                <TouchableOpacity
-                  className="bg-gray-300 py-2 px-4 rounded-lg"
-                  onPress={() => setIsEditing(false)}
-                >
-                  <Text className="text-gray-700 font-medium">Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  className="bg-orange-500 py-2 px-4 rounded-lg"
-                  onPress={handleEditProfile}
-                >
-                  <Text className="text-white font-medium">Save Changes</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        ) : (
-          // Family Members tab content remains unchanged
-          <View className="mb-6">
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-xl font-bold text-gray-800">
-                Family Members
-              </Text>
-              <TouchableOpacity>
-                <Text className="text-orange-500 font-medium">Add New</Text>
-              </TouchableOpacity>
-            </View>
-
-            {familyMembers.map((member) => (
-              <View
-                key={member.id}
-                className="flex-row items-center justify-between bg-white rounded-xl p-3 mb-3 border border-gray-100"
-              >
-                <View className="flex-row items-center flex-1">
-                  <Image
-                    source={{ uri: member.image }}
-                    className="w-12 h-12 rounded-full"
-                  />
-                  <View className="ml-3 flex-1">
-                    <Text className="font-semibold text-gray-800">
-                      {member.name}
-                    </Text>
-                    <Text className="text-gray-500 text-sm">
-                      {member.relationship} • {member.age}
-                    </Text>
-                    <Text className="text-gray-400 text-xs">
-                      {member.gender}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Logout Button */}
-        {isLoggingOut ? (
-          <View className="flex-row justify-center items-center">
-            <ActivityIndicator size="large" color="#f97316" />
-          </View>
-        ) : (
-          <TouchableOpacity
-            className="bg-red-500 py-3.5 rounded-xl items-center"
-            onPress={handleLogout}
-          >
-            <Text className="text-white font-medium">Logout</Text>
-          </TouchableOpacity>
-        )}
+        <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </View>
-    </ScrollView>
+
+      {/* Scrollable Content */}
+      <ScrollView className="flex-1 bg-white px-5">
+        {activeTab === "personal" ? (
+          <PersonalInfoSection
+            profileData={profileData}
+            isEditing={isEditing}
+            isLoggingOut={isLoggingOut}
+            setIsEditing={setIsEditing}
+            setProfileData={setProfileData}
+            handleEditProfile={handleEditProfile}
+            handleLogout={handleLogout}
+          />
+        ) : (
+          <FamilyMembersSection familyMembers={familyMembers} />
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
