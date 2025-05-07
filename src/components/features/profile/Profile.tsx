@@ -1,22 +1,18 @@
 import {
   View,
   Text,
-  TouchableOpacity,
-  TextInput,
-  Image,
   ScrollView,
   ActivityIndicator,
   Alert,
   SafeAreaView,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useAuth, useUser } from "@clerk/clerk-expo";
 import { supabase } from "@/lib/supabase";
 import { updateProfileDetails, uploadCoverImage } from "@/hooks/useSupabase";
 import * as ImagePicker from "expo-image-picker";
 import { useState, useEffect } from "react";
 import React from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Import components
 import ProfileHeader from "./sub-components/ProfileHeader";
@@ -25,8 +21,6 @@ import PersonalInfoSection from "./sub-components/PersonalInfoSection";
 import FamilyMembersSection from "./sub-components/FamilyMembersSection";
 
 export default function ProfileContent() {
-  const { signOut } = useAuth();
-  const { user } = useUser();
   const [activeTab, setActiveTab] = useState("personal");
   const [isEditing, setIsEditing] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -39,19 +33,22 @@ export default function ProfileContent() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const userEmail = user?.emailAddresses[0]?.emailAddress;
-        if (!userEmail) return;
+        const userPhone = await AsyncStorage.getItem('userPhone');
+        if (!userPhone) {
+          router.replace('/(auth)/login');
+          return;
+        }
 
         const { data: profile, error } = await supabase
           .from("profiles")
           .select("*")
-          .eq("email", userEmail)
+          .eq("mobile_no1", userPhone)
           .single();
 
         if (error) throw error;
 
         if (profile) {
-          setUserId(profile.id); // Store user ID for later use
+          setUserId(profile.id);
 
           // Fetch cover image URL from Supabase storage
           let coverPicUrl =
@@ -95,11 +92,7 @@ export default function ProfileContent() {
             cover_pic: coverPicUrl,
           });
 
-          // Fetch family members based on email domain
-          const emailParts = userEmail.split('@');
-          const emailDomain = emailParts[1];
-
-          // Fetch family members based on family_no instead of email domain
+          // Fetch family members based on family_no
           const { data: members, error: membersError } = await supabase
             .from("profiles")
             .select("*")
@@ -114,9 +107,7 @@ export default function ProfileContent() {
               relation: member.relationship,
               age: calculateAge(member.date_of_birth),
               gender: member.gender,
-              image:
-                (member.profile_pic ? supabase.storage.from("profile-pictures").getPublicUrl(member.profile_pic).data?.publicUrl : null) ||
-                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
+              image: (member.profile_pic ? supabase.storage.from("profile-pictures").getPublicUrl(member.profile_pic).data?.publicUrl : null) || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
             }))
           );
         }
@@ -156,7 +147,7 @@ export default function ProfileContent() {
     };
 
     fetchProfileData();
-  }, [user]);
+  }, []);
 
   // Add image picker function
   const pickCoverImage = async (bucket: string) => {
@@ -237,8 +228,8 @@ export default function ProfileContent() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await signOut();
-      router.replace("/login");
+      await AsyncStorage.removeItem('userPhone');
+      router.replace("/(auth)/login");
     } catch (error) {
       console.error("Error signing out:", error);
       alert("Failed to sign out. Please try again.");
@@ -248,36 +239,20 @@ export default function ProfileContent() {
   };
 
   const handleEditProfile = async () => {
-    const userEmail = user?.emailAddresses[0]?.emailAddress;
-    if (!userEmail) return;
-
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", userEmail)
-      .single();
-
-    if (error) throw error;
-
-    const userId = profile?.id;
     if (!userId) return;
 
     try {
-      // Handle address splitting logic
       const addressParts = profileData.address.split(",");
       let addressLine1 = "";
       let addressCity = "";
       let addressState = "";
 
       if (addressParts.length === 1) {
-        // If only one part, treat it as state
         addressState = addressParts[0];
       } else if (addressParts.length === 2) {
-        // If two parts, treat as city and state
         addressCity = addressParts[0];
         addressState = addressParts[1];
       } else if (addressParts.length >= 3) {
-        // If three or more parts, use first three as line1, city, state
         addressLine1 = addressParts[0];
         addressCity = addressParts[1];
         addressState = addressParts[2];
@@ -296,7 +271,7 @@ export default function ProfileContent() {
       if (!success) throw error;
 
       alert("Profile updated successfully");
-      setIsEditing(false); // Exit edit mode after successful update
+      setIsEditing(false);
     } catch (error) {
       console.error("Error updating profile:", error);
       alert("Failed to update profile. Please try again.");

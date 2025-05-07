@@ -1,8 +1,8 @@
 import { View, ScrollView, StatusBar, Linking, Dimensions } from "react-native";
 import { useBirthdays, useNews } from "@/hooks/useSupabase";
-import { useUser } from "@clerk/clerk-expo";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Import sub-components
 import Header from "./sub-components/Header";
@@ -20,9 +20,7 @@ import React from "react";
 export default function Home() {
   const router = useRouter();
   const [userName, setUserName] = useState("");
-  const { user } = useUser();
-  const { data: todayBirthdays, loading: birthdaysLoading } =
-    useBirthdays("today");
+  const { data: todayBirthdays, loading: birthdaysLoading } = useBirthdays("today");
   const { data: newsData, loading: newsLoading } = useNews();
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [wishModalVisible, setWishModalVisible] = useState(false);
@@ -34,13 +32,16 @@ export default function Home() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const userEmail = user?.emailAddresses[0]?.emailAddress;
-        if (!userEmail) return;
+        const userPhone = await AsyncStorage.getItem('userPhone');
+        if (!userPhone) {
+          router.replace('/(auth)/login');
+          return;
+        }
 
         const { data: profile, error } = await supabase
           .from("profiles")
           .select("name")
-          .eq("email", userEmail)
+          .eq("mobile_no1", userPhone)
           .single();
 
         if (error) throw error;
@@ -54,11 +55,7 @@ export default function Home() {
     };
 
     fetchUserProfile();
-  }, [user]);
-
-  // Event data
-  // Remove the hardcoded events array
-  // const events = [ ... ];
+  }, []);
 
   // Get greeting based on time of day
   const getGreeting = () => {

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useUser } from "@clerk/clerk-expo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 import {
   View,
@@ -39,8 +40,8 @@ export default function ApplicationForm() {
         </TouchableOpacity>
         <TouchableOpacity
           className={`flex-1 items-center py-3 border-b-2 ${activeTab === "donation"
-              ? "border-orange-500"
-              : "border-transparent"
+            ? "border-orange-500"
+            : "border-transparent"
             }`}
           onPress={() => setActiveTab("donation")}
         >
@@ -108,7 +109,6 @@ function ImageUploadCard({ onImageSelect, selectedImage }) {
 }
 
 function EventForm() {
-  const { user } = useUser();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -146,34 +146,45 @@ function EventForm() {
       Alert.alert("Validation Error", "Please fill in all required fields");
       return;
     }
-    const userEmail = user?.primaryEmailAddress?.emailAddress;
-    const userId = await getUserIdByEmail(userEmail);
 
-    const success = await submitEvent({
-      userId,
-      name: formData.name,
-      description: formData.description,
-      startTime: formData.startTime,
-      duration: formData.duration,
-      organizers: formData.organizers.split(",").map((org) => org.trim()),
-      image: formData.image,
-    });
+    try {
+      const userPhone = await AsyncStorage.getItem('userPhone');
+      const userId = await getUserIdByPhone(userPhone);
 
-    if (success) {
-      Alert.alert("Success", "Event submitted successfully");
-      setFormData({
-        name: "",
-        description: "",
-        startTime: "",
-        duration: "",
-        organizers: "",
-        image: null,
+      if (!userId) {
+        Alert.alert("Error", "User not found. Please login again.");
+        return;
+      }
+
+      const success = await submitEvent({
+        userId,
+        name: formData.name,
+        description: formData.description,
+        startTime: formData.startTime,
+        duration: formData.duration,
+        organizers: formData.organizers.split(",").map((org) => org.trim()),
+        image: formData.image,
       });
-    } else {
-      Alert.alert(
-        "Error",
-        submitError || "Failed to submit event. Please try again."
-      );
+
+      if (success) {
+        Alert.alert("Success", "Event submitted successfully");
+        setFormData({
+          name: "",
+          description: "",
+          startTime: "",
+          duration: "",
+          organizers: "",
+          image: null,
+        });
+      } else {
+        Alert.alert(
+          "Error",
+          submitError || "Failed to submit event. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error submitting event:", error);
+      Alert.alert("Error", "Failed to submit event. Please try again.");
     }
   };
 
@@ -249,30 +260,19 @@ function EventForm() {
   );
 }
 
-const getUserIdByEmail = async (email: string | undefined) => {
-  if (!email) return null;
+const getUserIdByPhone = async (phone: string | null) => {
+  if (!phone) return null;
 
   try {
     const { data, error } = await supabase
       .from('profiles')
       .select('id')
-      .eq('email', email)
+      .eq('mobile_no1', phone)
       .single();
 
     if (error) {
-      // If user doesn't exist, create a new profile
-      if (error.code === 'PGRST116') {
-        const { data: newProfile, error: insertError } = await supabase
-          .from('profiles')
-          .insert({ email: email })
-          .select('id')
-          .single();
-
-        if (insertError) throw insertError;
-        return newProfile.id;
-      } else {
-        throw error;
-      }
+      console.error('Error getting user ID:', error);
+      return null;
     }
     return data.id;
   } catch (error) {
@@ -282,7 +282,6 @@ const getUserIdByEmail = async (email: string | undefined) => {
 };
 
 function DonationForm() {
-  const { user } = useUser();
   const [formData, setFormData] = useState({
     amount: "",
     description: "",
@@ -319,32 +318,42 @@ function DonationForm() {
       return;
     }
 
-    const userEmail = user?.primaryEmailAddress?.emailAddress;
-    const userId = await getUserIdByEmail(userEmail);
+    try {
+      const userPhone = await AsyncStorage.getItem('userPhone');
+      const userId = await getUserIdByPhone(userPhone);
 
-    const success = await submitDonation({
-      userId,
-      amount: Number(formData.amount),
-      description: formData.description,
-      cause: formData.cause,
-      openTill: formData.openTill,
-      image: formData.image,
-    });
+      if (!userId) {
+        Alert.alert("Error", "User not found. Please login again.");
+        return;
+      }
 
-    if (success) {
-      Alert.alert("Success", "Donation request submitted successfully");
-      setFormData({
-        amount: "",
-        description: "",
-        cause: "",
-        openTill: "",
-        image: null,
+      const success = await submitDonation({
+        userId,
+        amount: Number(formData.amount),
+        description: formData.description,
+        cause: formData.cause,
+        openTill: formData.openTill,
+        image: formData.image,
       });
-    } else {
-      Alert.alert(
-        "Error",
-        submitError || "Failed to submit donation request. Please try again."
-      );
+
+      if (success) {
+        Alert.alert("Success", "Donation request submitted successfully");
+        setFormData({
+          amount: "",
+          description: "",
+          cause: "",
+          openTill: "",
+          image: null,
+        });
+      } else {
+        Alert.alert(
+          "Error",
+          submitError || "Failed to submit donation request. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error submitting donation:", error);
+      Alert.alert("Error", "Failed to submit donation request. Please try again.");
     }
   };
 

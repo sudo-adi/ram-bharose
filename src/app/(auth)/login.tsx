@@ -1,112 +1,87 @@
+import React, { useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Platform,
-  Alert,
+  Alert
 } from "react-native";
-import { useOAuth } from "@clerk/clerk-expo";
-import { useRouter } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
-import { useEffect, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-
-// Warm up browser hook
-export const useWarmUpBrowser = () => {
-  useEffect(() => {
-    void WebBrowser.warmUpAsync();
-    return () => {
-      void WebBrowser.coolDownAsync();
-    };
-  }, []);
-};
+import { router } from "expo-router";
+import { supabase } from "@/lib/supabase";
+import { TextInput } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
-  useWarmUpBrowser();
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [phone, setPhone] = useState("");
+  const [day, setDay] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
 
-  // Use useOAuth with proper configuration
-  const { startOAuthFlow } = useOAuth({
-    strategy: "oauth_google",
+  // Generate arrays for dropdown options
+  const days = Array.from({ length: 31 }, (_, i) => {
+    const day = i + 1;
+    return day < 10 ? `0${day}` : day.toString();
   });
+  const months = [
+    { label: "January", value: "01" },
+    { label: "February", value: "02" },
+    { label: "March", value: "03" },
+    { label: "April", value: "04" },
+    { label: "May", value: "05" },
+    { label: "June", value: "06" },
+    { label: "July", value: "07" },
+    { label: "August", value: "08" },
+    { label: "September", value: "09" },
+    { label: "October", value: "10" },
+    { label: "November", value: "11" },
+    { label: "December", value: "12" }
+  ];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => (currentYear - i).toString());
 
   const onPress = async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      console.log("Starting OAuth flow for Google authentication...");
-
-      // Clear any existing browser sessions that might interfere
-      await WebBrowser.dismissBrowser();
-
-      // Start the OAuth flow with explicit configuration
-      const { createdSessionId, setActive, signIn, signUp } =
-        await startOAuthFlow({
-          // Explicitly define the redirect URL to match app.json scheme config
-          redirectUrl: Platform.select({
-            native: "kms://oauth-native-callback",
-          }),
-          // Remove browserOptions as it's not supported in the current version
-        });
-
-      console.log("OAuth flow completed. Session created:", !!createdSessionId);
-
-      if (createdSessionId) {
-        console.log("Setting session active and navigating...");
-        // Set session as active
-        if (setActive) {
-          await setActive({ session: createdSessionId });
-        }
-
-        // Redirect to family verification instead of tabs
-        // The AuthenticationWrapper will handle further redirection if already verified
-        setTimeout(
-          () => {
-            router.replace("/(auth)/family-verification");
-          },
-          Platform.OS === "android" ? 500 : 100
-        );
-      } else if (signIn || signUp) {
-        console.log("Need to complete the sign in/up flow");
-        try {
-          if (signIn) {
-            const result = await signIn.create({});
-            await setActive?.({ session: result.createdSessionId });
-            router.replace("/(auth)/family-verification");
-          } else if (signUp) {
-            const result = await signUp.create({});
-            await setActive?.({ session: result.createdSessionId });
-            router.replace("/(auth)/family-verification");
-          }
-        } catch (authError) {
-          console.error("Authentication completion error:", authError);
-          setError("Failed to complete authentication. Please try again.");
-          Alert.alert(
-            "Authentication Error",
-            "We couldn't complete the sign-in process. Please try again."
-          );
-        }
-      } else {
-        console.error("No session or sign-in/up flow created");
-        setError("Failed to authenticate. Please try again.");
-        Alert.alert(
-          "Sign-in Failed",
-          "We couldn't authenticate with Google. Please try again later."
-        );
+      if (!phone || !day || !month || !year) {
+        Alert.alert("Error", "Please fill in all fields");
+        return;
       }
+
+      // Format date as YYYY-MM-DD
+      const formattedDate = `${year}-${month}-${day}`;
+      console.log(formattedDate);
+
+      // Check if user exists in profiles
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("mobile_no1", phone)
+        .eq("date_of_birth", formattedDate)
+        .single();
+
+      if (error) {
+        Alert.alert("Error", "Invalid credentials");
+        return;
+      }
+
+      if (profile) {
+        // Store the phone number in AsyncStorage before redirecting
+        await AsyncStorage.setItem('userPhone', phone);
+        router.replace("/(tabs)");
+      } else {
+        Alert.alert("Error", "User not found");
+      }
+
     } catch (err) {
-      console.error("OAuth error:", err);
-      setError("Failed to sign in with Google. Please try again.");
-      Alert.alert(
-        "Sign-in Error",
-        "There was a problem connecting to Google. Please try again."
-      );
+      console.error("Login error:", err);
+      setError("Failed to login. Please try again.");
+      Alert.alert("Login Error", "There was a problem logging in. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -128,35 +103,71 @@ export default function Login() {
         </Text>
       </View>
 
+      <View className="gap-10">
+        <TextInput
+          className="bg-gray-100 p-4"
+          placeholder="Phone Number"
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
+        />
+
+        <View className="flex-row space-x-2">
+          <View className="flex-1">
+            <Picker
+              selectedValue={day}
+              onValueChange={setDay}
+              style={{ backgroundColor: '#f3f4f6', borderRadius: 12 }}>
+              <Picker.Item label="Day" value="" />
+              {days.map(d => (
+                <Picker.Item key={d} label={d} value={d} />
+              ))}
+            </Picker>
+          </View>
+
+          <View className="flex-1">
+            <Picker
+              selectedValue={month}
+              onValueChange={setMonth}
+              style={{ backgroundColor: '#f3f4f6', borderRadius: 12 }}>
+              <Picker.Item label="Month" value="" />
+              {months.map(m => (
+                <Picker.Item key={m.value} label={m.label} value={m.value} />
+              ))}
+            </Picker>
+          </View>
+
+          <View className="flex-1">
+            <Picker
+              selectedValue={year}
+              onValueChange={setYear}
+              style={{ backgroundColor: '#f3f4f6', borderRadius: 12 }}>
+              <Picker.Item label="Year" value="" />
+              {years.map(y => (
+                <Picker.Item key={y} label={y} value={y} />
+              ))}
+            </Picker>
+          </View>
+        </View>
+      </View>
+
       {isLoading ? (
-        <View className="flex-row justify-center items-center">
+        <View className="flex-row justify-center items-center mt-6">
           <ActivityIndicator size="large" color="#f97316" />
         </View>
       ) : (
-        <>
-          <TouchableOpacity
-            onPress={onPress}
-            className="bg-orange-500 py-4 rounded-xl flex-row justify-center items-center"
-          >
-            <Ionicons
-              name="logo-google"
-              size={20}
-              color="white"
-              style={{ marginRight: 8 }}
-            />
-            <Text className="text-white font-semibold text-lg">
-              Continue with Google
-            </Text>
-          </TouchableOpacity>
-
-          {error && (
-            <Text className="text-red-500 text-center mt-4">{error}</Text>
-          )}
-
-          <Text className="text-gray-500 text-center text-xs mt-4">
-            By continuing, you agree to our Terms of Service and Privacy Policy
+        <TouchableOpacity
+          onPress={onPress}
+          className="bg-orange-500 py-4 rounded-xl flex-row justify-center items-center mt-6"
+        >
+          <Text className="text-white font-semibold text-lg">
+            Login
           </Text>
-        </>
+        </TouchableOpacity>
+      )}
+
+      {error && (
+        <Text className="text-red-500 text-center mt-4">{error}</Text>
       )}
     </View>
   );

@@ -1,25 +1,12 @@
-import {
-  ClerkProvider,
-  ClerkLoaded,
-  useAuth,
-  useUser,
-} from "@clerk/clerk-expo";
 import { Stack, useRouter, usePathname } from "expo-router";
 import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import SplashScreen from "@/components/ui/common/SplashScreen";
-import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import React from "react";
-import { supabase } from "@/lib/supabase";
-import { Platform } from "react-native";
-import * as WebBrowser from "expo-web-browser";
-
-// This is critical - must be called at root level
-WebBrowser.maybeCompleteAuthSession();
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function RootLayout() {
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -38,81 +25,34 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider
-      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      tokenCache={tokenCache}
-      // Use signInFallbackRedirectUrl instead of fallbackRedirectUrl
-      signInFallbackRedirectUrl={Platform.select({
-        native: "kms://oauth-native-callback",
-        default: "https://master-reptile-14.clerk.accounts.dev/oauth-callback",
-      })}
-    >
-      <ClerkLoaded>
-        <SafeAreaProvider>
-          <AuthenticationWrapper />
-        </SafeAreaProvider>
-      </ClerkLoaded>
-    </ClerkProvider>
+    <SafeAreaProvider>
+      <AuthenticationWrapper />
+    </SafeAreaProvider>
   );
 }
 
 function AuthenticationWrapper() {
-  const { isLoaded, isSignedIn } = useAuth();
-  const { user } = useUser();
   const pathName = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    // Handle authentication state and routing
-    const handleAuthState = async () => {
-      if (!isLoaded) return;
+    const checkAuth = async () => {
+      const userPhone = await AsyncStorage.getItem('userPhone');
 
-      // For debugging
-      console.log("Auth state:", { isSignedIn, pathName });
-
-      // Handle unauthenticated state
-      if (!isSignedIn) {
+      if (!userPhone) {
         if (!pathName.includes("/(auth)")) {
           router.replace("/(auth)/login");
         }
         return;
       }
 
-      // Check if user has completed family verification
-      if (isSignedIn && user) {
-        try {
-          const { data: familyMember, error } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("email", user.emailAddresses[0]?.emailAddress)
-            .single();
-
-          console.log("Family member check:", familyMember, error);
-
-          if (!familyMember && !pathName.includes("family-verification")) {
-            router.replace("/(auth)/family-verification");
-            return;
-          }
-
-          // If user is verified and on an auth page, redirect to tabs
-          if (familyMember && pathName.includes("/(auth)")) {
-            router.replace("/(tabs)");
-            return;
-          }
-
-          // NEW CODE: If user is verified and on the root path, redirect to tabs
-          if (familyMember && pathName === "/") {
-            router.replace("/(tabs)");
-            return;
-          }
-        } catch (err) {
-          console.error("Error checking family verification:", err);
-        }
+      if (pathName.includes("/(auth)")) {
+        router.replace("/(tabs)");
       }
     };
 
-    handleAuthState();
-  }, [isLoaded, isSignedIn, pathName, user, router]);
+    checkAuth();
+  }, [pathName]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
