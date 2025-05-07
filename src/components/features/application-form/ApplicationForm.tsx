@@ -23,15 +23,6 @@ export default function ApplicationForm() {
   return (
     <View className="flex-1 bg-white">
       {/* Header */}
-      <View className="px-5 pb-4">
-        <Text className="text-2xl font-bold text-gray-800">
-          Application Form
-        </Text>
-        <Text className="text-gray-500 mt-1">
-          Submit your event or donation request
-        </Text>
-      </View>
-
       {/* Tab Navigation */}
       <View className="flex-row border-b border-gray-200 mx-4">
         <TouchableOpacity

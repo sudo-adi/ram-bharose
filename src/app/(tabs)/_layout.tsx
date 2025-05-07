@@ -4,9 +4,11 @@ import { Tabs } from "expo-router";
 import SplashScreen from "@/components/ui/common/SplashScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import { Keyboard, Platform, KeyboardEvent } from "react-native";
 
 export default function TabLayout() {
   const [isLoading, setIsLoading] = useState(true);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -14,6 +16,27 @@ export default function TabLayout() {
     }, 2000);
 
     return () => clearTimeout(timer);
+  }, []);
+
+  // Add keyboard listeners
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const hideSubscription = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
   }, []);
 
   if (isLoading) {
@@ -29,8 +52,9 @@ export default function TabLayout() {
           backgroundColor: "#fff",
           borderTopWidth: 1,
           borderTopColor: "#eee",
-          height: 75, // Make tab bar slightly taller
-          paddingBottom: 8, // Add some padding at the bottom
+          height: 60, // Make tab bar slightly taller, // Add some padding at the bottom
+          // Hide the tab bar when keyboard is visible
+          display: keyboardVisible ? "none" : "flex",
         },
         headerShown: false,
       }}

@@ -1,17 +1,9 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  Switch,
-} from "react-native";
+import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function DonationsContent() {
   const [activeTab, setActiveTab] = useState("make");
-  const [isAdminMode, setIsAdminMode] = useState(false);
 
   const donations = [
     {
@@ -48,133 +40,167 @@ export default function DonationsContent() {
     },
   ];
 
-  return (
-    <View className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="bg-white px-5 pt-4">
-        {/* Tabs */}
-        <View className="flex-row justify-between items-center mb-4">
-          <View className="flex-row bg-gray-100 rounded-2xl p-1 flex-1">
-            <TouchableOpacity
-              onPress={() => setActiveTab("make")}
-              className={`flex-1 py-3 rounded-xl ${
-                activeTab === "make"
-                  ? "bg-white shadow-sm border border-gray-100"
-                  : ""
-              }`}
-            >
-              <Text
-                className={`text-center font-medium ${
-                  activeTab === "make" ? "text-orange-500" : "text-gray-500"
-                }`}
-              >
-                Make a Donation
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setActiveTab("my")}
-              className={`flex-1 py-3 rounded-xl ${
-                activeTab === "my"
-                  ? "bg-white shadow-sm border border-gray-100"
-                  : ""
-              }`}
-            >
-              <Text
-                className={`text-center font-medium ${
-                  activeTab === "my" ? "text-orange-500" : "text-gray-500"
-                }`}
-              >
-                My Donations
-              </Text>
-            </TouchableOpacity>
+  // Render donation card
+  const renderDonationCard = (donation) => (
+    <View
+      key={donation.id}
+      className="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100"
+    >
+      <Image
+        source={{ uri: donation.image }}
+        className="w-full h-48 rounded-t-2xl"
+      />
+      <View className="p-4">
+        <Text className="text-xl font-semibold text-gray-800">
+          {donation.title}
+        </Text>
+        <Text className="text-gray-600 mt-1 leading-5">
+          {donation.description}
+        </Text>
+
+        {/* Progress Bar */}
+        <View className="mt-4">
+          <View className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <View
+              className="h-full bg-orange-500 rounded-full"
+              style={{ width: `${donation.percentage}%` }}
+            />
           </View>
+          <View className="flex-row justify-between mt-3">
+            <View>
+              <Text className="text-sm text-gray-500">Raised</Text>
+              <Text className="text-lg font-semibold text-orange-500">
+                ₹{donation.raised.toLocaleString()}
+              </Text>
+            </View>
+            <View className="items-end">
+              <Text className="text-sm text-gray-500">Goal</Text>
+              <Text className="text-lg font-semibold text-gray-700">
+                ₹{donation.target.toLocaleString()}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          className="bg-orange-500 py-4 rounded-xl mt-4 shadow-sm"
+          style={{
+            shadowColor: "#f97316",
+            shadowOpacity: 0.2,
+            shadowRadius: 10,
+          }}
+        >
+          <Text className="text-white text-center font-semibold text-lg">
+            Donate Now
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  // Render payment methods section
+  const renderPaymentMethods = () => (
+    <View className="mt-2 mb-8 bg-white p-4 rounded-xl border border-gray-100">
+      <Text className="text-gray-500 font-medium mb-3">
+        Supported Payment Methods
+      </Text>
+      <View className="flex-row items-center space-x-4">
+        <View className="bg-gray-50 p-2 rounded-lg">
+          <Image
+            source={{ uri: "https://razorpay.com/favicon.png" }}
+            className="w-8 h-8"
+          />
+        </View>
+        <View className="bg-gray-50 p-2 rounded-lg">
+          <Image
+            source={{ uri: "https://bitcoin.org/img/icons/opengraph.png" }}
+            className="w-8 h-8"
+          />
         </View>
       </View>
+    </View>
+  );
 
-      {/* Donations List */}
-      <ScrollView
-        className="px-5 pt-6"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 32 }}
-      >
-        {donations.map((donation) => (
-          <View
-            key={donation.id}
-            className="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100"
+  // Render content based on active tab
+  const renderContent = () => {
+    switch (activeTab) {
+      case "make":
+        return (
+          <ScrollView
+            className="px-5 pt-6 flex-1"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }} // Extra padding for tab bar
           >
-            <Image
-              source={{ uri: donation.image }}
-              className="w-full h-48 rounded-t-2xl"
-            />
-            <View className="p-4">
-              <Text className="text-xl font-semibold text-gray-800">
-                {donation.title}
-              </Text>
-              <Text className="text-gray-600 mt-1 leading-5">
-                {donation.description}
-              </Text>
-
-              {/* Progress Bar */}
-              <View className="mt-4">
-                <View className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                  <View
-                    className="h-full bg-orange-500 rounded-full"
-                    style={{ width: `${donation.percentage}%` }}
-                  />
-                </View>
-                <View className="flex-row justify-between mt-3">
-                  <View>
-                    <Text className="text-sm text-gray-500">Raised</Text>
-                    <Text className="text-lg font-semibold text-orange-500">
-                      ₹{donation.raised.toLocaleString()}
-                    </Text>
-                  </View>
-                  <View className="items-end">
-                    <Text className="text-sm text-gray-500">Goal</Text>
-                    <Text className="text-lg font-semibold text-gray-700">
-                      ₹{donation.target.toLocaleString()}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              <TouchableOpacity
-                className="bg-orange-500 py-4 rounded-xl mt-4 shadow-sm"
-                style={{
-                  shadowColor: "#f97316",
-                  shadowOpacity: 0.2,
-                  shadowRadius: 10,
-                }}
-              >
-                <Text className="text-white text-center font-semibold text-lg">
-                  Donate Now
-                </Text>
-              </TouchableOpacity>
-            </View>
+            {donations.map(renderDonationCard)}
+            {renderPaymentMethods()}
+          </ScrollView>
+        );
+      case "my":
+        return (
+          <View className="flex-1 items-center justify-center">
+            <Ionicons name="wallet-outline" size={64} color="#f97316" />
+            <Text className="text-gray-600 mt-4 text-center px-10">
+              You haven't made any donations yet. Start supporting causes you
+              care about!
+            </Text>
           </View>
-        ))}
+        );
+      default:
+        return null;
+    }
+  };
 
-        {/* Payment Methods */}
-        <View className="mt-2 mb-8 bg-white p-4 rounded-xl border border-gray-100">
-          <Text className="text-gray-500 font-medium mb-3">
-            Supported Payment Methods
+  return (
+    <View className="flex-1 bg-gray-50">
+      {/* Main Content */}
+      {renderContent()}
+
+      {/* Tab Bar */}
+      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex-row justify-around items-center h-16 px-2">
+        <TouchableOpacity
+          className={`flex-1 items-center justify-center h-full ${
+            activeTab === "make" ? "border-t-2 border-orange-500" : ""
+          }`}
+          onPress={() => setActiveTab("make")}
+        >
+          <Ionicons
+            name="heart"
+            size={24}
+            color={activeTab === "make" ? "#f97316" : "#9ca3af"}
+          />
+          <Text
+            className={`text-xs mt-1 ${
+              activeTab === "make"
+                ? "text-orange-500 font-medium"
+                : "text-gray-500"
+            }`}
+          >
+            Donate
           </Text>
-          <View className="flex-row items-center space-x-4">
-            <View className="bg-gray-50 p-2 rounded-lg">
-              <Image
-                source={{ uri: "https://razorpay.com/favicon.png" }}
-                className="w-8 h-8"
-              />
-            </View>
-            <View className="bg-gray-50 p-2 rounded-lg">
-              <Image
-                source={{ uri: "https://bitcoin.org/img/icons/opengraph.png" }}
-                className="w-8 h-8"
-              />
-            </View>
-          </View>
-        </View>
-      </ScrollView>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          className={`flex-1 items-center justify-center h-full ${
+            activeTab === "my" ? "border-t-2 border-orange-500" : ""
+          }`}
+          onPress={() => setActiveTab("my")}
+        >
+          <Ionicons
+            name="wallet"
+            size={24}
+            color={activeTab === "my" ? "#f97316" : "#9ca3af"}
+          />
+          <Text
+            className={`text-xs mt-1 ${
+              activeTab === "my"
+                ? "text-orange-500 font-medium"
+                : "text-gray-500"
+            }`}
+          >
+            My Donations
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

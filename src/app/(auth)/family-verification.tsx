@@ -1,10 +1,17 @@
-import React, { useEffect } from 'react';
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useUser } from '@clerk/clerk-expo';
-import { supabase } from '@/lib/supabase';
-import { useFamilyVerification } from '@/hooks/useSupabase';
+import React, { useEffect } from "react";
+import { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  ScrollView,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useUser } from "@clerk/clerk-expo";
+import { supabase } from "@/lib/supabase";
+import { useFamilyVerification } from "@/hooks/useSupabase";
 
 type FamilyMember = {
   id: number;
@@ -59,48 +66,83 @@ export default function FamilyVerification() {
     date_of_demise: "",
   });
 
-    const { data: familyData, error: familyError, refetch: verifyFamily } = useFamilyVerification(familyCode);
+  const {
+    data: familyData,
+    error: familyError,
+    refetch: verifyFamily,
+  } = useFamilyVerification(familyCode);
 
-    const verifyFamilyCode = async () => {
-        setIsLoading(true);
-        setError('');
+  // Add useEffect to check if user is already verified when component mounts
+  useEffect(() => {
+    const checkExistingVerification = async () => {
+      if (!user) return;
 
-        try {
-            await verifyFamily();
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("email", user.emailAddresses[0]?.emailAddress)
+          .single();
 
-            if (familyError) {
-                setError('Error verifying family code');
-                return;
-            }
-
-            if (!familyData || familyData.length === 0) {
-                setError('Invalid family code');
-                return;
-            }
-
-            const userEmail = user?.emailAddresses[0]?.emailAddress;
-            const existingMember = familyData.find(member => member.email === userEmail);
-
-            if (existingMember) {
-                router.replace('/(tabs)');
-                return;
-            }
-
-            const selfMember = familyData.find(member => member.relationship.toLowerCase() === 'self');
-            if (!selfMember || !selfMember.mobile_no1) {
-                setError('Unable to find primary family member');
-                return;
-            }
-
-            setFamilyMembers(familyData);
-            setStep('otp');
-        } catch (err) {
-            setError('Error verifying family code');
-            console.error(err);
-        } finally {
-            setIsLoading(false);
+        if (data) {
+          // User is already verified, redirect to tabs
+          router.replace("/(tabs)");
         }
+      } catch (err) {
+        console.error("Error checking verification:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
+
+    checkExistingVerification();
+  }, [user, router]);
+
+  const verifyFamilyCode = async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await verifyFamily();
+
+      if (familyError) {
+        setError("Error verifying family code");
+        return;
+      }
+
+      if (!familyData || familyData.length === 0) {
+        setError("Invalid family code");
+        return;
+      }
+
+      const userEmail = user?.emailAddresses[0]?.emailAddress;
+      const existingMember = familyData.find(
+        (member) => member.email === userEmail
+      );
+
+      if (existingMember) {
+        router.replace("/(tabs)");
+        return;
+      }
+
+      const selfMember = familyData.find(
+        (member) => member.relationship.toLowerCase() === "self"
+      );
+      if (!selfMember || !selfMember.mobile_no1) {
+        setError("Unable to find primary family member");
+        return;
+      }
+
+      setFamilyMembers(familyData);
+      setStep("otp");
+    } catch (err) {
+      setError("Error verifying family code");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const verifyOtp = async () => {
     // TODO: Implement actual OTP verification
@@ -114,13 +156,13 @@ export default function FamilyVerification() {
       return;
     }
 
-        setIsLoading(true);
-        try {
-            const { error } = await supabase
-                .from('profiles')
-                .update({ email: user?.emailAddresses[0]?.emailAddress })
-                .eq('id', member.id)
-                .select();
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ email: user?.emailAddresses[0]?.emailAddress })
+        .eq("id", member.id)
+        .select();
 
       if (error) {
         console.error("Supabase error:", error);
@@ -164,121 +206,127 @@ export default function FamilyVerification() {
     );
   }
 
-
   return (
-    <ScrollView className="flex-1 bg-white p-6">
-      {error && <Text className="text-red-500 text-center mb-4">{error}</Text>}
+    <ScrollView className="flex-1 bg-white">
+      <View className="flex-1 items-center justify-center px-6 py-8 w-full max-w-md mx-auto">
+        {error && (
+          <Text className="text-red-500 text-center mb-4">{error}</Text>
+        )}
 
-      {step === "family-code" && (
-        <View>
-          <Text className="text-xl font-bold text-center mb-6">
-            Enter Family Code
-          </Text>
-          <TextInput
-            value={familyCode}
-            onChangeText={setFamilyCode}
-            placeholder="Enter your family code"
-            className="border border-gray-300 rounded-lg p-4 mb-4"
-            keyboardType="numeric"
-          />
-          <TouchableOpacity
-            onPress={verifyFamilyCode}
-            className="bg-orange-500 py-4 rounded-xl"
-          >
-            <Text className="text-white font-semibold text-lg text-center">
-              Verify
+        {step === "family-code" && (
+          <View className="w-full">
+            <Text className="text-xl font-bold text-center mb-6">
+              Enter Family Code
             </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {step === "otp" && (
-        <View>
-          <Text className="text-xl font-bold text-center mb-6">Enter OTP</Text>
-          <TextInput
-            value={otp}
-            onChangeText={setOtp}
-            placeholder="Enter OTP sent to primary member"
-            className="border border-gray-300 rounded-lg p-4 mb-4"
-            keyboardType="numeric"
-          />
-          <TouchableOpacity
-            onPress={verifyOtp}
-            className="bg-orange-500 py-4 rounded-xl"
-          >
-            <Text className="text-white font-semibold text-lg text-center">
-              Verify OTP
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {step === "member-selection" && (
-        <View>
-          <Text className="text-xl font-bold text-center mb-6">
-            Select Your Profile
-          </Text>
-          {familyMembers.map((member) => (
+            <TextInput
+              value={familyCode}
+              onChangeText={setFamilyCode}
+              placeholder="Enter your family code"
+              className="border border-gray-300 rounded-lg p-4 mb-4 w-full"
+              keyboardType="numeric"
+            />
             <TouchableOpacity
-              key={member.id}
-              onPress={() => selectMember(member)}
-              className="border border-gray-300 rounded-lg p-4 mb-4"
+              onPress={verifyFamilyCode}
+              className="bg-orange-500 py-4 rounded-xl w-full"
             >
-              <Text className="font-semibold">{member.name}</Text>
-              <Text className="text-gray-500">{member.relationship}</Text>
-              {member.email && (
-                <Text className="text-red-500">Already registered</Text>
-              )}
+              <Text className="text-white font-semibold text-lg text-center">
+                Verify
+              </Text>
             </TouchableOpacity>
-          ))}
-          <TouchableOpacity
-            onPress={() => setStep("new-member-form")}
-            className="bg-orange-500 py-4 rounded-xl mt-4"
-          >
-            <Text className="text-white font-semibold text-lg text-center">
-              I am a new member
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
+          </View>
+        )}
 
-      {step === "new-member-form" && (
-        <View>
-          <Text className="text-xl font-bold text-center mb-6">
-            New Member Registration
-          </Text>
-          {Object.keys(formData).map((key) => {
-            if (key === "family_no") return null; // Skip family_no as it's already set
-            return (
-              <View key={key} className="mb-4">
-                <Text className="text-gray-700 mb-2">
-                  {key
-                    .split("_")
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")}
-                </Text>
-                <TextInput
-                  value={formData[key as keyof typeof formData]}
-                  onChangeText={(value) =>
-                    setFormData((prev) => ({ ...prev, [key]: value }))
-                  }
-                  placeholder={`Enter ${key.split("_").join(" ")}`}
-                  className="border border-gray-300 rounded-lg p-4"
-                />
-              </View>
-            );
-          })}
-          <TouchableOpacity
-            onPress={submitNewMember}
-            className="bg-orange-500 py-4 rounded-xl mt-4 mb-8"
-          >
-            <Text className="text-white font-semibold text-lg text-center">
-              Submit
+        {step === "otp" && (
+          <View className="w-full">
+            <Text className="text-xl font-bold text-center mb-6">
+              Enter OTP
             </Text>
-          </TouchableOpacity>
-        </View>
-      )}
+            <TextInput
+              value={otp}
+              onChangeText={setOtp}
+              placeholder="Enter OTP sent to primary member"
+              className="border border-gray-300 rounded-lg p-4 mb-4 w-full"
+              keyboardType="numeric"
+            />
+            <TouchableOpacity
+              onPress={verifyOtp}
+              className="bg-orange-500 py-4 rounded-xl w-full"
+            >
+              <Text className="text-white font-semibold text-lg text-center">
+                Verify OTP
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {step === "member-selection" && (
+          <View className="w-full">
+            <Text className="text-xl font-bold text-center mb-6">
+              Select Your Profile
+            </Text>
+            {familyMembers.map((member) => (
+              <TouchableOpacity
+                key={member.id}
+                onPress={() => selectMember(member)}
+                className="border border-gray-300 rounded-lg p-4 mb-4 w-full"
+              >
+                <Text className="font-semibold">{member.name}</Text>
+                <Text className="text-gray-500">{member.relationship}</Text>
+                {member.email && (
+                  <Text className="text-red-500">Already registered</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              onPress={() => setStep("new-member-form")}
+              className="bg-orange-500 py-4 rounded-xl mt-4 w-full"
+            >
+              <Text className="text-white font-semibold text-lg text-center">
+                I am a new member
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {step === "new-member-form" && (
+          <View className="w-full">
+            <Text className="text-xl font-bold text-center mb-6">
+              New Member Registration
+            </Text>
+            {Object.keys(formData).map((key) => {
+              if (key === "family_no") return null; // Skip family_no as it's already set
+              return (
+                <View key={key} className="mb-4 w-full">
+                  <Text className="text-gray-700 mb-2">
+                    {key
+                      .split("_")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </Text>
+                  <TextInput
+                    value={formData[key as keyof typeof formData]}
+                    onChangeText={(value) =>
+                      setFormData((prev) => ({ ...prev, [key]: value }))
+                    }
+                    placeholder={`Enter ${key.split("_").join(" ")}`}
+                    className="border border-gray-300 rounded-lg p-4 w-full"
+                  />
+                </View>
+              );
+            })}
+            <TouchableOpacity
+              onPress={submitNewMember}
+              className="bg-orange-500 py-4 rounded-xl mt-4 mb-8 w-full"
+            >
+              <Text className="text-white font-semibold text-lg text-center">
+                Submit
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
     </ScrollView>
   );
 }
-

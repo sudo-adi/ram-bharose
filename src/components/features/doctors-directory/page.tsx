@@ -8,11 +8,13 @@ import {
   Modal,
   ScrollView,
   Linking,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useDoctors } from "@/hooks/useSupabase";
 
 type Doctor = {
-  id: string;
+  id: number;
   name: string;
   specialization: string;
   qualification: string;
@@ -28,76 +30,38 @@ export default function DoctorsDirectory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const { data: doctors, loading, error } = useDoctors();
 
-  // Mock data for doctors based on the new schema
-  const doctors: Doctor[] = [
-    {
-      id: "1",
-      name: "Dr. Rajesh Sharma",
-      specialization: "Cardiologist",
-      qualification: "MD, DM Cardiology",
-      experience_years: 15,
-      clinic_address: "123 Health Avenue, Mumbai",
-      contact_email: "rajesh.sharma@example.com",
-      contact_phone: "+91 9876543210",
-      available_timings: "Mon-Fri: 9AM-5PM",
-      created_at: "2023-01-15T10:30:00Z",
-    },
-    {
-      id: "2",
-      name: "Dr. Priya Patel",
-      specialization: "Pediatrician",
-      qualification: "MBBS, MD Pediatrics",
-      experience_years: 10,
-      clinic_address: "456 Child Care Lane, Delhi",
-      contact_email: "priya.patel@example.com",
-      contact_phone: "+91 9876543211",
-      available_timings: "Mon-Sat: 10AM-6PM",
-      created_at: "2023-02-20T09:15:00Z",
-    },
-    {
-      id: "3",
-      name: "Dr. Amit Kumar",
-      specialization: "Orthopedic Surgeon",
-      qualification: "MS Orthopedics",
-      experience_years: 12,
-      clinic_address: "789 Bone Health Center, Bangalore",
-      contact_email: "amit.kumar@example.com",
-      contact_phone: "+91 9876543212",
-      available_timings: "Tue-Sun: 11AM-7PM",
-      created_at: "2023-03-10T14:45:00Z",
-    },
-    {
-      id: "4",
-      name: "Dr. Sneha Reddy",
-      specialization: "Dermatologist",
-      qualification: "MD Dermatology",
-      experience_years: 8,
-      clinic_address: "101 Skin Care Plaza, Hyderabad",
-      contact_email: "sneha.reddy@example.com",
-      contact_phone: "+91 9876543213",
-      available_timings: "Mon-Fri: 9AM-4PM",
-      created_at: "2023-04-05T11:20:00Z",
-    },
-    {
-      id: "5",
-      name: "Dr. Vikram Singh",
-      specialization: "Neurologist",
-      qualification: "MD, DM Neurology",
-      experience_years: 18,
-      clinic_address: "202 Brain Health Institute, Chennai",
-      contact_email: "vikram.singh@example.com",
-      contact_phone: "+91 9876543214",
-      available_timings: "Wed-Mon: 10AM-6PM",
-      created_at: "2023-05-12T16:30:00Z",
-    },
-  ];
+  // Add loading state handling
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <ActivityIndicator size="large" color="#f97316" />
+      </View>
+    );
+  }
 
-  const filteredDoctors = doctors.filter(
-    (doctor) =>
-      doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doctor.specialization.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Add error state handling
+  if (error) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white p-6">
+        <Ionicons name="alert-circle-outline" size={48} color="#9ca3af" />
+        <Text className="text-gray-500 mt-4 text-center">
+          Error loading doctors: {error.message}
+        </Text>
+      </View>
+    );
+  }
+
+  const filteredDoctors = doctors
+    ? doctors.filter(
+        (doctor) =>
+          doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          doctor.specialization
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   const handleDoctorPress = (doctor: Doctor) => {
     setSelectedDoctor(doctor);
@@ -247,7 +211,7 @@ export default function DoctorsDirectory() {
       {/* Doctor List - Updated to a single column layout */}
       <FlatList
         data={filteredDoctors}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={renderDoctorCard}
         contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}

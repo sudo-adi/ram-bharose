@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,136 +6,197 @@ import {
   Image,
   ScrollView,
   TextInput,
+  ImageBackground,
+  Dimensions,
+  ActivityIndicator,
+  SafeAreaView,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function ExploreContent() {
+  const screenWidth = Dimensions.get("window").width;
+  const cardWidth = (screenWidth - 50) / 2; // Account for padding and gap
+
+  // Track loading state for each image
+  const [imageLoadStatus, setImageLoadStatus] = useState({});
+
   const categories = [
     {
       id: 1,
-      title: "Total Population",
-      subtitle: "Male: 2,059 | Female: 1,968",
-      value: "4,027",
-      image:
-        "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=2069",
+      title: "Donations",
+      image: require("../../../../assets/donation.png"),
     },
     {
       id: 2,
-      title: "Donations",
-      image:
-        "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=2070",
+      title: "My Family Profile",
+      image: require("../../../../assets/family.png"),
     },
     {
       id: 3,
-      title: "My Family Profile",
-      image:
-        "https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=2070",
+      title: "Birthdays",
+      image: require("../../../../assets/birthday.png"),
     },
     {
       id: 4,
-      title: "Birthdays",
-      image:
-        "https://images.unsplash.com/photo-1558636508-e0db3814bd1d?q=80&w=2070",
+      title: "Application Forms",
+      image: require("../../../../assets/application.png"),
+    },
+    {
+      id: 5,
+      title: "News & Updates",
+      image: require("../../../../assets/news.png"),
     },
     {
       id: 6,
-      title: "Application Forms",
-      image:
-        "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070",
+      title: "Doctors Directory",
+      image: require("../../../../assets/doctor.png"),
     },
     {
       id: 7,
-      title: "News & Community",
-      image:
-        "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=2069",
+      title: "Shubh Chintak",
+      image: require("../../../../assets/shubh-chintak.png"),
     },
     {
       id: 8,
-      title: "Doctors Directory",
-      image:
-        "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2070",
+      title: "Committees",
+      image: require("../../../../assets/committie.png"),
     },
     {
       id: 9,
-      title: "Shubh Chintak",
-      image:
-        "https://images.unsplash.com/photo-1589386417686-0d34b5903d23?q=80&w=2070",
-    },
-    {
-      id: 10,
-      title: "Committees",
-      image:
-        "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070",
-    },
-    {
-      id: 11,
       title: "Nari Sahas",
-      image:
-        "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=2070",
+      image: require("../../../../assets/nari-sahas.png"),
     },
   ];
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      {/* Search Bar */}
-      <View className="px-5 py-4">
-        <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3">
-          <Ionicons name="search" size={20} color="#666" />
-          <TextInput
-            placeholder="Search categories..."
-            className="flex-1 ml-2 text-base text-gray-800"
-            placeholderTextColor="#666"
-          />
+    <SafeAreaView
+      className="flex-1 bg-white"
+      style={{
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+      }}
+    >
+      {/* Sticky Search Bar */}
+      <View
+        className="bg-white z-10 shadow-sm"
+        style={{ position: "absolute", top: 0, left: 0, right: 0 }}
+      >
+        <View className="px-5 py-4">
+          <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3">
+            <Ionicons name="search" size={20} color="#666" />
+            <TextInput
+              placeholder="Search categories..."
+              className="flex-1 ml-2 text-base text-gray-800"
+              placeholderTextColor="#666"
+            />
+          </View>
         </View>
       </View>
 
-      {/* Categories Grid */}
-      <View className="px-5 pb-10">
-        {/* Grid Layout */}
-        <View className="flex-row flex-wrap justify-between">
-          {categories.slice(1).map((category) => (
-            <TouchableOpacity
-              key={category.id}
-              className="w-[48%] mb-4"
-              onPress={() => {
-                if (category.title === "Donations") {
-                  router.push("/donations");
-                } else if (category.title === "My Family Profile") {
-                  router.push("/family-profile");
-                } else if (category.title === "Birthdays") {
-                  router.push("/birthdays");
-                } else if (category.title === "Application Forms") {
-                  router.push("/application-form");
-                } else if (category.title === "News & Community") {
-                  router.push("/news");
-                } else if (category.title === "Doctors Directory") {
-                  router.push("/doctors-directory");
-                } else if (category.title === "Committees") {
-                  router.push("/committees");
-                } else if (category.title === "Nari Sahas") {
-                  router.push("/businesses");
-                } else if (category.title === "Shubh Chintak") {
-                  router.push("/shubh-chintak");
-                }
-              }}
-            >
-              <View className="bg-white rounded-xl overflow-hidden border border-gray-100">
-                <Image
-                  source={{ uri: category.image }}
-                  className="w-full h-24"
-                  resizeMode="cover"
-                />
-                <View className="p-3">
-                  <Text className="text-gray-800 font-medium text-sm">
-                    {category.title}
-                  </Text>
+      {/* Content with padding to account for sticky header */}
+      <ScrollView
+        className="flex-1 bg-white"
+        contentContainerStyle={{ paddingTop: 70 }}
+      >
+        {/* Categories Grid */}
+        <View className="px-5 pb-10">
+          <View className="flex-row flex-wrap justify-between">
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category.id}
+                className="mb-4"
+                style={{ width: cardWidth }}
+                onPress={() => {
+                  if (category.title === "Donations") {
+                    router.push("/donations");
+                  } else if (category.title === "My Family Profile") {
+                    router.push("/family-profile");
+                  } else if (category.title === "Birthdays") {
+                    router.push("/birthdays");
+                  } else if (category.title === "Application Forms") {
+                    router.push("/application-form");
+                  } else if (category.title === "News & Updates") {
+                    router.push("/news");
+                  } else if (category.title === "Doctors Directory") {
+                    router.push("/doctors-directory");
+                  } else if (category.title === "Committees") {
+                    router.push("/committees");
+                  } else if (category.title === "Nari Sahas") {
+                    router.push("/businesses");
+                  } else if (category.title === "Shubh Chintak") {
+                    router.push("/shubh-chintak");
+                  }
+                }}
+              >
+                <View className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                  <View style={{ height: 220, width: "100%" }}>
+                    {/* Loading indicator */}
+                    {!imageLoadStatus[category.id] && (
+                      <View
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          justifyContent: "center",
+                          alignItems: "center",
+                          backgroundColor: "#f3f4f6",
+                        }}
+                      >
+                        <ActivityIndicator size="large" color="#0000ff" />
+                      </View>
+                    )}
+
+                    {/* Actual image with error handling */}
+                    <ImageBackground
+                      source={category.image}
+                      className="w-full h-full"
+                      resizeMode="cover"
+                      onLoad={() =>
+                        setImageLoadStatus((prev) => ({
+                          ...prev,
+                          [category.id]: true,
+                        }))
+                      }
+                      onError={() => {
+                        console.warn(
+                          `Failed to load image for category: ${category.title}`
+                        );
+                        setImageLoadStatus((prev) => ({
+                          ...prev,
+                          [category.id]: true,
+                        }));
+                      }}
+                      defaultSource={require("../../../../assets/news.png")}
+                    >
+                      <LinearGradient
+                        colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.7)"]}
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: "100%",
+                          justifyContent: "flex-end",
+                          padding: 12,
+                        }}
+                      >
+                        <Text className="text-white font-bold text-lg">
+                          {category.title}
+                        </Text>
+                      </LinearGradient>
+                    </ImageBackground>
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

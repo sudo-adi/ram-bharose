@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,70 +8,43 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-
-const { width } = Dimensions.get("window");
+import { useFamily } from "@/hooks/useSupabase";
+import { useUser } from "@clerk/clerk-expo";
 
 export default function FamilyProfileContent() {
   const [activeTab, setActiveTab] = useState("members");
+  const { user } = useUser();
+  const email = user?.primaryEmailAddress?.emailAddress;
+  const { result: familyData, fetchFamily, error } = useFamily();
 
-  const familyData = {
-    familyName: "Sharma Family",
-    since: "Est. 1960",
-    totalMembers: 24,
-    generations: 4,
-    address: "123 Park Avenue, Mumbai",
-    coverImage:
-      "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200",
-    headOfFamily: {
-      name: "Rajesh Sharma",
-      age: 65,
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
-      role: "Head of Family",
-      occupation: "Retired Professor",
-    },
-    members: [
-      {
-        id: 1,
-        name: "Priya Sharma",
-        age: 35,
-        relation: "Daughter",
-        image:
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500",
-        occupation: "Software Engineer",
-      },
-      {
-        id: 2,
-        name: "Amit Sharma",
-        age: 38,
-        relation: "Son",
-        image:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500",
-        occupation: "Business Owner",
-      },
-    ],
-  };
+  useEffect(() => {
+    fetchFamily(email);
+  }, []);
+
+  if (error) {
+    console.error("Error loading family data:", error);
+    return <Text>Error loading family data</Text>;
+  }
 
   return (
     <View className="flex-1 bg-gray-50">
       {/* Cover Image & Family Info */}
       <View className="h-56 relative">
         <Image
-          source={{ uri: familyData.coverImage }}
+          source={{ uri: familyData.family_cover_pic }}
           className="w-full h-full"
           resizeMode="cover"
         />
         <View className="absolute inset-0 bg-black/30" />
         <View className="absolute bottom-0 left-0 right-0 p-6">
           <Text className="text-3xl font-bold text-white">
-            {familyData.familyName}
+            {familyData.surname}
           </Text>
           <View className="flex-row items-center justify-between mt-2">
             <View className="flex-row items-center">
               <Ionicons name="location" size={16} color="white" />
               <Text className="text-white ml-2">{familyData.address}</Text>
             </View>
-            <Text className="text-white">{familyData.since}</Text>
           </View>
         </View>
       </View>
@@ -80,15 +53,9 @@ export default function FamilyProfileContent() {
       <View className="px-6 py-4 flex-row justify-between bg-white mx-4 rounded-xl -mt-6 shadow-sm z-10">
         <View className="items-center">
           <Text className="text-2xl font-bold text-orange-500">
-            {familyData.totalMembers}
+            {familyData.familyMembers.length}
           </Text>
           <Text className="text-gray-500">Members</Text>
-        </View>
-        <View className="items-center">
-          <Text className="text-2xl font-bold text-blue-500">
-            {familyData.generations}
-          </Text>
-          <Text className="text-gray-500">Generations</Text>
         </View>
         <View className="items-center">
           <Ionicons name="people" size={24} color="#10b981" />
@@ -139,15 +106,15 @@ export default function FamilyProfileContent() {
               </Text>
               <View className="flex-row items-center">
                 <Image
-                  source={{ uri: familyData.headOfFamily.image }}
+                  source={{ uri: familyData.head_of_family.profile_pic }}
                   className="w-16 h-16 rounded-xl"
                 />
                 <View className="ml-4 flex-1">
                   <Text className="text-xl font-bold text-gray-800">
-                    {familyData.headOfFamily.name}
+                    {familyData.head_of_family.name}
                   </Text>
                   <Text className="text-gray-500 mt-1">
-                    {familyData.headOfFamily.occupation}
+                    {familyData.head_of_family.occupation}
                   </Text>
                   <View className="flex-row mt-3 space-x-2">
                     <TouchableOpacity className="bg-orange-50 px-3 py-1 rounded-full">
@@ -163,15 +130,15 @@ export default function FamilyProfileContent() {
 
             {/* Family Members */}
             <Text className="text-lg font-semibold text-gray-800 mb-3">
-              Family Members ({familyData.members.length})
+              Family Members ({familyData.familyMembers.length})
             </Text>
-            {familyData.members.map((member) => (
+            {familyData.familyMembers.map((member) => (
               <TouchableOpacity
                 key={member.id}
                 className="bg-white rounded-xl mb-3 p-4 flex-row items-center shadow-sm"
               >
                 <Image
-                  source={{ uri: member.image }}
+                  source={{ uri: member.profile_pic }}
                   className="w-14 h-14 rounded-xl"
                 />
                 <View className="ml-4 flex-1">
@@ -180,7 +147,7 @@ export default function FamilyProfileContent() {
                   </Text>
                   <View className="flex-row items-center mt-1">
                     <Text className="text-orange-500 text-sm">
-                      {member.relation}
+                      {member.relationship}
                     </Text>
                     <Text className="text-gray-400 mx-2">•</Text>
                     <Text className="text-gray-500 text-sm">
@@ -205,59 +172,108 @@ export default function FamilyProfileContent() {
               <Text className="text-2xl font-bold text-gray-800 mt-4">
                 Family Tree
               </Text>
-              <Text className="text-gray-500 text-center mt-2">
-                Visualize your family connections across{" "}
-                {familyData.generations} generations
-              </Text>
 
-              <View className="w-full mt-6">
-                {/* Simple tree visualization */}
-                <View className="flex-row justify-center mb-4">
-                  <View className="items-center">
-                    <View className="w-16 h-16 bg-orange-100 rounded-full items-center justify-center">
-                      <Ionicons name="person" size={24} color="#f97316" />
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="w-full mt-6"
+              >
+                <View className=" items-center px-4">
+                  {/* Parents Level */}
+                  <View className="flex-row justify-center mb-8 space-x-20">
+                    {familyData.familyMembers
+                      .filter(
+                        (member) =>
+                          member.relationship.toLowerCase() === "father" ||
+                          member.relationship.toLowerCase() === "mother"
+                      )
+                      .map((parent) => (
+                        <View key={parent.id} className="items-center">
+                          <View className="w-16 h-16 bg-blue-100 rounded-full items-center justify-center">
+                            <Image
+                              source={{ uri: parent.profile_pic }}
+                              className="w-14 h-14 rounded-full"
+                            />
+                          </View>
+                          <Text className="text-sm mt-2 font-medium">
+                            {parent.name}
+                          </Text>
+                          <Text className="text-xs text-gray-500">
+                            {parent.relationship}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+
+                  {/* Head of Family and Spouse Level */}
+                  <View className="flex-row justify-center mb-8 space-x-20">
+                    <View className="items-center">
+                      <View className="w-20 h-20 bg-orange-100 rounded-full items-center justify-center border-2 border-orange-500">
+                        <Image
+                          source={{
+                            uri: familyData.head_of_family.profile_pic,
+                          }}
+                          className="w-16 h-16 rounded-full"
+                        />
+                      </View>
+                      <Text className="text-base mt-2 font-bold">
+                        {familyData.head_of_family.name}
+                      </Text>
+                      <Text className="text-sm text-orange-500">
+                        Head of Family
+                      </Text>
                     </View>
-                    <Text className="text-sm mt-2">Rajesh</Text>
+                    {familyData.familyMembers
+                      .filter(
+                        (member) =>
+                          member.relationship.toLowerCase() === "wife" ||
+                          member.relationship.toLowerCase() === "husband"
+                      )
+                      .map((spouse) => (
+                        <View key={spouse.id} className="items-center">
+                          <View className="w-20 h-20 bg-purple-100 rounded-full items-center justify-center border-2 border-purple-500">
+                            <Image
+                              source={{ uri: spouse.profile_pic }}
+                              className="w-16 h-16 rounded-full"
+                            />
+                          </View>
+                          <Text className="text-base mt-2 font-bold">
+                            {spouse.name}
+                          </Text>
+                          <Text className="text-sm text-purple-500">
+                            {spouse.relationship}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+
+                  {/* Children Level */}
+                  <View className="flex-row justify-center space-x-12">
+                    {familyData.familyMembers
+                      .filter(
+                        (member) =>
+                          member.relationship.toLowerCase() === "son" ||
+                          member.relationship.toLowerCase() === "daughter"
+                      )
+                      .map((child) => (
+                        <View key={child.id} className="items-center">
+                          <View className="w-14 h-14 bg-green-100 rounded-full items-center justify-center">
+                            <Image
+                              source={{ uri: child.profile_pic }}
+                              className="w-12 h-12 rounded-full"
+                            />
+                          </View>
+                          <Text className="text-sm mt-2 font-medium">
+                            {child.name}
+                          </Text>
+                          <Text className="text-xs text-gray-500">
+                            {child.relationship}
+                          </Text>
+                        </View>
+                      ))}
                   </View>
                 </View>
-
-                <View className="flex-row justify-center mb-4">
-                  <View className="items-center mx-8">
-                    <View className="w-14 h-14 bg-blue-100 rounded-full items-center justify-center">
-                      <Ionicons name="person" size={20} color="#3b82f6" />
-                    </View>
-                    <Text className="text-xs mt-1">Amit</Text>
-                  </View>
-                  <View className="items-center mx-8">
-                    <View className="w-14 h-14 bg-purple-100 rounded-full items-center justify-center">
-                      <Ionicons name="person" size={20} color="#8b5cf6" />
-                    </View>
-                    <Text className="text-xs mt-1">Priya</Text>
-                  </View>
-                </View>
-
-                <TouchableOpacity className="mt-6 bg-orange-500 px-6 py-3 rounded-full">
-                  <Text className="text-white font-medium">View Full Tree</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View className="bg-white rounded-xl p-5 mt-4 shadow-sm">
-              <Text className="text-lg font-semibold text-gray-800 mb-3">
-                Generations
-              </Text>
-              <View className="flex-row justify-between">
-                {[1, 2, 3, 4].map((gen) => (
-                  <View key={gen} className="items-center">
-                    <View className="w-12 h-12 bg-gray-100 rounded-full items-center justify-center">
-                      <Text className="text-gray-800 font-bold">{gen}</Text>
-                    </View>
-                    <Text className="text-gray-500 text-xs mt-1">
-                      Generation
-                    </Text>
-                  </View>
-                ))}
-              </View>
+              </ScrollView>
             </View>
           </View>
         )}

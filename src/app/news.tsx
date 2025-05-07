@@ -8,7 +8,7 @@ export default function NewsPage() {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: "News & Community",
+          headerTitle: "News & Updates",
           headerTintColor: "#f97316",
           presentation: "card",
           headerBackTitle: "Explore",

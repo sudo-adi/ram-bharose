@@ -15,9 +15,8 @@ export default function BirthdaysContent() {
   const [activeTab, setActiveTab] = useState<"today" | "month" | "all">(
     "today"
   );
-  const { data: birthdays, loading, error } = useBirthdays(activeTab);
+  const { data: birthdays, loading, error, refetch } = useBirthdays(activeTab);
 
-  // ... rest of the component remains the same ...
   const handleWhatsApp = (phoneNumber: string) => {
     if (phoneNumber) {
       const formattedNumber = phoneNumber.replace(/\D/g, "");
@@ -32,6 +31,8 @@ export default function BirthdaysContent() {
   };
 
   const getBirthdayCountText = () => {
+    if (!birthdays || !birthdays.length) return "0 Birthdays";
+
     switch (activeTab) {
       case "today":
         return `${birthdays.length} Today`;
@@ -54,15 +55,18 @@ export default function BirthdaysContent() {
               {activeTab === "today"
                 ? "Today"
                 : activeTab === "month"
-                  ? "This Month"
-                  : "All Birthdays"}
+                ? "This Month"
+                : "All Birthdays"}
             </Text>
             <Text className="text-2xl font-bold text-gray-800 mt-1">
               {getBirthdayCountText()}
             </Text>
           </View>
-          <TouchableOpacity className="bg-orange-500 p-3 rounded-full">
-            <Ionicons name="notifications-outline" size={24} color="white" />
+          <TouchableOpacity
+            className="bg-orange-500 p-3 rounded-full"
+            onPress={() => refetch()}
+          >
+            <Ionicons name="refresh-outline" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </View>
@@ -78,14 +82,16 @@ export default function BirthdaysContent() {
             <TouchableOpacity
               key={tab.key}
               onPress={() => setActiveTab(tab.key as "today" | "month" | "all")}
-              className={`flex-1 py-3 px-1 ${activeTab === tab.key
-                ? "border-b-2 border-orange-500"
-                : "border-b-2 border-transparent"
-                }`}
+              className={`flex-1 py-3 px-1 ${
+                activeTab === tab.key
+                  ? "border-b-2 border-orange-500"
+                  : "border-b-2 border-transparent"
+              }`}
             >
               <Text
-                className={`text-center font-medium ${activeTab === tab.key ? "text-orange-500" : "text-gray-500"
-                  }`}
+                className={`text-center font-medium ${
+                  activeTab === tab.key ? "text-orange-500" : "text-gray-500"
+                }`}
               >
                 {tab.title}
               </Text>
@@ -106,7 +112,7 @@ export default function BirthdaysContent() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
         >
-          {birthdays.length > 0 ? (
+          {birthdays && birthdays.length > 0 ? (
             birthdays.map((birthday) => (
               <View
                 key={birthday.id}
@@ -115,7 +121,7 @@ export default function BirthdaysContent() {
                 <View className="p-4">
                   <View className="flex-row items-center">
                     <Image
-                      source={{ uri: birthday.profile_pic }}
+                      source={{ uri: birthday.image }}
                       className="w-16 h-16 rounded-full border-2 border-orange-100"
                     />
                     <View className="flex-1 ml-4">
@@ -123,10 +129,10 @@ export default function BirthdaysContent() {
                         {birthday.name}
                       </Text>
                       <Text className="text-orange-500 font-medium">
-                        Turning {new Date().getFullYear() - new Date(birthday.date_of_birth).getFullYear()}
+                        Turning {birthday.age}
                       </Text>
                       <Text className="text-gray-500 text-sm mt-0.5">
-                        {birthday.date_of_birth}
+                        {birthday.date}
                       </Text>
                     </View>
                   </View>
@@ -134,7 +140,7 @@ export default function BirthdaysContent() {
                   <View className="flex-row mt-4 pt-4 border-t border-gray-100">
                     <TouchableOpacity
                       className="flex-1 flex-row items-center justify-center bg-green-500/10 py-2.5 rounded-xl mr-2"
-                      onPress={() => handleWhatsApp(birthday.mobile_no1)}
+                      onPress={() => handleWhatsApp(birthday.phone)}
                     >
                       <Ionicons
                         name="logo-whatsapp"
@@ -147,7 +153,7 @@ export default function BirthdaysContent() {
                     </TouchableOpacity>
                     <TouchableOpacity
                       className="flex-1 flex-row items-center justify-center bg-blue-500/10 py-2.5 rounded-xl"
-                      onPress={() => handleMessage(birthday.mobile_no1)}
+                      onPress={() => handleMessage(birthday.phone)}
                     >
                       <Ionicons
                         name="chatbubble-outline"
@@ -170,8 +176,8 @@ export default function BirthdaysContent() {
                 {activeTab === "today"
                   ? "today"
                   : activeTab === "month"
-                    ? "this month"
-                    : "any time"}
+                  ? "this month"
+                  : "any time"}
               </Text>
             </View>
           )}

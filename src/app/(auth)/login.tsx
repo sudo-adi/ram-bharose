@@ -1,16 +1,18 @@
-import React from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Platform,
+  Alert,
 } from "react-native";
-import { useSSO } from "@clerk/clerk-expo";
+import { useOAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
-import * as AuthSession from "expo-auth-session";
+import { useEffect, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 
 // Warm up browser hook
 export const useWarmUpBrowser = () => {
@@ -21,50 +23,90 @@ export const useWarmUpBrowser = () => {
     };
   }, []);
 };
-WebBrowser.maybeCompleteAuthSession();
+
 export default function Login() {
   useWarmUpBrowser();
   const router = useRouter();
-  const { startSSOFlow } = useSSO();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Use useOAuth with proper configuration
+  const { startOAuthFlow } = useOAuth({
+    strategy: "oauth_google",
+  });
 
   const onPress = async () => {
-    setIsLoading(true);
     try {
-      const redirectUrl = AuthSession.makeRedirectUri({
-        scheme: "ram-bharose",
-      });
+      setIsLoading(true);
+      setError(null);
 
+      console.log("Starting OAuth flow for Google authentication...");
+
+      // Clear any existing browser sessions that might interfere
+      await WebBrowser.dismissBrowser();
+
+      // Start the OAuth flow with explicit configuration
       const { createdSessionId, setActive, signIn, signUp } =
-        await startSSOFlow({
-          strategy: "oauth_google",
-          redirectUrl,
+        await startOAuthFlow({
+          // Explicitly define the redirect URL to match app.json scheme config
+          redirectUrl: Platform.select({
+            native: "kms://oauth-native-callback",
+          }),
+          // Remove browserOptions as it's not supported in the current version
         });
 
+      console.log("OAuth flow completed. Session created:", !!createdSessionId);
+
       if (createdSessionId) {
-        await setActive?.({ session: createdSessionId });
-        router.replace("/(tabs)");
+        console.log("Setting session active and navigating...");
+        // Set session as active
+        if (setActive) {
+          await setActive({ session: createdSessionId });
+        }
+
+        // Redirect to family verification instead of tabs
+        // The AuthenticationWrapper will handle further redirection if already verified
+        setTimeout(
+          () => {
+            router.replace("/(auth)/family-verification");
+          },
+          Platform.OS === "android" ? 500 : 100
+        );
       } else if (signIn || signUp) {
+        console.log("Need to complete the sign in/up flow");
         try {
           if (signIn) {
             const result = await signIn.create({});
             await setActive?.({ session: result.createdSessionId });
-            router.replace("/(tabs)");
+            router.replace("/(auth)/family-verification");
           } else if (signUp) {
             const result = await signUp.create({});
             await setActive?.({ session: result.createdSessionId });
-            router.replace("/(tabs)");
+            router.replace("/(auth)/family-verification");
           }
         } catch (authError) {
           console.error("Authentication completion error:", authError);
-          alert("Failed to complete authentication. Please try again.");
+          setError("Failed to complete authentication. Please try again.");
+          Alert.alert(
+            "Authentication Error",
+            "We couldn't complete the sign-in process. Please try again."
+          );
         }
       } else {
-        throw new Error("Failed to create session or authenticate");
+        console.error("No session or sign-in/up flow created");
+        setError("Failed to authenticate. Please try again.");
+        Alert.alert(
+          "Sign-in Failed",
+          "We couldn't authenticate with Google. Please try again later."
+        );
       }
     } catch (err) {
       console.error("OAuth error:", err);
-      alert("Failed to sign in with Google. Please try again.");
+      setError("Failed to sign in with Google. Please try again.");
+      Alert.alert(
+        "Sign-in Error",
+        "There was a problem connecting to Google. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +121,7 @@ export default function Login() {
           resizeMode="contain"
         />
         <Text className="text-2xl font-bold text-gray-800 mt-6">
-          Welcome to Ram Bharose
+          Welcome to KMS
         </Text>
         <Text className="text-gray-500 text-center mt-2">
           Connect with your community and stay updated with family events
@@ -91,18 +133,30 @@ export default function Login() {
           <ActivityIndicator size="large" color="#f97316" />
         </View>
       ) : (
-        <TouchableOpacity
-          onPress={onPress}
-          className="bg-orange-500 py-4 rounded-xl flex-row justify-center items-center"
-        >
-          <Image
-            source={{ uri: "https://www.google.com/favicon.ico" }}
-            className="w-5 h-5 mr-2"
-          />
-          <Text className="text-white font-semibold text-lg">
-            Continue with Google
+        <>
+          <TouchableOpacity
+            onPress={onPress}
+            className="bg-orange-500 py-4 rounded-xl flex-row justify-center items-center"
+          >
+            <Ionicons
+              name="logo-google"
+              size={20}
+              color="white"
+              style={{ marginRight: 8 }}
+            />
+            <Text className="text-white font-semibold text-lg">
+              Continue with Google
+            </Text>
+          </TouchableOpacity>
+
+          {error && (
+            <Text className="text-red-500 text-center mt-4">{error}</Text>
+          )}
+
+          <Text className="text-gray-500 text-center text-xs mt-4">
+            By continuing, you agree to our Terms of Service and Privacy Policy
           </Text>
-        </TouchableOpacity>
+        </>
       )}
     </View>
   );

@@ -7,10 +7,17 @@ import {
   TouchableOpacity,
   Modal,
   ActivityIndicator,
-  Linking,
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  calculateAge,
+  handleCall,
+  handleWhatsApp,
+  handleEmail,
+  getPlaceholderImage,
+} from "./utils/memberUtils";
+import DetailItem from "./components/DetailItem";
 
 const { height } = Dimensions.get("window");
 
@@ -26,88 +33,6 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
       }, 500);
     }
   }, [visible, member]);
-
-  const calculateAge = (dob) => {
-    if (!dob) return "Unknown";
-    const parts = dob.split("/");
-    if (parts.length !== 3) return "Unknown";
-
-    const day = parseInt(parts[0]);
-    const monthStr = parts[1];
-    const yearStr = parts[2];
-
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const month = months.indexOf(monthStr);
-
-    if (isNaN(day) || month === -1) return "Unknown";
-
-    let year = parseInt(yearStr);
-    if (year < 100) {
-      year = year < 50 ? 2000 + year : 1900 + year;
-    }
-
-    const birthDate = new Date(year, month, day);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-
-    if (
-      today.getMonth() < birthDate.getMonth() ||
-      (today.getMonth() === birthDate.getMonth() &&
-        today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-
-    return age.toString();
-  };
-
-  const handleCall = (phoneNumber) => {
-    if (phoneNumber && phoneNumber !== "Not available") {
-      Linking.openURL(`tel:${phoneNumber}`);
-    }
-  };
-
-  const handleWhatsApp = (phoneNumber) => {
-    if (phoneNumber && phoneNumber !== "Not available") {
-      const formattedNumber = phoneNumber.replace(/\D/g, "");
-      Linking.openURL(`whatsapp://send?phone=${formattedNumber}`);
-    }
-  };
-
-  const handleEmail = (email) => {
-    if (email && email !== "Not available") {
-      Linking.openURL(`mailto:${email}`);
-    }
-  };
-
-  const renderDetailItem = (label, value, icon) => {
-    if (!value || value === "Not available" || value === "Unknown") return null;
-
-    return (
-      <View className="flex-row items-center mx-2 py-3 border-b border-gray-100">
-        <View className="w-10 items-center">
-          <Ionicons name={icon} size={20} color="#f97316" />
-        </View>
-        <View className="flex-1">
-          <Text className="text-gray-500 text-xs">{label}</Text>
-          <Text className="text-gray-800 font-medium">{value}</Text>
-        </View>
-      </View>
-    );
-  };
 
   if (!member) return null;
 
@@ -161,11 +86,11 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
                 <View className="pb-6 pt-2">
                   <View className="flex-row items-center">
                     <Image
-                      source={{
-                        uri:
-                          member.profile_pic ||
-                          "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg",
-                      }}
+                      source={
+                        member.profile_pic
+                          ? { uri: member.profile_pic }
+                          : getPlaceholderImage(member)
+                      }
                       className="w-24 h-24 rounded-full border-4 border-white shadow-md"
                     />
                     <View className="ml-4 flex-1">
@@ -225,31 +150,31 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
                     </Text>
                   </View>
                   <View className="bg-orange-50 rounded-xl p-4">
-                    {renderDetailItem(
-                      "Age",
-                      calculateAge(member.date_of_birth),
-                      "calendar-outline"
-                    )}
-                    {renderDetailItem(
-                      "Gender",
-                      member.gender,
-                      "male-female-outline"
-                    )}
-                    {renderDetailItem(
-                      "Blood Group",
-                      member.blood_group,
-                      "water-outline"
-                    )}
-                    {renderDetailItem(
-                      "Date of Birth",
-                      member.date_of_birth,
-                      "calendar-outline"
-                    )}
-                    {renderDetailItem(
-                      "Marital Status",
-                      member.marital_status,
-                      "heart-outline"
-                    )}
+                    <DetailItem
+                      label="Age"
+                      value={calculateAge(member.date_of_birth)}
+                      icon="calendar-outline"
+                    />
+                    <DetailItem
+                      label="Gender"
+                      value={member.gender}
+                      icon="male-female-outline"
+                    />
+                    <DetailItem
+                      label="Blood Group"
+                      value={member.blood_group}
+                      icon="water-outline"
+                    />
+                    <DetailItem
+                      label="Date of Birth"
+                      value={member.date_of_birth}
+                      icon="calendar-outline"
+                    />
+                    <DetailItem
+                      label="Marital Status"
+                      value={member.marital_status}
+                      icon="heart-outline"
+                    />
                   </View>
                 </View>
 
@@ -262,26 +187,26 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
                     </Text>
                   </View>
                   <View className="bg-blue-50 rounded-xl p-4">
-                    {renderDetailItem(
-                      "Occupation",
-                      member.occupation,
-                      "briefcase-outline"
-                    )}
-                    {renderDetailItem(
-                      "Education",
-                      member.education,
-                      "school-outline"
-                    )}
-                    {renderDetailItem(
-                      "Company",
-                      member.company_name,
-                      "business-outline"
-                    )}
-                    {renderDetailItem(
-                      "Designation",
-                      member.designation,
-                      "ribbon-outline"
-                    )}
+                    <DetailItem
+                      label="Occupation"
+                      value={member.occupation}
+                      icon="briefcase-outline"
+                    />
+                    <DetailItem
+                      label="Education"
+                      value={member.education}
+                      icon="school-outline"
+                    />
+                    <DetailItem
+                      label="Company"
+                      value={member.company_name}
+                      icon="business-outline"
+                    />
+                    <DetailItem
+                      label="Designation"
+                      value={member.designation}
+                      icon="ribbon-outline"
+                    />
                   </View>
                 </View>
 
@@ -294,22 +219,26 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
                     </Text>
                   </View>
                   <View className="bg-green-50 rounded-xl p-4">
-                    {renderDetailItem(
-                      "Mobile",
-                      member.mobile_no1,
-                      "call-outline"
-                    )}
-                    {renderDetailItem(
-                      "Alternate Mobile",
-                      member.mobile_no2,
-                      "call-outline"
-                    )}
-                    {renderDetailItem("Email", member.email, "mail-outline")}
-                    {renderDetailItem(
-                      "Landline",
-                      member.landline,
-                      "call-outline"
-                    )}
+                    <DetailItem
+                      label="Mobile"
+                      value={member.mobile_no1}
+                      icon="call-outline"
+                    />
+                    <DetailItem
+                      label="Alternate Mobile"
+                      value={member.mobile_no2}
+                      icon="call-outline"
+                    />
+                    <DetailItem
+                      label="Email"
+                      value={member.email}
+                      icon="mail-outline"
+                    />
+                    <DetailItem
+                      label="Landline"
+                      value={member.landline}
+                      icon="call-outline"
+                    />
                   </View>
                 </View>
 
@@ -322,24 +251,21 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
                     </Text>
                   </View>
                   <View className="bg-purple-50 rounded-xl p-4">
-                    {fullAddress &&
-                      renderDetailItem(
-                        "Residential Address",
-                        fullAddress,
-                        "home-outline"
-                      )}
-                    {officeAddress &&
-                      renderDetailItem(
-                        "Office Address",
-                        officeAddress,
-                        "business-outline"
-                      )}
-                    {member.native_place &&
-                      renderDetailItem(
-                        "Native Place",
-                        member.native_place,
-                        "flag-outline"
-                      )}
+                    <DetailItem
+                      label="Residential Address"
+                      value={fullAddress}
+                      icon="home-outline"
+                    />
+                    <DetailItem
+                      label="Office Address"
+                      value={officeAddress}
+                      icon="business-outline"
+                    />
+                    <DetailItem
+                      label="Native Place"
+                      value={member.native_place}
+                      icon="flag-outline"
+                    />
                   </View>
                 </View>
 
@@ -352,21 +278,21 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
                     </Text>
                   </View>
                   <View className="bg-yellow-50 rounded-xl p-4">
-                    {renderDetailItem(
-                      "Family Number",
-                      member.family_no,
-                      "home-outline"
-                    )}
-                    {renderDetailItem(
-                      "Relationship",
-                      member.relationship,
-                      "people-outline"
-                    )}
-                    {renderDetailItem(
-                      "Anniversary",
-                      member.anniversary,
-                      "calendar-outline"
-                    )}
+                    <DetailItem
+                      label="Family Number"
+                      value={member.family_no}
+                      icon="home-outline"
+                    />
+                    <DetailItem
+                      label="Relationship"
+                      value={member.relationship}
+                      icon="people-outline"
+                    />
+                    <DetailItem
+                      label="Anniversary"
+                      value={member.anniversary}
+                      icon="calendar-outline"
+                    />
                   </View>
                 </View>
               </ScrollView>

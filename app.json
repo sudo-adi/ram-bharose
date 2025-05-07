@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "client",
-    "slug": "client",
-    "scheme": "acme",
+    "name": "Kms",
+    "slug": "kms-app",
+    "scheme": "kms",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
@@ -19,11 +19,11 @@
     "extra": {
       "eas": {
         "projectId": "3e85c530-a460-42e5-a07e-45a4396e8b13"
-      }
+      },
+      "clerkPublishableKey": "pk_test_bWFzdGVyLXJlcHRpbGUtMTQuY2xlcmsuYWNjb3VudHMuZGV2JA"
     },
     "icon": "./assets/icon.png",
     "android": {
-      "gradleCommand": ":app:assembleDebug",
       "package": "com.kms.app",
       "versionCode": 1,
       "adaptiveIcon": {
@@ -33,13 +33,33 @@
       "permissions": [
         "CAMERA",
         "ACCESS_FINE_LOCATION"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "master-reptile-14.clerk.accounts.dev",
+              "pathPrefix": "/oauth-callback"
+            },
+            {
+              "scheme": "kms"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
       ]
     },
     "ios": {
-      "bundleIdentifier": "com.kmc.app",
+      "bundleIdentifier": "com.kms.app",
       "buildNumber": "1.0.0",
       "supportsTablet": true,
-      "icon": "./assets/icon.png"
+      "icon": "./assets/icon.png",
+      "associatedDomains": [
+        "applinks:master-reptile-14.clerk.accounts.dev"
+      ]
     }
   }
 }
