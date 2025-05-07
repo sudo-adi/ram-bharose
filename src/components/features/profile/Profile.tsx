@@ -88,7 +88,11 @@ export default function ProfileContent() {
             cover_pic: coverPicUrl,
           });
 
-          // Fetch family members
+          // Fetch family members based on email domain
+          const emailParts = userEmail.split('@');
+          const emailDomain = emailParts[1];
+
+          // Fetch family members based on family_no instead of email domain
           const { data: members, error: membersError } = await supabase
             .from("profiles")
             .select("*")
@@ -104,7 +108,7 @@ export default function ProfileContent() {
               age: calculateAge(member.date_of_birth),
               gender: member.gender,
               image:
-                member.profile_pic ||
+                (member.profile_pic ? supabase.storage.from("profile-pictures").getPublicUrl(member.profile_pic).data?.publicUrl : null) ||
                 "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
             }))
           );
@@ -392,29 +396,25 @@ export default function ProfileContent() {
         <View className="mb-6">
           <View className="flex-row border-b border-gray-100">
             <TouchableOpacity
-              className={`flex-1 pb-3 ${
-                activeTab === "personal" ? "border-b-2 border-orange-500" : ""
-              }`}
+              className={`flex-1 pb-3 ${activeTab === "personal" ? "border-b-2 border-orange-500" : ""
+                }`}
               onPress={() => setActiveTab("personal")}
             >
               <Text
-                className={`text-center font-medium ${
-                  activeTab === "personal" ? "text-orange-500" : "text-gray-500"
-                }`}
+                className={`text-center font-medium ${activeTab === "personal" ? "text-orange-500" : "text-gray-500"
+                  }`}
               >
                 Personal Info
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`flex-1 pb-3 ${
-                activeTab === "family" ? "border-b-2 border-orange-500" : ""
-              }`}
+              className={`flex-1 pb-3 ${activeTab === "family" ? "border-b-2 border-orange-500" : ""
+                }`}
               onPress={() => setActiveTab("family")}
             >
               <Text
-                className={`text-center font-medium ${
-                  activeTab === "family" ? "text-orange-500" : "text-gray-500"
-                }`}
+                className={`text-center font-medium ${activeTab === "family" ? "text-orange-500" : "text-gray-500"
+                  }`}
               >
                 Family Members
               </Text>
@@ -541,13 +541,13 @@ export default function ProfileContent() {
                     <Text className="text-gray-800 text-base">
                       {profileData.dateOfBirth
                         ? new Date(profileData.dateOfBirth).toLocaleDateString(
-                            "en-US",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            }
-                          )
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )
                         : "Not set"}
                     </Text>
                   )}
@@ -624,14 +624,6 @@ export default function ProfileContent() {
                       {member.gender}
                     </Text>
                   </View>
-                </View>
-                <View className="flex-row items-center">
-                  <TouchableOpacity className="mr-3">
-                    <Ionicons name="create-outline" size={20} color="#666" />
-                  </TouchableOpacity>
-                  <TouchableOpacity>
-                    <Ionicons name="trash-outline" size={20} color="#ef4444" />
-                  </TouchableOpacity>
                 </View>
               </View>
             ))}

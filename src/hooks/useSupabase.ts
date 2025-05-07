@@ -450,20 +450,20 @@ export const useBirthdays = (filter: 'today' | 'month' | 'all' = 'all') => {
     return { ...result, refetch: fetchBirthdays };
 };
 
-export const useFamilyVerification = (familyCode: string) => {
+export const useFamilyVerification = (email: string) => {
     const [result, setResult] = useState<UseQueryResult<Profile[]>>({
         data: null,
         error: null,
         loading: true,
     });
 
-    const verifyFamilyCode = async () => {
+    const verifyUserEmail = async () => {
         try {
             setResult(prev => ({ ...prev, loading: true }));
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('family_no', familyCode);
+                .eq('email', email);
 
             if (error) throw error;
 
@@ -482,13 +482,14 @@ export const useFamilyVerification = (familyCode: string) => {
     };
 
     useEffect(() => {
-        if (familyCode) {
-            verifyFamilyCode();
+        if (email) {
+            verifyUserEmail();
         }
-    }, [familyCode]);
+    }, [email]);
 
-    return { ...result, refetch: verifyFamilyCode };
+    return { ...result, refetch: verifyUserEmail };
 };
+
 
 export const useCommittees = () => {
     const [result, setResult] = useState<UseQueryResult<Committee[]>>({
@@ -602,55 +603,55 @@ export const useCommitteeImages = () => {
 
 // Add this type to your existing types
 type Doctor = {
-  id: number;
-  name: string;
-  specialization: string;
-  qualification: string;
-  experience_years: number;
-  clinic_address: string;
-  contact_email: string;
-  contact_phone: string;
-  available_timings: string;
-  created_at: string;
+    id: number;
+    name: string;
+    specialization: string;
+    qualification: string;
+    experience_years: number;
+    clinic_address: string;
+    contact_email: string;
+    contact_phone: string;
+    available_timings: string;
+    created_at: string;
 };
 
 // Add this hook to your existing hooks
 export const useDoctors = () => {
-  const [result, setResult] = useState<UseQueryResult<Doctor[]>>({
-    data: null,
-    error: null,
-    loading: true,
-  });
-
-  const fetchDoctors = async () => {
-    try {
-      setResult(prev => ({ ...prev, loading: true }));
-      const { data, error } = await supabase
-        .from('doctors')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      setResult({
-        data,
-        error: null,
-        loading: false,
-      });
-    } catch (error) {
-      setResult({
+    const [result, setResult] = useState<UseQueryResult<Doctor[]>>({
         data: null,
-        error: error as Error,
-        loading: false,
-      });
-    }
-  };
+        error: null,
+        loading: true,
+    });
 
-  useEffect(() => {
-    fetchDoctors();
-  }, []);
+    const fetchDoctors = async () => {
+        try {
+            setResult(prev => ({ ...prev, loading: true }));
+            const { data, error } = await supabase
+                .from('doctors')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-  return { ...result, refetch: fetchDoctors };
+            if (error) throw error;
+
+            setResult({
+                data,
+                error: null,
+                loading: false,
+            });
+        } catch (error) {
+            setResult({
+                data: null,
+                error: error as Error,
+                loading: false,
+            });
+        }
+    };
+
+    useEffect(() => {
+        fetchDoctors();
+    }, []);
+
+    return { ...result, refetch: fetchDoctors };
 };
 
 
@@ -663,88 +664,88 @@ type ShubhChintak = {
     title: string;
     cover_image_name: string;
     cover_image_url?: string; // This will be added after fetching from storage
-  };
+};
 
 
 
-  // Update the useShubhChintak hook
-  export const useShubhChintak = (limit?: number) => {
+// Update the useShubhChintak hook
+export const useShubhChintak = (limit?: number) => {
     const [result, setResult] = useState<UseQueryResult<ShubhChintak[]>>({
-      data: null,
-      error: null,
-      loading: true,
+        data: null,
+        error: null,
+        loading: true,
     });
 
     const fetchShubhChintak = async () => {
-      try {
-        setResult(prev => ({ ...prev, loading: true }));
+        try {
+            setResult(prev => ({ ...prev, loading: true }));
 
-        // 1. Fetch magazine data from the table
-        let query = supabase
-          .from('shubh_chintak')
-          .select('*')
-          .order('created_at', { ascending: false });
+            // 1. Fetch magazine data from the table
+            let query = supabase
+                .from('shubh_chintak')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-        if (limit) {
-          query = query.limit(limit);
-        }
-
-        const { data: magazines, error: tableError } = await query;
-
-        if (tableError) throw tableError;
-
-        if (!magazines || magazines.length === 0) {
-          setResult({
-            data: [],
-            error: null,
-            loading: false,
-          });
-          return;
-        }
-
-        // 2. Get cover image URLs from storage
-        const magazinesWithImages = await Promise.all(
-          magazines.map(async (magazine) => {
-            if (magazine.cover_image_name) {
-              const { data: { publicUrl } } = supabase
-                .storage
-                .from('shubh-chintak')
-                .getPublicUrl(`magzine-cover/${magazine.cover_image_name}.png`);
-
-              return {
-                ...magazine,
-                cover_image_url: publicUrl
-              };
+            if (limit) {
+                query = query.limit(limit);
             }
-            return magazine;
-          })
-        );
 
-        setResult({
-          data: magazinesWithImages,
-          error: null,
-          loading: false,
-        });
-      } catch (error) {
-        setResult({
-          data: null,
-          error: error as Error,
-          loading: false,
-        });
-      }
+            const { data: magazines, error: tableError } = await query;
+
+            if (tableError) throw tableError;
+
+            if (!magazines || magazines.length === 0) {
+                setResult({
+                    data: [],
+                    error: null,
+                    loading: false,
+                });
+                return;
+            }
+
+            // 2. Get cover image URLs from storage
+            const magazinesWithImages = await Promise.all(
+                magazines.map(async (magazine) => {
+                    if (magazine.cover_image_name) {
+                        const { data: { publicUrl } } = supabase
+                            .storage
+                            .from('shubh-chintak')
+                            .getPublicUrl(`magzine-cover/${magazine.cover_image_name}.png`);
+
+                        return {
+                            ...magazine,
+                            cover_image_url: publicUrl
+                        };
+                    }
+                    return magazine;
+                })
+            );
+
+            setResult({
+                data: magazinesWithImages,
+                error: null,
+                loading: false,
+            });
+        } catch (error) {
+            setResult({
+                data: null,
+                error: error as Error,
+                loading: false,
+            });
+        }
     };
 
     useEffect(() => {
-      fetchShubhChintak();
+        fetchShubhChintak();
     }, [limit]);
 
     return { ...result, refetch: fetchShubhChintak };
-  };
+};
 
 
 
 
-  interface Article {
+interface Article {
     id: string;
     user_id: string;
     title: string;
@@ -943,10 +944,14 @@ export const useFamily = () => {
                 throw userError || new Error('User not found');
             }
 
+            // Get all profiles with the same email domain (same family)
+            const emailParts = email.split('@');
+            const emailDomain = emailParts[1];
+
             const { data: familyData, error: familyError } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('family_no', userData.family_no);
+                .ilike('email', `%@${emailDomain}`);
 
             if (familyError || !familyData) {
                 throw familyError || new Error('Family data not found');

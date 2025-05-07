@@ -304,14 +304,12 @@ export default function EventsContent() {
                     <TouchableOpacity
                       key={year}
                       onPress={() => handleYearSelection(year)}
-                      className={`m-1 px-4 py-2 rounded-full ${
-                        year === currentYear ? "bg-orange-500" : "bg-gray-100"
-                      }`}
+                      className={`m-1 px-4 py-2 rounded-full ${year === currentYear ? "bg-orange-500" : "bg-gray-100"
+                        }`}
                     >
                       <Text
-                        className={`${
-                          year === currentYear ? "text-white" : "text-gray-700"
-                        } font-medium`}
+                        className={`${year === currentYear ? "text-white" : "text-gray-700"
+                          } font-medium`}
                       >
                         {year}
                       </Text>
@@ -359,22 +357,18 @@ export default function EventsContent() {
                     {dayObj.day ? (
                       <View
                         className={`items-center w-8 h-8 rounded-full justify-center
-                          ${
-                            dayIsToday
-                              ? "bg-orange-500"
-                              : dayHasEvent
-                              ? "bg-orange-100"
-                              : ""
+                          ${dayIsToday
+                            ? "bg-orange-500"
+                            : ""
                           }`}
                       >
                         <Text
-                          className={`${
-                            dayIsToday
-                              ? "text-white"
-                              : dayHasEvent
+                          className={`${dayIsToday
+                            ? "text-white"
+                            : dayHasEvent
                               ? "text-orange-500"
                               : "text-gray-700"
-                          }`}
+                            }`}
                         >
                           {dayObj.day}
                         </Text>

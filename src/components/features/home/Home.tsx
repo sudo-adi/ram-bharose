@@ -139,8 +139,8 @@ export default function Home() {
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Events Carousel Component - no longer needs events prop */}
-        <EventsCarousel />
+        {/* Events Carousel Component - with onViewAll prop */}
+        <EventsCarousel onViewAll={() => router.push("/calendar")} />
 
         {/* Directory Section Component */}
         <DirectorySection />
