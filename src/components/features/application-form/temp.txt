@@ -1,0 +1,405 @@
+1)	Education Loan Application Form
+Section 1: Applicant Personal Details
+•	Full Name (as per Aadhaar/PAN):
+•	Date of Birth:
+•	Gender:
+•	Marital Status:
+•	Nationality:
+•	Mobile Number:
+•	Email ID:
+•	Permanent Address:
+•	Current Address:
+•	Aadhaar Number:
+•	PAN Number:
+•	Passport Number (if available):
+•	CIBIL Score (if known):
+________________________________________
+Section 2: Course & Institution Details
+•	Course Name:
+•	Level of Study: (UG/PG/Diploma/PhD)
+•	Mode of Study: (Full-time/Part-time/Distance)
+•	Course Duration:
+•	Institution Name:
+•	Institution Type: (India/Abroad)
+•	Institution Address:
+•	Admission Letter (upload):
+•	Commencement Date:
+•	Expected Completion Date:
+•	Visa Status (for overseas):
+________________________________________
+Section 3: Loan Requirement
+•	Total Course Fee:
+•	Other Expenses (Accommodation, Travel, Books, etc.):
+•	Total Loan Amount Required:
+•	Contribution from Family/Self:
+•	Repayment Period (in years):
+•	Moratorium Period (if required):
+________________________________________
+Section 4: Academic Background
+•	10th Board Name / Year / Marks:
+•	12th Board Name / Year / Marks:
+•	Graduation Details (if applicable):
+•	Competitive Exams Cleared (e.g., GRE/GMAT/IELTS):
+•	Academic Certificates (upload):
+________________________________________
+Section 5: Employment Details (If Applicable)
+•	Currently Employed? (Yes/No)
+•	Company Name:
+•	Designation:
+•	Annual Income:
+•	Work Experience (in years):
+•	Salary Slips / ITR / Form 16 (upload):
+________________________________________
+Section 6: Co-applicant/Guarantor Details (Mandatory)
+•	Full Name:
+•	Relation to Applicant:
+•	Date of Birth:
+•	Mobile Number:
+•	Email ID:
+•	Occupation:
+•	Employer Name:
+•	Annual Income:
+•	PAN Number:
+•	Aadhaar Number:
+•	Address Proof (upload):
+•	Income Proof (ITR/Form16/Salary Slips):
+•	CIBIL Score (if known):
+________________________________________
+Section 7: Asset & Liability Details
+•	Movable Assets (FDs, Shares, etc.):
+•	Immovable Assets (Land, Property):
+•	Existing Loans (if any):
+•	Total Liabilities:
+•	Security Offered (if any): (Collateral/Property/FD/Third Party Guarantee)
+________________________________________
+Section 8: Bank Account Details
+•	Account Holder Name:
+•	Bank Name:
+•	Branch:
+•	Account Number:
+•	IFSC Code:
+________________________________________
+Section 9: Document Checklist
+•	✅ Photo ID (PAN/Aadhaar/Passport)
+•	✅ Address Proof
+•	✅ Admission Letter
+•	✅ Fee Structure from Institution
+•	✅ Academic Records
+•	✅ Income Proof of Applicant & Co-applicant
+•	✅ Bank Statements (Last 6 months)
+•	✅ Passport & Visa (if applicable)
+•	✅ Collateral Documents (if secured loan)
+________________________________________
+Declaration & Consent
+I hereby declare that the information furnished above is true and correct to the best of my knowledge. I authorize the institution to process my application, obtain my credit information from credit bureaus, and contact me for any further clarifications.
+Signature of Applicant: ____________________
+Signature of Co-applicant: __________________
+Date: __________________
+________________________________________
+ 
+
+2)	Business Loan Application 
+________________________________________
+Step 1: Applicant/Business Owner Details
+Inputs:
+•	Full Name
+•	Date of Birth
+•	Gender
+•	PAN Number
+•	Aadhaar Number
+•	Mobile Number (with OTP verification)
+•	Email ID
+•	Residential Address
+•	Marital Status
+•	CIBIL Score (optional)
+________________________________________
+Step 2: Business Details
+Inputs:
+•	Business Name
+•	Business Type (Proprietorship / Partnership / Pvt Ltd / LLP / Other)
+•	Nature of Business (Manufacturing / Services / Retail / Trading / Other)
+•	Industry Type (dropdown: FMCG, Textile, SaaS, etc.)
+•	Business PAN Number
+•	Business Address
+•	Year of Incorporation (calendar picker)
+•	GSTIN
+•	Udyam Registration Number (optional)
+•	Website or Social Media (optional)
+________________________________________
+Step 3: Business Financials
+Inputs:
+•	Annual Turnover (Last 3 years)
+•	Net Profit (Last 3 years)
+•	Monthly Revenue (last 6 months)
+•	Business Bank Statements (upload PDF or connect via API)
+•	ITR (last 2–3 years) (upload)
+•	Audited Financial Statements (upload)
+•	Current Loans or Liabilities (type, bank, EMI)
+________________________________________
+Step 4: Loan Requirement
+Inputs:
+•	Loan Amount Required
+•	Purpose of Loan (dropdown: Working Capital, Expansion, Equipment, Inventory, Others)
+•	Loan Tenure (dropdown: 6 months – 5 years)
+•	Preferred EMI (optional)
+•	Expected Disbursement Date (calendar)
+________________________________________
+Step 5: Co-Applicant/Guarantor (if any)
+Inputs:
+•	Full Name
+•	Relation to Applicant (dropdown)
+•	PAN / Aadhaar
+•	Contact Number
+•	Occupation
+•	Annual Income
+•	CIBIL Score (if known)
+•	Upload ID Proof / Income Proof
+________________________________________
+Step 6: Collateral (Optional / Required for Secured Loans)
+Inputs:
+•	Do you have collateral? (Yes/No toggle)
+If Yes:
+o	Asset Type (dropdown: Property, Machinery, FD, Vehicle, etc.)
+o	Asset Value
+o	Ownership Proof (upload documents)
+o	Location of Asset (if property)
+________________________________________
+Step 7: Business Documents Upload
+File Uploads:
+•	PAN (Business & Owner)
+•	Aadhaar (Owner)
+•	GST Certificate
+•	Udyam Registration (if any)
+•	ITR (Last 2–3 years)
+•	Audited Financials
+•	Business Address Proof
+•	Bank Statements (Last 6 months)
+•	Collateral Documents (if any)
+________________________________________
+Step 8: Bank Details
+Inputs:
+•	Bank Account Holder Name
+•	Bank Name (dropdown or auto-complete)
+•	Account Number
+•	IFSC Code
+•	Branch
+________________________________________
+Step 9: Review & Declaration
+•	Review All Entered Data (collapsible sections)
+•	Declaration Checkbox:
+I confirm all details are accurate and consent to credit checks and data verification by the lending institution.
+•	E-signature or Consent Submit Button
+ 
+3)	Mulund Hostel Enrollment 
+________________________________________
+Step 1: Personal Details
+Inputs:
+•	Full Name (as per ID)
+•	Date of Birth (calendar picker)
+•	Gender (Male / Female / Other)
+•	Blood Group (dropdown)
+•	Mobile Number (OTP verified)
+•	Alternate Contact Number (Guardian)
+•	Email Address
+•	Aadhaar Number (masked input)
+•	PAN (optional)
+•	Emergency Contact Name & Number
+•	Profile Photo (camera/file upload)
+________________________________________
+Step 2: Address Details
+Inputs:
+•	Permanent Address (multi-line text)
+•	City
+•	State
+•	Pincode
+•	Current Local Guardian Address (if any)
+________________________________________
+Step 3: Academic / Employment Details
+Inputs:
+•	Are you a: (radio)
+o	Student
+o	Working Professional
+•	Name of College / Company
+•	Course / Designation
+•	Academic Year / Work Experience
+•	ID Card Upload (college/company ID)
+•	Timings (e.g., 9 AM – 5 PM)
+________________________________________
+Step 4: Parent/Guardian Details
+Inputs:
+•	Guardian’s Full Name
+•	Relation to Applicant
+•	Contact Number
+•	Email Address (optional)
+•	Upload Guardian’s ID (Aadhaar/PAN)
+________________________________________
+Step 5: Health & Other Info
+Inputs:
+•	Any health conditions or allergies? (text area)
+•	Are you on any regular medication? (Yes/No)
+•	COVID Vaccination Status (dropdown: Fully / Partially / Not Vaccinated)
+•	Medical Certificate Upload (optional but recommended)
+________________________________________
+Step 6: Document Uploads
+Required Uploads:
+•	Aadhaar Card
+•	Passport-size Photo
+•	College/Work ID
+•	Guardian’s ID Proof
+•	Undertaking / Consent Form (hostel-provided PDF)
+________________________________________
+Step 7: Declaration & Submit
+•	Declaration Checkbox:
+I confirm that the information provided is true and I agree to follow the hostel’s code of conduct.
+•	Link to View Hostel Rules
+•	Digital Signature Pad or Consent Button
+•	Submit Application
+ 
+4)	Girls Hostel Enrollment 
+________________________________________
+Step 1: Applicant Personal Details
+Inputs:
+•	Full Name (as per Aadhaar)
+•	Date of Birth (calendar picker)
+•	Gender (auto-filled as Female)
+•	Blood Group (dropdown)
+•	Mobile Number (OTP verified)
+•	Alternate Contact (Guardian)
+•	Email Address
+•	Aadhaar Number (masked input)
+•	PAN (optional)
+•	Emergency Contact Name & Number
+•	Profile Photo (camera/upload)
+•	Religion & Category (optional, if needed for admin use)
+________________________________________
+Step 2: Permanent Address
+Inputs:
+•	Full Address (multi-line)
+•	City
+•	State
+•	Pincode
+•	Local Guardian Address (if applicable)
+________________________________________
+Step 3: Educational / Work Details
+Inputs:
+•	Are you currently a:
+o	Student
+o	Working Professional
+•	Name of College / Company
+•	Course / Job Title
+•	Academic Year / Work Experience (text/number)
+•	Timings (e.g., 9 AM – 6 PM)
+•	Upload College/Company ID Card (file upload)
+________________________________________
+Step 4: Guardian Details
+Inputs:
+•	Father's / Mother's / Guardian’s Full Name
+•	Relation to Applicant
+•	Contact Number
+•	Email Address (optional)
+•	Residential Address (if different)
+•	Upload ID Proof (Aadhaar / PAN)
+•	Upload Guardian's Photo (optional but encouraged)
+________________________________________
+Step 5: Safety & Health Info
+Inputs:
+•	Medical Conditions or Allergies (text)
+•	Are you on regular medication? (Yes/No)
+•	COVID Vaccination Status (dropdown: Fully / Partially / Not Vaccinated)
+•	Upload Medical Certificate (optional)
+•	Upload Recent Passport Photo (if not submitted earlier)
+•	Consent for emergency contact communication (checkbox)
+________________________________________
+Step 6: Document Uploads
+Required:
+•	Aadhaar Card (Front & Back)
+•	Passport-size Photo
+•	College/Company ID
+•	Guardian’s ID Proof
+•	Undertaking / Consent Form (hostel-provided template)
+•	Address Proof (Electricity bill / Voter ID / Ration Card – optional)
+Step 7: Declaration & Submit
+•	Declaration Checkbox:
+I affirm that the information above is correct and agree to abide by hostel policies, curfews, and safety regulations.
+•	Link to View Hostel Rules (PDF)
+•	Digital Signature or Consent Button
+•	Submit Form
+5)	VatsalyaDham Enrollment
+________________________________________
+Step 1: Personal Details of the Elderly Applicant
+Inputs:
+•	Full Name (as per Aadhaar)
+•	Date of Birth (calendar picker)
+•	Gender (Male / Female / Other)
+•	Marital Status (dropdown)
+•	Blood Group (dropdown)
+•	Mobile Number (if applicable)
+•	Email Address (optional)
+•	Aadhaar Number (masked input)
+•	PAN (optional)
+•	Religion & Caste (optional)
+•	Recent Photo (camera/upload)
+________________________________________
+Step 2: Current Residential Details
+Inputs:
+•	Full Address (multi-line)
+•	City
+•	State
+•	Pincode
+•	Is this your permanent address? (Yes/No toggle)
+•	Alternate Contact Address (if any)
+________________________________________
+Step 3: Guardian / Family Details
+Inputs:
+•	Guardian’s Full Name (Child / Relative / Social Worker)
+•	Relation to the Applicant
+•	Contact Number
+•	Alternate Number
+•	Email ID (optional)
+•	Address of Guardian (multi-line)
+•	Upload Guardian’s ID Proof (Aadhaar / PAN)
+•	Upload Consent Letter (PDF or image)
+________________________________________
+Step 4: Health & Medical Details
+Inputs:
+•	Known Medical Conditions (Diabetes, BP, etc.)
+•	Are you on regular medication? (Yes/No)
+•	List of Medications (if Yes)
+•	Allergies (text)
+•	Disability / Mobility Assistance Required (Yes/No)
+•	Upload Recent Medical Certificate (file upload)
+•	COVID Vaccination Status (Fully / Partially / Not Vaccinated)
+•	Upload Vaccination Certificate (optional)
+________________________________________
+Step 5: Lifestyle & Support
+Inputs:
+•	Languages Spoken
+•	Dietary Preferences (Veg / Non-Veg / Jain / Diabetic, etc.)
+•	Do you require religious/spiritual support? (Yes/No toggle)
+•	Are you capable of self-care? (Yes / Partially / No)
+•	Any past psychiatric treatment or mental health concerns? (Yes/No, optional)
+•	Upload Disability Certificate (if applicable)
+________________________________________
+Step 6: Legal & Consent
+Inputs:
+•	Is the applicant under any legal guardianship? (Yes/No)
+•	Upload Legal Guardian Document (if Yes)
+•	Upload Signed Undertaking (template downloadable in app)
+•	Upload No-Objection Certificate from Family (if needed)
+________________________________________
+Step 7: Final Declaration & Submit
+•	Declaration Checkbox:
+I/we declare that the information provided is true. I/we give consent to VatsalyaDham to provide necessary care and support.
+•	View/Download VatsalyaDham Guidelines (PDF)
+•	Digital Signature / Thumb Impression Upload (optional)
+•	Submit Button
+
+
+
+
+add these forms to the ApplicationForm.tsx
+
+there are already 2 tabs events and domations, ad 2 more wiht the names "loans" and "enrollment".
+
+the enrollment and loans tabs should have a drop dowm which would decide the fields to be shown according to the above data
+Once sumitted they should be uploaded to database the same way as the events and donation ones

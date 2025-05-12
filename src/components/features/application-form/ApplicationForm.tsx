@@ -1,115 +1,128 @@
 import React, { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
   ScrollView,
-  StyleSheet,
-  Alert,
-  Image,
-  KeyboardTypeOptions,
+  Alert
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
 import { useFormSubmission } from "@/hooks";
+import FormField from "./FormField"; // Import the new FormField component
+import EducationLoanForm from "./EducationLoanForm";
+import BusinessLoanForm from "./BusinessLoanForm";
+import MulundHostelForm from "./MulundHostelForm";
+import GirlsHostelForm from "./GirlsHostelForm";
+import VatsalyadhamForm from "./VatsalyadhamForm";
+import ImageUploadCard from "./ImageUploadCard"; // Import the new ImageUploadCard component
 
 export default function ApplicationForm() {
   const [activeTab, setActiveTab] = useState("event");
 
   return (
     <View className="flex-1 bg-white">
-      {/* Header */}
       {/* Tab Navigation */}
-      <View className="flex-row border-b border-gray-200 mx-4">
-        <TouchableOpacity
-          className={`flex-1 items-center py-3 border-b-2 ${
-            activeTab === "event" ? "border-orange-500" : "border-transparent"
-          }`}
-          onPress={() => setActiveTab("event")}
-        >
-          <Text
-            className={`font-medium ${
-              activeTab === "event" ? "text-orange-500" : "text-gray-500"
-            }`}
-          >
-            Event
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className={`flex-1 items-center py-3 border-b-2 ${
-            activeTab === "donation"
-              ? "border-orange-500"
-              : "border-transparent"
-          }`}
-          onPress={() => setActiveTab("donation")}
-        >
-          <Text
-            className={`font-medium ${
-              activeTab === "donation" ? "text-orange-500" : "text-gray-500"
-            }`}
-          >
-            Donation
-          </Text>
-        </TouchableOpacity>
+      <View className="border-b border-gray-200 bg-white">
+        <View className="flex-row justify-around py-1">
+          <TabButton
+            title="Event"
+            isActive={activeTab === "event"}
+            onPress={() => setActiveTab("event")}
+          />
+          <TabButton
+            title="Donation"
+            isActive={activeTab === "donation"}
+            onPress={() => setActiveTab("donation")}
+          />
+          <TabButton
+            title="Loans"
+            isActive={activeTab === "loans"}
+            onPress={() => setActiveTab("loans")}
+          />
+          <TabButton
+            title="Enrollment"
+            isActive={activeTab === "enrollment"}
+            onPress={() => setActiveTab("enrollment")}
+          />
+        </View>
       </View>
 
       {/* Form Content */}
       <ScrollView
-        className="flex-1 px-4 pt-4"
+        className="flex-1 px-4 pt-5 bg-gray-50"
         showsVerticalScrollIndicator={false}
       >
-        {activeTab === "event" ? <EventForm /> : <DonationForm />}
+        {activeTab === "event" && <EventForm />}
+        {activeTab === "donation" && <DonationForm />}
+        {activeTab === "loans" && <LoanForm />}
+        {activeTab === "enrollment" && <EnrollmentForm />}
       </ScrollView>
     </View>
   );
 }
 
-function ImageUploadCard({ onImageSelect, selectedImage }) {
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+interface TabButtonProps {
+  title: string;
+  isActive: boolean;
+  onPress: () => void;
+}
 
-    if (status !== "granted") {
-      Alert.alert(
-        "Permission needed",
-        "Please grant camera roll permissions to upload images."
-      );
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      onImageSelect(result.assets[0]);
-    }
-  };
-
+function TabButton({ title, isActive, onPress }: TabButtonProps) {
   return (
-    <TouchableOpacity className="mb-6" onPress={pickImage}>
-      <View className="h-32 w-full rounded-xl border-2 border-dashed border-gray-300 justify-center items-center bg-gray-50 overflow-hidden">
-        {selectedImage ? (
-          <Image
-            source={{ uri: selectedImage.uri }}
-            className="w-full h-full"
-            resizeMode="cover"
-          />
-        ) : (
-          <>
-            <Ionicons name="add" size={32} color="#9ca3af" />
-            <Text className="text-gray-500 text-xs mt-2">Upload Image</Text>
-          </>
-        )}
-      </View>
+    <TouchableOpacity
+      className={`px-4 py-3 border-b-2 ${isActive ? "border-orange-500" : "border-transparent"}`}
+      onPress={onPress}
+    >
+      <Text className={`font-medium ${isActive ? "text-orange-500" : "text-gray-500"}`}>
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 }
+
+// function ImageUploadCard({ onImageSelect, selectedImage }) {
+//   const pickImage = async () => {
+//     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+//     if (status !== "granted") {
+//       Alert.alert(
+//         "Permission needed",
+//         "Please grant camera roll permissions to upload images."
+//       );
+//       return;
+//     }
+
+//     const result = await ImagePicker.launchImageLibraryAsync({
+//       mediaTypes: ImagePicker.MediaTypeOptions.Images,
+//       allowsEditing: true,
+//       quality: 0.8,
+//     });
+
+//     if (!result.canceled && result.assets[0]) {
+//       onImageSelect(result.assets[0]);
+//     }
+//   };
+
+//   return (
+//     <TouchableOpacity className="mb-6" onPress={pickImage}>
+//       <View className="h-32 w-full rounded-xl border-2 border-dashed border-gray-300 justify-center items-center bg-gray-50 overflow-hidden">
+//         {selectedImage ? (
+//           <Image
+//             source={{ uri: selectedImage.uri }}
+//             className="w-full h-full"
+//             resizeMode="cover"
+//           />
+//         ) : (
+//           <>
+//             <Ionicons name="add" size={32} color="#9ca3af" />
+//             <Text className="text-gray-500 text-xs mt-2">Upload Image</Text>
+//           </>
+//         )}
+//       </View>
+//     </TouchableOpacity>
+//   );
+// }
 
 function EventForm() {
   const [formData, setFormData] = useState({
@@ -193,7 +206,7 @@ function EventForm() {
 
   return (
     <View className="pb-10">
-      <Text className="text-lg font-semibold text-gray-800 mb-4">
+      <Text className="text-lg text-center font-bold text-gray-800 mb-4">
         Event Details
       </Text>
 
@@ -244,9 +257,8 @@ function EventForm() {
       />
 
       <TouchableOpacity
-        className={`bg-orange-500 py-4 rounded-xl mt-6 ${
-          loading ? "opacity-50" : ""
-        }`}
+        className={`bg-orange-500 py-4 rounded-xl mt-6 ${loading ? "opacity-50" : ""
+          }`}
         onPress={handleSubmit}
         disabled={loading}
       >
@@ -271,23 +283,14 @@ const getUserIdByPhone = async (phone: string | null) => {
     const { data, error } = await supabase
       .from("profiles")
       .select("id")
-      .eq("phone", phone)
+      .eq("mobile_no1", phone) // Changed 'phone' to 'mobile_no1'
       .single();
 
     if (error) {
-      // If user doesn't exist, create a new profile
-      if (error.code === "PGRST116") {
-        const { data: newProfile, error: insertError } = await supabase
-          .from("profiles")
-          .insert({ phone: phone })
-          .select("id")
-          .single();
-
-        if (insertError) throw insertError;
-        return newProfile.id;
-      } else {
-        throw error;
-      }
+      // If user doesn't exist, return null as per new requirement
+      // Do not create a new profile here
+      console.error("Error fetching user ID or user not found:", error);
+      return null;
     }
     return data.id;
   } catch (error) {
@@ -377,8 +380,8 @@ function DonationForm() {
 
   return (
     <View className="pb-10">
-      <Text className="text-lg font-semibold text-gray-800 mb-4">
-        Donation Details
+      <Text className="text-xl font-bold text-gray-800 mb-6 text-center">
+        Create Donation Appeal
       </Text>
 
       {/* Image Upload Card */}
@@ -422,9 +425,8 @@ function DonationForm() {
       />
 
       <TouchableOpacity
-        className={`bg-orange-500 py-4 rounded-xl mt-6 ${
-          loading ? "opacity-50" : ""
-        }`}
+        className={`bg-orange-500 py-4 rounded-xl mt-6 ${loading ? "opacity-50" : ""
+          }`}
         onPress={handleSubmit}
         disabled={loading}
       >
@@ -442,31 +444,194 @@ function DonationForm() {
   );
 }
 
-function FormField({
-  label,
-  placeholder,
-  multiline = false,
-  keyboardType = "default",
-  value,
-  onChangeText,
-  error,
-}) {
+// The old FormField component definition has been removed as it's now imported from ./FormField.tsx
+
+function LoanForm() {
+  const [activeLoanType, setActiveLoanType] = useState("education");
+  const [formData, setFormData] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  // const { submitLoanApplication, loading: submitting, error: submitError } = useFormSubmission(); // Assuming extension of the hook
+
+  const handleLoanTypeChange = (type: string) => {
+    setActiveLoanType(type);
+    setFormData({}); // Reset form data when changing loan type
+    setErrors({});
+  };
+
+  const validateLoanForm = () => {
+    // Basic validation, extend as needed per loan type
+    const newErrors: Record<string, string> = {};
+    if (activeLoanType === "education") {
+      if (!formData.fullName) newErrors.fullName = "Full name is required";
+      if (!formData.courseName) newErrors.courseName = "Course name is required";
+      if (!formData.loanAmountRequired) newErrors.loanAmountRequired = "Loan amount is required";
+    } else if (activeLoanType === "business") {
+      if (!formData.fullName) newErrors.fullName = "Full name is required";
+      if (!formData.businessName) newErrors.businessName = "Business name is required";
+      if (!formData.loanAmountRequired) newErrors.loanAmountRequired = "Loan amount is required";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateLoanForm()) {
+      Alert.alert("Validation Error", "Please fill in all required fields for the selected loan type.");
+      return;
+    }
+    setLoading(true);
+    Alert.alert("Submit Loan", "Loan submission logic to be implemented with useFormSubmission hook.");
+    // TODO: Implement actual submission logic using a dedicated function in useFormSubmission
+    // const userPhone = await AsyncStorage.getItem("userPhone");
+    // const userId = await getUserIdByPhone(userPhone);
+    // if (!userId) { Alert.alert("Error", "User not found."); setLoading(false); return; }
+    // const success = await submitLoanApplication({ userId, loanType: activeLoanType, ...formData });
+    // if (success) { ... } else { ... }
+    setLoading(false);
+  };
+
   return (
-    <View className="mb-4">
-      <Text className="text-gray-700 mb-2">{label}</Text>
-      <TextInput
-        className={`border rounded-lg p-3 text-gray-800 bg-gray-50 ${
-          error ? "border-red-500" : "border-gray-300"
-        }`}
-        placeholder={placeholder}
-        multiline={multiline}
-        numberOfLines={multiline ? 4 : 1}
-        style={multiline ? { height: 100, textAlignVertical: "top" } : {}}
-        value={value}
-        onChangeText={onChangeText}
-        keyboardType={keyboardType as KeyboardTypeOptions}
-      />
-      {error && <Text className="text-red-500 text-xs mt-1">{error}</Text>}
+    <View className="pb-10">
+      <Text className="text-xl font-bold text-gray-800 text-center">
+        Apply for a Loan
+      </Text>
+      <View className="flex-row justify-around mb-6 border-b border-gray-200">
+        <TabButton
+          title="Education Loan"
+          isActive={activeLoanType === "education"}
+          onPress={() => handleLoanTypeChange("education")}
+        />
+        <TabButton
+          title="Business Loan"
+          isActive={activeLoanType === "business"}
+          onPress={() => handleLoanTypeChange("business")}
+        />
+      </View>
+
+      {activeLoanType === "education" && (
+        <EducationLoanForm formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
+      )}
+      {activeLoanType === "business" && (
+        <BusinessLoanForm formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
+      )}
+
+      <TouchableOpacity
+        className={`bg-orange-500 py-4 rounded-xl mt-8 ${loading ? "opacity-50" : ""}`}
+        onPress={handleSubmit}
+        disabled={loading}
+      >
+        <Text className="text-white text-center font-semibold text-lg">
+          {loading ? "Submitting..." : `Submit ${activeLoanType === "education" ? "Education" : "Business"} Loan Application`}
+        </Text>
+      </TouchableOpacity>
+      <View className="mt-4">
+        <Text className="text-xs text-gray-500 text-center">
+          Loan applications will be reviewed by administrators.
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function EnrollmentForm() {
+  const [activeEnrollmentType, setActiveEnrollmentType] = useState("mulund_hostel");
+  const [formData, setFormData] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  // const { submitEnrollmentApplication, loading: submitting, error: submitError } = useFormSubmission(); // Assuming extension of the hook
+
+  const handleEnrollmentTypeChange = (type: string) => {
+    setActiveEnrollmentType(type);
+    setFormData({}); // Reset form data when changing enrollment type
+    setErrors({});
+  };
+
+  const getEnrollmentTypeTitle = () => {
+    switch (activeEnrollmentType) {
+      case "mulund_hostel": return "Mulund Hostel";
+      case "girls_hostel": return "Girls Hostel";
+      case "vatsalyadham": return "Vatsalyadham";
+      default: return "";
+    }
+  }
+
+  const validateEnrollmentForm = () => {
+    // Basic validation, extend as needed per enrollment type
+    const newErrors: Record<string, string> = {};
+    if (!formData.fullName) newErrors.fullName = "Full name is required";
+    if (!formData.mobileNumber) newErrors.mobileNumber = "Mobile number is required";
+    // Add more specific validations based on activeEnrollmentType if needed
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateEnrollmentForm()) {
+      Alert.alert("Validation Error", "Please fill in all required fields for the selected enrollment type.");
+      return;
+    }
+    setLoading(true);
+    Alert.alert("Submit Enrollment", "Enrollment submission logic to be implemented with useFormSubmission hook.");
+    // TODO: Implement actual submission logic using a dedicated function in useFormSubmission
+    // const userPhone = await AsyncStorage.getItem("userPhone");
+    // const userId = await getUserIdByPhone(userPhone);
+    // if (!userId) { Alert.alert("Error", "User not found."); setLoading(false); return; }
+    // const success = await submitEnrollmentApplication({ userId, enrollmentType: activeEnrollmentType, ...formData });
+    // if (success) { ... } else { ... }
+    setLoading(false);
+  };
+
+  return (
+    <View className="pb-10">
+      <Text className="text-xl font-bold text-gray-800 text-center">
+        Enrollment Application
+      </Text>
+      {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-6 border-b border-gray-200"> */}
+      <View className="border-b border-gray-200">
+        <View className="flex-row justify-around py-1">
+          <TabButton
+            title="Mulund Hostel"
+            isActive={activeEnrollmentType === "mulund_hostel"}
+            onPress={() => handleEnrollmentTypeChange("mulund_hostel")}
+          />
+          <TabButton
+            title="Girls Hostel"
+            isActive={activeEnrollmentType === "girls_hostel"}
+            onPress={() => handleEnrollmentTypeChange("girls_hostel")}
+          />
+          <TabButton
+            title="Vatsalyadham"
+            isActive={activeEnrollmentType === "vatsalyadham"}
+            onPress={() => handleEnrollmentTypeChange("vatsalyadham")}
+          />
+        </View>
+      </View>
+
+      {activeEnrollmentType === "mulund_hostel" && (
+        <MulundHostelForm formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
+      )}
+      {activeEnrollmentType === "girls_hostel" && (
+        <GirlsHostelForm formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
+      )}
+      {activeEnrollmentType === "vatsalyadham" && (
+        <VatsalyadhamForm formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
+      )}
+
+      <TouchableOpacity
+        className={`bg-orange-500 py-4 rounded-xl mt-8 ${loading ? "opacity-50" : ""}`}
+        onPress={handleSubmit}
+        disabled={loading}
+      >
+        <Text className="text-white text-center font-semibold text-lg">
+          {loading ? "Submitting..." : `Submit ${getEnrollmentTypeTitle()} Enrollment`}
+        </Text>
+      </TouchableOpacity>
+      <View className="mt-4">
+        <Text className="text-xs text-gray-500 text-center">
+          Enrollment applications will be reviewed by administrators.
+        </Text>
+      </View>
     </View>
   );
 }
