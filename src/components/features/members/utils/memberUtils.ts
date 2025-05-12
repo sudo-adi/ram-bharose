@@ -3,35 +3,14 @@ import { Linking } from "react-native";
 // Age calculation utility
 export const calculateAge = (dob) => {
   if (!dob) return "Unknown";
-  const parts = dob.split("/");
+  const parts = dob.split("-"); // Assuming the format is 'yyyy-mm-dd'
   if (parts.length !== 3) return "Unknown";
 
-  const day = parseInt(parts[0]);
-  const monthStr = parts[1];
-  const yearStr = parts[2];
+  const year = parseInt(parts[0]);
+  const month = parseInt(parts[1]) - 1; // Month is 0-indexed
+  const day = parseInt(parts[2]);
 
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const month = months.indexOf(monthStr);
-
-  if (isNaN(day) || month === -1) return "Unknown";
-
-  let year = parseInt(yearStr);
-  if (year < 100) {
-    year = year < 50 ? 2000 + year : 1900 + year;
-  }
+  if (isNaN(day) || isNaN(month) || isNaN(year)) return "Unknown";
 
   const birthDate = new Date(year, month, day);
   const today = new Date();
@@ -92,5 +71,21 @@ export const getPlaceholderImage = (member) => {
     }
   } else {
     return require("../../../../../assets/icon.png");
+  }
+};
+// Add this to ../utils/memberUtils.ts
+
+export const handleSMS = (phone: string) => {
+  if (phone) {
+    const url = `sms:${phone}`;
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (!supported) {
+          console.log("SMS is not supported on this device");
+        } else {
+          return Linking.openURL(url);
+        }
+      })
+      .catch((err) => console.error("An error occurred", err));
   }
 };

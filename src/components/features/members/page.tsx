@@ -16,6 +16,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useProfiles } from "@/hooks";
 import MemberDetailBottomSheet from "./MemberDetailBottomSheet";
+import { handleSMS } from "./utils/memberUtils";
 
 export default function MembersContent() {
   const [viewType, setViewType] = useState("grid");
@@ -41,6 +42,12 @@ export default function MembersContent() {
     { id: "all", label: "All", icon: "people-outline", type: "reset" },
     { id: "Male", label: "Men", icon: "man-outline", type: "gender" },
     { id: "Female", label: "Women", icon: "woman-outline", type: "gender" },
+    {
+      id: "under-18",
+      label: "<18",
+      icon: "calendar-outline",
+      type: "age",
+    },
     { id: "18-24", label: "18-24", icon: "calendar-outline", type: "age" },
     { id: "25-34", label: "25-34", icon: "calendar-outline", type: "age" },
     { id: "35-44", label: "35-44", icon: "calendar-outline", type: "age" },
@@ -79,37 +86,9 @@ export default function MembersContent() {
 
   const calculateAge = (dob) => {
     if (!dob) return "Unknown";
-    const parts = dob.split("/");
-    if (parts.length !== 3) return "Unknown";
+    const birthDate = new Date(dob);
+    if (isNaN(birthDate.getTime())) return "Unknown";
 
-    const day = parseInt(parts[0]);
-    const monthStr = parts[1];
-    const yearStr = parts[2];
-
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const month = months.indexOf(monthStr);
-
-    if (isNaN(day) || month === -1) return "Unknown";
-
-    let year = parseInt(yearStr);
-    if (year < 100) {
-      year = year < 50 ? 2000 + year : 1900 + year;
-    }
-
-    const birthDate = new Date(year, month, day);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
 
@@ -338,6 +317,16 @@ export default function MembersContent() {
                           color="#10b981"
                         />
                       </TouchableOpacity>
+                      <TouchableOpacity
+                        className="bg-purple-100 p-2 rounded-full mr-2"
+                        onPress={() => handleSMS(item.phone)}
+                      >
+                        <Ionicons
+                          name="chatbox-outline"
+                          size={16}
+                          color="#8b5cf6"
+                        />
+                      </TouchableOpacity>
                     </>
                   )}
                   {item.email && item.email !== "Not available" && (
@@ -418,6 +407,16 @@ export default function MembersContent() {
                     onPress={() => handleWhatsApp(item.phone)}
                   >
                     <Ionicons name="logo-whatsapp" size={16} color="#3b82f6" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="bg-purple-100 p-2 rounded-full mr-2"
+                    onPress={() => handleSMS(item.phone)}
+                  >
+                    <Ionicons
+                      name="chatbox-outline"
+                      size={16}
+                      color="#8b5cf6"
+                    />
                   </TouchableOpacity>
                 </>
               )}

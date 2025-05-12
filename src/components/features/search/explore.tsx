@@ -79,6 +79,24 @@ export default function ExploreContent() {
       image: require("../../../../assets/nari-sahas.png"),
       disabled: false,
     },
+    {
+      id: 10,
+      title: "Matrimonial",
+      image: require("../../../../assets/matrimonial.png"),
+      disabled: true,
+    },
+    {
+      id: 11,
+      title: "Vasti Patrak",
+      image: require("../../../../assets/vasti patrak.png"),
+      disabled: true,
+    },
+    {
+      id: 12,
+      title: "Temporary Members",
+      image: require("../../../../assets/temp-member.png"),
+      disabled: true,
+    },
   ];
 
   return (

@@ -52,11 +52,13 @@ export default function Committees() {
     data: committeesData,
     loading: committeesLoading,
     error: committeesError,
+    refetch: refetchCommittees,
   } = useCommittees();
   const {
     data: committeeImages,
     loading: imagesLoading,
     error: imagesError,
+    refetch: refetchImages,
   } = useCommitteeImages();
 
   // Process the committee data and images
@@ -73,8 +75,8 @@ export default function Committees() {
       });
 
       // Create processed committees with members
-      const processed = Object.entries(committeeGroups).map(
-        ([name, members]) => {
+      const processed = Object.entries(committeeGroups)
+        .map(([name, members]) => {
           // Find image URL for this committee
           const imageFile = committeeImages.find(
             (img) =>
@@ -101,8 +103,25 @@ export default function Committees() {
             totalMembers: members.length,
             members: membersList,
           };
-        }
-      );
+        })
+        // Sort committees to prioritize Trustees and Karobari Committee
+        .sort((a, b) => {
+          const priorityOrder = ["Trustees", "Karobari Committee"];
+          const aIndex = priorityOrder.indexOf(a.name);
+          const bIndex = priorityOrder.indexOf(b.name);
+
+          // If both committees are in priorityOrder, sort by their priority order
+          if (aIndex !== -1 && bIndex !== -1) {
+            return aIndex - bIndex;
+          }
+
+          // If only one is in priorityOrder, that one comes first
+          if (aIndex !== -1) return -1;
+          if (bIndex !== -1) return 1;
+
+          // If neither is in priorityOrder, maintain original order
+          return 0;
+        });
 
       setProcessedCommittees(processed);
     }
@@ -191,8 +210,8 @@ export default function Committees() {
         <TouchableOpacity
           className="mt-4 bg-orange-600 py-2 px-4 rounded-lg"
           onPress={() => {
-            if (committeesError) useCommittees().refetch();
-            if (imagesError) useCommitteeImages().refetch();
+            if (committeesError) refetchCommittees();
+            if (imagesError) refetchImages();
           }}
         >
           <Text className="text-white font-medium">Try Again</Text>
@@ -213,7 +232,7 @@ export default function Committees() {
           <TextInput
             placeholder="Search committees..."
             placeholderTextColor="#000000"
-            className="flex-1 ml-2 text-balck/50"
+            className="flex-1 ml-2 text-black/50"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />

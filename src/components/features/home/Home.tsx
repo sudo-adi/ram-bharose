@@ -1,9 +1,17 @@
-import { View, ScrollView, StatusBar, Linking, Dimensions } from "react-native";
+import {
+  View,
+  ScrollView,
+  StatusBar,
+  Linking,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import { useBirthdays, useNews } from "@/hooks";
-import { useUser } from "@clerk/clerk-expo";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFamilyTree } from "@/hooks";
+import { Text, Image } from "react-native";
 
 // Import sub-components
 import Header from "./sub-components/Header";
@@ -17,6 +25,7 @@ import NewsSection from "./sub-components/NewsSection";
 import ArticleModal from "../news/sub-components/ArticleModal";
 import { useEffect, useState } from "react";
 import React from "react";
+import FamilyTreeSection from "./sub-components/FamilyTreeSection";
 
 export default function Home() {
   const router = useRouter();
@@ -126,6 +135,8 @@ export default function Home() {
     return person && person.phone;
   };
 
+  const { result: familyTree, loading: familyTreeLoading } = useFamilyTree();
+
   return (
     <View className="flex-1 bg-gray-50">
       <StatusBar barStyle="light-content" />
@@ -151,6 +162,9 @@ export default function Home() {
           onWishPress={handleBirthdayWish}
           hasContactInfo={hasContactInfo}
         />
+
+        {/* Family Tree Section Component */}
+        <FamilyTreeSection familyTree={familyTree} />
 
         {/* Women-Led Businesses Component */}
         <BusinessSection

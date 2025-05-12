@@ -8,6 +8,7 @@ import {
   Modal,
   ActivityIndicator,
   Dimensions,
+  Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -16,6 +17,7 @@ import {
   handleWhatsApp,
   handleEmail,
   getPlaceholderImage,
+  handleSMS,
 } from "./utils/memberUtils";
 import DetailItem from "./components/DetailItem";
 
@@ -54,6 +56,13 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
   ]
     .filter(Boolean)
     .join(", ");
+
+  const openGoogleMaps = (address) => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      address
+    )}`;
+    Linking.openURL(url);
+  };
 
   return (
     <Modal
@@ -124,6 +133,19 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
                               name="logo-whatsapp"
                               size={18}
                               color="#3b82f6"
+                            />
+                          </TouchableOpacity>
+                        )}
+
+                        {member.mobile_no1 && (
+                          <TouchableOpacity
+                            onPress={() => handleSMS(member.mobile_no1)}
+                            className="bg-purple-100 p-2 rounded-full"
+                          >
+                            <Ionicons
+                              name="chatbox-outline"
+                              size={18}
+                              color="#8b5cf6"
                             />
                           </TouchableOpacity>
                         )}
@@ -244,11 +266,20 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
 
                 {/* Address Information */}
                 <View className="mb-6">
-                  <View className="flex-row items-center mb-3">
-                    <Ionicons name="location" size={20} color="#f97316" />
-                    <Text className="text-lg font-bold text-gray-800 ml-2">
-                      Address Information
-                    </Text>
+                  <View className="flex-row items-center mb-3 justify-between">
+                    <View className="flex-row items-center">
+                      <Ionicons name="location" size={20} color="#f97316" />
+                      <Text className="text-lg font-bold text-gray-800 ml-2">
+                        Address Information
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => openGoogleMaps(fullAddress)}
+                      className="bg-blue-100 p-2 rounded-full ml-2 flex flex-row gap-2 px-4"
+                    >
+                      <Ionicons name="map" size={18} color="#3b82f6" />
+                      <Text>View on Map</Text>
+                    </TouchableOpacity>
                   </View>
                   <View className="bg-purple-50 rounded-xl p-4">
                     <DetailItem

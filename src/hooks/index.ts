@@ -9,4 +9,5 @@ export * from './useShubhChintak';
 export * from './useNews';
 export * from './useBusiness';
 export * from './useEvents';
+export * from './useFamilyTree';
 

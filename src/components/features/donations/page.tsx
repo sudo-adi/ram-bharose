@@ -1,9 +1,24 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Modal,
+  Alert,
+  Dimensions,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+
+const { height, width } = Dimensions.get("window");
 
 export default function DonationsContent() {
   const [activeTab, setActiveTab] = useState("make");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedDonation, setSelectedDonation] = useState(null);
+  const [qrModalVisible, setQrModalVisible] = useState(false);
+  const [selectedAmount, setSelectedAmount] = useState("");
 
   const donations = [
     {
@@ -13,9 +28,18 @@ export default function DonationsContent() {
         "Help provide education to underprivileged children in rural areas",
       image:
         "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=500",
-      target: 150000,
-      raised: 82500,
-      percentage: 55,
+      additionalInfo:
+        "This initiative focuses on providing basic education facilities.",
+      organization: "Global Learning Foundation",
+      impact: "Support 500 children's education",
+      donationOptions: [
+        {
+          amount: "₹10",
+          description: "Provides school supplies for one child",
+        },
+        { amount: "₹25", description: "Covers monthly learning materials" },
+        { amount: "₹50", description: "Supports full scholarship for a month" },
+      ],
     },
     {
       id: 2,
@@ -24,9 +48,14 @@ export default function DonationsContent() {
         "Support our local animal shelter with food and medical supplies",
       image:
         "https://images.unsplash.com/photo-1504595403659-9088ce801e29?w=500",
-      target: 30000,
-      raised: 15000,
-      percentage: 50,
+      additionalInfo: "Your donation helps feed and care for rescued animals.",
+      organization: "Paws & Claws Rescue",
+      impact: "Care for 100 rescued animals",
+      donationOptions: [
+        { amount: "₹15", description: "Feeds 10 animals for a week" },
+        { amount: "₹30", description: "Provides medical treatment" },
+        { amount: "₹75", description: "Sponsors animal care for a month" },
+      ],
     },
     {
       id: 3,
@@ -34,9 +63,45 @@ export default function DonationsContent() {
       description: "Bring clean drinking water to drought-affected communities",
       image:
         "https://images.unsplash.com/photo-1702237231275-d7c87c1815f7?w=500",
-      target: 100000,
-      raised: 75000,
-      percentage: 75,
+      additionalInfo:
+        "This project aims to install water purification systems.",
+      organization: "WaterHope International",
+      impact: "Provide water to 5,000 people",
+      donationOptions: [
+        { amount: "₹20", description: "Provides water for 10 people" },
+        { amount: "₹50", description: "Supplies water filters" },
+        { amount: "₹100", description: "Supports community water project" },
+      ],
+    },
+    {
+      id: 4,
+      title: "Healthcare for All",
+      description: "Provide essential healthcare services to remote areas",
+      image:
+        "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=500",
+      additionalInfo: "Your support funds mobile clinics and medical camps.",
+      organization: "Global Health Outreach",
+      impact: "Medical aid for 2,000 individuals",
+      donationOptions: [
+        { amount: "₹25", description: "Provides basic medical supplies" },
+        { amount: "₹60", description: "Covers medical consultation" },
+        { amount: "₹150", description: "Supports full medical camp" },
+      ],
+    },
+    {
+      id: 5,
+      title: "Tree Plantation Drive",
+      description: "Plant trees to combat climate change and deforestation",
+      image:
+        "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=500",
+      additionalInfo: "Join us in planting a million trees this year.",
+      organization: "Green Earth Initiative",
+      impact: "Plant 10,000 trees",
+      donationOptions: [
+        { amount: "₹5", description: "Plants 2 trees" },
+        { amount: "₹25", description: "Plants 10 trees" },
+        { amount: "₹50", description: "Plants 25 trees" },
+      ],
     },
   ];
 
@@ -58,30 +123,6 @@ export default function DonationsContent() {
           {donation.description}
         </Text>
 
-        {/* Progress Bar */}
-        <View className="mt-4">
-          <View className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-            <View
-              className="h-full bg-orange-500 rounded-full"
-              style={{ width: `${donation.percentage}%` }}
-            />
-          </View>
-          <View className="flex-row justify-between mt-3">
-            <View>
-              <Text className="text-sm text-gray-500">Raised</Text>
-              <Text className="text-lg font-semibold text-orange-500">
-                ₹{donation.raised.toLocaleString()}
-              </Text>
-            </View>
-            <View className="items-end">
-              <Text className="text-sm text-gray-500">Goal</Text>
-              <Text className="text-lg font-semibold text-gray-700">
-                ₹{donation.target.toLocaleString()}
-              </Text>
-            </View>
-          </View>
-        </View>
-
         <TouchableOpacity
           className="bg-orange-500 py-4 rounded-xl mt-4 shadow-sm"
           style={{
@@ -89,34 +130,15 @@ export default function DonationsContent() {
             shadowOpacity: 0.2,
             shadowRadius: 10,
           }}
+          onPress={() => {
+            setSelectedDonation(donation);
+            setModalVisible(true);
+          }}
         >
           <Text className="text-white text-center font-semibold text-lg">
-            Donate Now
+            View Details
           </Text>
         </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  // Render payment methods section
-  const renderPaymentMethods = () => (
-    <View className="mt-2 mb-8 bg-white p-4 rounded-xl border border-gray-100">
-      <Text className="text-gray-500 font-medium mb-3">
-        Supported Payment Methods
-      </Text>
-      <View className="flex-row items-center space-x-4">
-        <View className="bg-gray-50 p-2 rounded-lg">
-          <Image
-            source={{ uri: "https://razorpay.com/favicon.png" }}
-            className="w-8 h-8"
-          />
-        </View>
-        <View className="bg-gray-50 p-2 rounded-lg">
-          <Image
-            source={{ uri: "https://bitcoin.org/img/icons/opengraph.png" }}
-            className="w-8 h-8"
-          />
-        </View>
       </View>
     </View>
   );
@@ -129,10 +151,9 @@ export default function DonationsContent() {
           <ScrollView
             className="px-5 pt-6 flex-1"
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 100 }} // Extra padding for tab bar
+            contentContainerStyle={{ paddingBottom: 100 }}
           >
             {donations.map(renderDonationCard)}
-            {renderPaymentMethods()}
           </ScrollView>
         );
       case "my":
@@ -150,10 +171,141 @@ export default function DonationsContent() {
     }
   };
 
+  // Render donation options
+  const renderDonationOptions = (options) => (
+    <View className="mt-4">
+      <Text className="text-gray-700 font-semibold mb-2">
+        Donation Options:
+      </Text>
+      {options.map((option, index) => (
+        <View
+          key={index}
+          className="flex-row justify-between items-center bg-gray-100 p-3 rounded-lg mb-2"
+        >
+          <View className="flex-1 pr-2">
+            <Text className="text-gray-800 font-medium">{option.amount}</Text>
+            <Text className="text-gray-600 text-sm">{option.description}</Text>
+          </View>
+          <TouchableOpacity
+            className="bg-orange-500 px-4 py-2 rounded-lg"
+            onPress={() => {
+              setSelectedAmount(option.amount);
+              setQrModalVisible(true);
+            }}
+          >
+            <Text className="text-white font-semibold">Donate</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+    </View>
+  );
+
   return (
     <View className="flex-1 bg-gray-50">
       {/* Main Content */}
       {renderContent()}
+
+      {/* Modal for Donation Details */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-end">
+          {selectedDonation && (
+            <View
+              className="bg-white rounded-t-3xl w-full"
+              style={{ height: height * 0.85 }}
+            >
+              {/* Drag handle for better UX */}
+              <View className="items-center pt-2 pb-2">
+                <View className="w-16 h-1 bg-gray-300 rounded-full" />
+              </View>
+
+              <ScrollView className="px-4 pb-20">
+                <Image
+                  source={{ uri: selectedDonation.image }}
+                  className="w-full h-48 rounded-t-xl"
+                />
+                <View className="p-4">
+                  <Text className="text-2xl font-bold text-gray-800 mb-2">
+                    {selectedDonation.title}
+                  </Text>
+                  <View className="bg-gray-100 p-3 rounded-lg mb-3">
+                    <Text className="text-gray-700 font-semibold">
+                      {selectedDonation.organization}
+                    </Text>
+                    <Text className="text-gray-600 text-sm">
+                      {selectedDonation.impact}
+                    </Text>
+                  </View>
+                  <Text className="text-gray-600 mb-3">
+                    {selectedDonation.description}
+                  </Text>
+                  <Text className="text-gray-500 mb-3">
+                    {selectedDonation.additionalInfo}
+                  </Text>
+
+                  {renderDonationOptions(selectedDonation.donationOptions)}
+                </View>
+              </ScrollView>
+
+              {/* Fixed close button at bottom */}
+              <View className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100">
+                <TouchableOpacity
+                  className="bg-orange-500 py-3 rounded-xl items-center"
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text className="font-medium text-white">Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+      </Modal>
+
+      {/* QR Code Modal */}
+      <Modal
+        visible={qrModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setQrModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-center items-center">
+          <View className="bg-white rounded-3xl w-5/6 p-6 items-center">
+            <Text className="text-2xl font-bold text-gray-800 mb-2 text-center">
+              Donation QR Code
+            </Text>
+            <Text className="text-gray-600 mb-6 text-center">
+              {selectedDonation && (
+                <>
+                  Donate {selectedAmount} to {selectedDonation.title}
+                </>
+              )}
+            </Text>
+
+            <Image
+              source={require("../../../../assets/qr.png")}
+              className="w-64 h-64 mb-6"
+              resizeMode="contain"
+            />
+
+            <Text className="text-gray-600 mb-6 text-center">
+              Scan this QR code with your UPI app to complete your donation
+            </Text>
+
+            <TouchableOpacity
+              className="bg-orange-500 py-4 px-8 rounded-xl w-full"
+              onPress={() => setQrModalVisible(false)}
+            >
+              <Text className="text-white text-center font-semibold text-lg">
+                Close
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Tab Bar */}
       <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex-row justify-around items-center h-16 px-2">
@@ -179,7 +331,7 @@ export default function DonationsContent() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           className={`flex-1 items-center justify-center h-full ${
             activeTab === "my" ? "border-t-2 border-orange-500" : ""
           }`}
@@ -199,7 +351,7 @@ export default function DonationsContent() {
           >
             My Donations
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );
