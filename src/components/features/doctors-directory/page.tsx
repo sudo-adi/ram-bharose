@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useDoctors } from "@/hooks/useSupabase";
+import { useDoctors } from "@/hooks";
 
 type Doctor = {
   id: number;

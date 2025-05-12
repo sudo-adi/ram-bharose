@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useProfile } from "@/hooks/useSupabase";
+import { useProfile } from "@/hooks";
 
 export default function MemberDetailScreen() {
   const params = useLocalSearchParams();

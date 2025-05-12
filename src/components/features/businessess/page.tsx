@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   FlatList,
@@ -8,7 +8,6 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
-import { useBusiness } from "../../../hooks/useSupabase";
 
 // Import components
 import { Business } from "./sub-componenets/types";
@@ -18,6 +17,7 @@ import EmptyState from "./sub-componenets/EmptyState";
 import BusinessCard from "./sub-componenets/BusinessCard";
 import Header from "./sub-componenets/Header";
 import BusinessDetail from "./sub-componenets/BusinessDetail";
+import { useBusiness } from "@/hooks";
 
 export default function Businesses() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,7 +84,7 @@ export default function Businesses() {
 
   return (
     <SafeAreaView
-      className="flex-1 bg-pink-50"
+      className="flex-1 bg-orange-50"
       style={{
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
       }}
@@ -134,7 +134,7 @@ export default function Businesses() {
           <View className="bg-white rounded-t-3xl w-full max-h-[98%]">
             {/* Drag handle */}
             <View className="py-3 items-center">
-              <View className="w-12 h-1.5 bg-pink-200 rounded-full" />
+              <View className="w-12 h-1.5 bg-orange-200 rounded-full" />
             </View>
 
             {selectedBusiness && (

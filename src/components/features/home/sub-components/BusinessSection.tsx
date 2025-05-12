@@ -8,10 +8,10 @@ import {
   Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useBusiness } from "../../../../hooks/useSupabase";
 import { useState } from "react";
 import React from "react";
 import { useRouter } from "expo-router";
+import { useBusiness } from "@/hooks";
 
 type Business = {
   id: string;

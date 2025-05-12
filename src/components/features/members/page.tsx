@@ -14,7 +14,7 @@ import {
   StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useProfiles } from "@/hooks/useSupabase";
+import { useProfiles } from "@/hooks";
 import MemberDetailBottomSheet from "./MemberDetailBottomSheet";
 
 export default function MembersContent() {

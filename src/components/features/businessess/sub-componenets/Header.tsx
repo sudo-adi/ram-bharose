@@ -22,7 +22,7 @@ const Header = ({
 }: HeaderProps) => {
   return (
     <View
-      className="bg-pink-50 z-10 shadow-sm"
+      className="bg-orange-50 z-10 shadow-sm"
       style={{
         position: "absolute",
         top: 0,

@@ -6,8 +6,9 @@ import {
   Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import React from "react";
+import { useMemberCounts } from "@/hooks/useProfiles";
 
 type HeaderProps = {
   userName: string;
@@ -18,6 +19,9 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
   const [showDetailedStats, setShowDetailedStats] = useState(false);
   // Create animated value for rotation
   const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  // Get member counts from our new hook
+  const { data: memberCounts, loading } = useMemberCounts();
 
   // Toggle function with animation
   const toggleStats = () => {
@@ -37,6 +41,11 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
     inputRange: [0, 1],
     outputRange: ["0deg", "180deg"],
   });
+
+  // Format numbers with commas
+  const formatNumber = (num: number) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
   return (
     <View
@@ -60,7 +69,9 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
 
         {/* Compact Stats Bar */}
         <View className="flex-row items-center bg-white/20 rounded-full px-3 py-1">
-          <Text className="text-white text-xs mr-2">4,027</Text>
+          <Text className="text-white text-xs mr-2">
+            {loading ? "..." : formatNumber(memberCounts.total)}
+          </Text>
           <Ionicons name="people-outline" size={16} color="white" />
           <TouchableOpacity
             className="ml-2"
@@ -90,17 +101,23 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
       {showDetailedStats && (
         <View className="flex-row justify-between bg-white/15 p-3 rounded-2xl">
           <View className="items-center">
-            <Text className="text-lg font-bold text-white">4,027</Text>
+            <Text className="text-lg font-bold text-white">
+              {loading ? "..." : formatNumber(memberCounts.total)}
+            </Text>
             <Text className="text-white text-xs">Total Members</Text>
           </View>
           <View className="h-full w-px bg-white/20" />
           <View className="items-center">
-            <Text className="text-lg font-bold text-white">2,069</Text>
+            <Text className="text-lg font-bold text-white">
+              {loading ? "..." : formatNumber(memberCounts.male)}
+            </Text>
             <Text className="text-white text-xs">Males</Text>
           </View>
           <View className="h-full w-px bg-white/20" />
           <View className="items-center">
-            <Text className="text-lg font-bold text-white">1,958</Text>
+            <Text className="text-lg font-bold text-white">
+              {loading ? "..." : formatNumber(memberCounts.female)}
+            </Text>
             <Text className="text-white text-xs">Females</Text>
           </View>
         </View>

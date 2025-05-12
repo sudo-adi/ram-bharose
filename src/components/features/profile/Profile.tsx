@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "@/lib/supabase";
-import { updateProfileDetails, uploadCoverImage } from "@/hooks/useSupabase";
 import * as ImagePicker from "expo-image-picker";
 import { useState, useEffect } from "react";
 import React from "react";
@@ -19,6 +18,7 @@ import ProfileHeader from "./sub-components/ProfileHeader";
 import ProfileTabs from "./sub-components/ProfileTabs";
 import PersonalInfoSection from "./sub-components/PersonalInfoSection";
 import FamilyMembersSection from "./sub-components/FamilyMembersSection";
+import { updateProfileDetails, uploadCoverImage } from "@/hooks";
 
 export default function ProfileContent() {
   const [activeTab, setActiveTab] = useState("personal");
@@ -33,9 +33,9 @@ export default function ProfileContent() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const userPhone = await AsyncStorage.getItem('userPhone');
+        const userPhone = await AsyncStorage.getItem("userPhone");
         if (!userPhone) {
-          router.replace('/(auth)/login');
+          router.replace("/(auth)/login");
           return;
         }
 
@@ -107,7 +107,13 @@ export default function ProfileContent() {
               relation: member.relationship,
               age: calculateAge(member.date_of_birth),
               gender: member.gender,
-              image: (member.profile_pic ? supabase.storage.from("profile-pictures").getPublicUrl(member.profile_pic).data?.publicUrl : null) || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
+              image:
+                (member.profile_pic
+                  ? supabase.storage
+                      .from("profile-pictures")
+                      .getPublicUrl(member.profile_pic).data?.publicUrl
+                  : null) ||
+                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
             }))
           );
         }
@@ -228,7 +234,7 @@ export default function ProfileContent() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await AsyncStorage.removeItem('userPhone');
+      await AsyncStorage.removeItem("userPhone");
       router.replace("/(auth)/login");
     } catch (error) {
       console.error("Error signing out:", error);

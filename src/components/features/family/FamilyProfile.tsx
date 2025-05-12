@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useFamily } from "@/hooks/useSupabase";
+import { useFamily } from "@/hooks";
+import { useUser } from "@clerk/clerk-expo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function FamilyProfileContent() {
@@ -17,7 +12,7 @@ export default function FamilyProfileContent() {
   useEffect(() => {
     const loadFamilyData = async () => {
       try {
-        const userPhone = await AsyncStorage.getItem('userPhone');
+        const userPhone = await AsyncStorage.getItem("userPhone");
         if (userPhone) {
           fetchFamily(userPhone);
         }
@@ -74,25 +69,29 @@ export default function FamilyProfileContent() {
       {/* Tab Navigation */}
       <View className="flex-row border-b border-gray-200 mx-4 mt-4">
         <TouchableOpacity
-          className={`flex-1 items-center py-3 border-b-2 ${activeTab === "members" ? "border-orange-500" : "border-transparent"
-            }`}
+          className={`flex-1 items-center py-3 border-b-2 ${
+            activeTab === "members" ? "border-orange-500" : "border-transparent"
+          }`}
           onPress={() => setActiveTab("members")}
         >
           <Text
-            className={`font-medium ${activeTab === "members" ? "text-orange-500" : "text-gray-500"
-              }`}
+            className={`font-medium ${
+              activeTab === "members" ? "text-orange-500" : "text-gray-500"
+            }`}
           >
             Members
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-1 items-center py-3 border-b-2 ${activeTab === "tree" ? "border-orange-500" : "border-transparent"
-            }`}
+          className={`flex-1 items-center py-3 border-b-2 ${
+            activeTab === "tree" ? "border-orange-500" : "border-transparent"
+          }`}
           onPress={() => setActiveTab("tree")}
         >
           <Text
-            className={`font-medium ${activeTab === "tree" ? "text-orange-500" : "text-gray-500"
-              }`}
+            className={`font-medium ${
+              activeTab === "tree" ? "text-orange-500" : "text-gray-500"
+            }`}
           >
             Family Tree
           </Text>

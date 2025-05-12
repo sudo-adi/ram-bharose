@@ -10,8 +10,8 @@ type SearchBarProps = {
 
 const SearchBar = ({ value, onChangeText, onClear }: SearchBarProps) => {
   return (
-    <View className="flex-row items-center bg-white rounded-xl px-4 py-3 border border-pink-100 shadow-sm">
-      <Ionicons name="search" size={20} color="#be185d" />
+    <View className="flex-row items-center bg-white rounded-xl px-4 py-3 border border-orange-100 shadow-sm">
+      <Ionicons name="search" size={20} color="#ea580c" />
       <TextInput
         className="flex-1 ml-2 text-base text-gray-800"
         placeholder="Search by name or category..."
@@ -21,7 +21,7 @@ const SearchBar = ({ value, onChangeText, onClear }: SearchBarProps) => {
       />
       {value.length > 0 && (
         <TouchableOpacity onPress={onClear} className="p-1">
-          <Ionicons name="close-circle" size={20} color="#be185d" />
+          <Ionicons name="close-circle" size={20} color="#ea580c" />
         </TouchableOpacity>
       )}
     </View>

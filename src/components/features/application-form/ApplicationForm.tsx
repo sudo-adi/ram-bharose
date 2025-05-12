@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
 import {
   View,
   Text,
@@ -16,7 +15,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { useFormSubmission } from "@/hooks/useSupabase";
+import { useFormSubmission } from "@/hooks";
 
 export default function ApplicationForm() {
   const [activeTab, setActiveTab] = useState("event");
@@ -27,27 +26,31 @@ export default function ApplicationForm() {
       {/* Tab Navigation */}
       <View className="flex-row border-b border-gray-200 mx-4">
         <TouchableOpacity
-          className={`flex-1 items-center py-3 border-b-2 ${activeTab === "event" ? "border-orange-500" : "border-transparent"
-            }`}
+          className={`flex-1 items-center py-3 border-b-2 ${
+            activeTab === "event" ? "border-orange-500" : "border-transparent"
+          }`}
           onPress={() => setActiveTab("event")}
         >
           <Text
-            className={`font-medium ${activeTab === "event" ? "text-orange-500" : "text-gray-500"
-              }`}
+            className={`font-medium ${
+              activeTab === "event" ? "text-orange-500" : "text-gray-500"
+            }`}
           >
             Event
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-1 items-center py-3 border-b-2 ${activeTab === "donation"
-            ? "border-orange-500"
-            : "border-transparent"
-            }`}
+          className={`flex-1 items-center py-3 border-b-2 ${
+            activeTab === "donation"
+              ? "border-orange-500"
+              : "border-transparent"
+          }`}
           onPress={() => setActiveTab("donation")}
         >
           <Text
-            className={`font-medium ${activeTab === "donation" ? "text-orange-500" : "text-gray-500"
-              }`}
+            className={`font-medium ${
+              activeTab === "donation" ? "text-orange-500" : "text-gray-500"
+            }`}
           >
             Donation
           </Text>
@@ -148,7 +151,7 @@ function EventForm() {
     }
 
     try {
-      const userPhone = await AsyncStorage.getItem('userPhone');
+      const userPhone = await AsyncStorage.getItem("userPhone");
       const userId = await getUserIdByPhone(userPhone);
 
       if (!userId) {
@@ -241,8 +244,9 @@ function EventForm() {
       />
 
       <TouchableOpacity
-        className={`bg-orange-500 py-4 rounded-xl mt-6 ${loading ? "opacity-50" : ""
-          }`}
+        className={`bg-orange-500 py-4 rounded-xl mt-6 ${
+          loading ? "opacity-50" : ""
+        }`}
         onPress={handleSubmit}
         disabled={loading}
       >
@@ -265,18 +269,29 @@ const getUserIdByPhone = async (phone: string | null) => {
 
   try {
     const { data, error } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('mobile_no1', phone)
+      .from("profiles")
+      .select("id")
+      .eq("phone", phone)
       .single();
 
     if (error) {
-      console.error('Error getting user ID:', error);
-      return null;
+      // If user doesn't exist, create a new profile
+      if (error.code === "PGRST116") {
+        const { data: newProfile, error: insertError } = await supabase
+          .from("profiles")
+          .insert({ phone: phone })
+          .select("id")
+          .single();
+
+        if (insertError) throw insertError;
+        return newProfile.id;
+      } else {
+        throw error;
+      }
     }
     return data.id;
   } catch (error) {
-    console.error('Error getting user ID:', error);
+    console.error("Error getting user ID:", error);
     return null;
   }
 };
@@ -319,7 +334,7 @@ function DonationForm() {
     }
 
     try {
-      const userPhone = await AsyncStorage.getItem('userPhone');
+      const userPhone = await AsyncStorage.getItem("userPhone");
       const userId = await getUserIdByPhone(userPhone);
 
       if (!userId) {
@@ -353,7 +368,10 @@ function DonationForm() {
       }
     } catch (error) {
       console.error("Error submitting donation:", error);
-      Alert.alert("Error", "Failed to submit donation request. Please try again.");
+      Alert.alert(
+        "Error",
+        "Failed to submit donation request. Please try again."
+      );
     }
   };
 
@@ -404,8 +422,9 @@ function DonationForm() {
       />
 
       <TouchableOpacity
-        className={`bg-orange-500 py-4 rounded-xl mt-6 ${loading ? "opacity-50" : ""
-          }`}
+        className={`bg-orange-500 py-4 rounded-xl mt-6 ${
+          loading ? "opacity-50" : ""
+        }`}
         onPress={handleSubmit}
         disabled={loading}
       >
@@ -436,8 +455,9 @@ function FormField({
     <View className="mb-4">
       <Text className="text-gray-700 mb-2">{label}</Text>
       <TextInput
-        className={`border rounded-lg p-3 text-gray-800 bg-gray-50 ${error ? "border-red-500" : "border-gray-300"
-          }`}
+        className={`border rounded-lg p-3 text-gray-800 bg-gray-50 ${
+          error ? "border-red-500" : "border-gray-300"
+        }`}
         placeholder={placeholder}
         multiline={multiline}
         numberOfLines={multiline ? 4 : 1}

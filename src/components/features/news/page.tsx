@@ -1,4 +1,4 @@
-import { useNews } from "@/hooks/useSupabase";
+import { useNews } from "@/hooks";
 import { Text, View, ActivityIndicator } from "react-native";
 import NewsList from "./sub-components/NewsList";
 import ArticleModal from "./sub-components/ArticleModal";

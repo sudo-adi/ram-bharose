@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Linking } from "react-native";
-import { useShubhChintak } from "@/hooks/useSupabase";
+import { useShubhChintak } from "@/hooks";
 
 const ShubhChintak = () => {
   const [searchQuery, setSearchQuery] = useState("");

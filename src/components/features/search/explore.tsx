@@ -29,46 +29,55 @@ export default function ExploreContent() {
       id: 1,
       title: "Donations",
       image: require("../../../../assets/donation.png"),
+      disabled: false,
     },
     {
       id: 2,
       title: "My Family Profile",
       image: require("../../../../assets/family.png"),
+      disabled: true, // Disabled this option
     },
     {
       id: 3,
       title: "Birthdays",
       image: require("../../../../assets/birthday.png"),
+      disabled: false,
     },
     {
       id: 4,
       title: "Application Forms",
       image: require("../../../../assets/application.png"),
+      disabled: false,
     },
     {
       id: 5,
       title: "News & Updates",
       image: require("../../../../assets/news.png"),
+      disabled: false,
     },
     {
       id: 6,
       title: "Doctors Directory",
       image: require("../../../../assets/doctor.png"),
+      disabled: false,
     },
     {
       id: 7,
       title: "Shubh Chintak",
       image: require("../../../../assets/shubh-chintak.png"),
+      disabled: false,
     },
     {
       id: 8,
       title: "Committees",
       image: require("../../../../assets/committie.png"),
+      disabled: false,
     },
     {
       id: 9,
       title: "Nari Sahas",
       image: require("../../../../assets/nari-sahas.png"),
+      disabled: false,
     },
   ];
 
@@ -110,6 +119,11 @@ export default function ExploreContent() {
                 className="mb-4"
                 style={{ width: cardWidth }}
                 onPress={() => {
+                  if (category.disabled) {
+                    // Do nothing if category is disabled
+                    return;
+                  }
+
                   if (category.title === "Donations") {
                     router.push("/donations");
                   } else if (category.title === "My Family Profile") {
@@ -130,6 +144,7 @@ export default function ExploreContent() {
                     router.push("/shubh-chintak");
                   }
                 }}
+                disabled={category.disabled}
               >
                 <View className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm">
                   <View style={{ height: 220, width: "100%" }}>
@@ -156,6 +171,12 @@ export default function ExploreContent() {
                       source={category.image}
                       className="w-full h-full"
                       resizeMode="cover"
+                      style={{
+                        ...(category.disabled && {
+                          filter: "grayscale",
+                          opacity: 0.6,
+                        }),
+                      }}
                       onLoad={() =>
                         setImageLoadStatus((prev) => ({
                           ...prev,
@@ -187,6 +208,7 @@ export default function ExploreContent() {
                       >
                         <Text className="text-white font-bold text-lg">
                           {category.title}
+                          {category.disabled && " (Coming Soon)"}
                         </Text>
                       </LinearGradient>
                     </ImageBackground>

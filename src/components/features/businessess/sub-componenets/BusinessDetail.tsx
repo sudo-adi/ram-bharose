@@ -42,15 +42,15 @@ const BusinessDetail = ({
         {business.logo && (
           <Image
             source={{ uri: business.logo }}
-            className="w-14 h-14 rounded-full border-2 border-pink-100 mr-3"
+            className="w-14 h-14 rounded-full border-2 border-orange-100 mr-3"
             resizeMode="cover"
           />
         )}
         <View>
-          <Text className="text-xl font-bold text-pink-800">
+          <Text className="text-xl font-bold text-orange-800">
             {business.name}
           </Text>
-          <Text className="text-pink-600 text-base mb-1">
+          <Text className="text-orange-600 text-base mb-1">
             {business.category}
           </Text>
         </View>
@@ -58,7 +58,7 @@ const BusinessDetail = ({
 
       {/* Owner Information */}
       {business.owner && (
-        <View className="flex-row items-center bg-pink-50 p-3 rounded-lg mb-6">
+        <View className="flex-row items-center bg-orange-50 p-3 rounded-lg mb-6">
           <Image
             source={{ uri: business.owner.image }}
             className="w-12 h-12 rounded-full mr-3"
@@ -66,7 +66,7 @@ const BusinessDetail = ({
           />
           <View>
             <Text className="text-sm text-gray-500">Owner</Text>
-            <Text className="text-base font-medium text-pink-800">
+            <Text className="text-base font-medium text-orange-800">
               {business.owner.name}
             </Text>
           </View>
@@ -118,7 +118,7 @@ const BusinessDetail = ({
 
       {/* Business Details */}
       <View className="mb-6">
-        <Text className="text-lg font-semibold text-pink-800 mb-4">
+        <Text className="text-lg font-semibold text-orange-800 mb-4">
           Business Information
         </Text>
 
@@ -127,11 +127,11 @@ const BusinessDetail = ({
             <Ionicons
               name="information-circle-outline"
               size={18}
-              color="#be185d"
+              color="#ea580c"
               className="mt-0.5 mr-3 w-6"
             />
             <View className="flex-1">
-              <Text className="text-pink-600 text-xs mb-1">Description</Text>
+              <Text className="text-orange-600 text-xs mb-1">Description</Text>
               <Text className="text-gray-800 text-sm">
                 {business.description}
               </Text>
@@ -141,11 +141,11 @@ const BusinessDetail = ({
             <Ionicons
               name="location-outline"
               size={18}
-              color="#be185d"
+              color="#ea580c"
               className="mt-0.5 mr-3 w-6"
             />
             <View className="flex-1">
-              <Text className="text-pink-600 text-xs mb-1">Location</Text>
+              <Text className="text-orange-600 text-xs mb-1">Location</Text>
               <Text className="text-gray-800 text-sm">{business.location}</Text>
             </View>
           </View>
@@ -153,11 +153,11 @@ const BusinessDetail = ({
             <Ionicons
               name="call-outline"
               size={18}
-              color="#be185d"
+              color="#ea580c"
               className="mt-0.5 mr-3 w-6"
             />
             <View className="flex-1">
-              <Text className="text-pink-600 text-xs mb-1">Phone</Text>
+              <Text className="text-orange-600 text-xs mb-1">Phone</Text>
               <Text className="text-gray-800 text-sm">
                 {business.contact_phone}
               </Text>
@@ -167,11 +167,11 @@ const BusinessDetail = ({
             <Ionicons
               name="mail-outline"
               size={18}
-              color="#be185d"
+              color="#ea580c"
               className="mt-0.5 mr-3 w-6"
             />
             <View className="flex-1">
-              <Text className="text-pink-600 text-xs mb-1">Email</Text>
+              <Text className="text-orange-600 text-xs mb-1">Email</Text>
               <Text className="text-gray-800 text-sm">
                 {business.contact_email}
               </Text>
@@ -181,11 +181,11 @@ const BusinessDetail = ({
             <Ionicons
               name="globe-outline"
               size={18}
-              color="#be185d"
+              color="#ea580c"
               className="mt-0.5 mr-3 w-6"
             />
             <View className="flex-1">
-              <Text className="text-pink-600 text-xs mb-1">Website</Text>
+              <Text className="text-orange-600 text-xs mb-1">Website</Text>
               <Text className="text-gray-800 text-sm">{business.website}</Text>
             </View>
           </View>
@@ -194,7 +194,7 @@ const BusinessDetail = ({
 
       {/* Close Button - Made more prominent */}
       <TouchableOpacity
-        className="bg-pink-600 py-4 rounded-lg mt-4 mb-10"
+        className="bg-orange-600 py-4 rounded-lg mt-4 mb-10"
         onPress={onClose}
       >
         <Text className="text-white font-medium text-center text-base">

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
-import { useEvents } from "@/hooks/useSupabase";
+import { useEvents } from "@/hooks";
 import React from "react";
 
 type Event = {
@@ -53,11 +53,11 @@ export default function EventsCarousel({ onViewAll }) {
   // Get only the 5 most recent events
   const recentEvents = events
     ? [...events]
-      .sort(
-        (a, b) =>
-          new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
-      )
-      .slice(0, 5)
+        .sort(
+          (a, b) =>
+            new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
+        )
+        .slice(0, 5)
     : [];
 
   // Auto scroll for events carousel
@@ -363,15 +363,14 @@ export default function EventsCarousel({ onViewAll }) {
         {recentEvents.map((_, index) => (
           <View
             key={index}
-            className={`h-2 mx-1 rounded-full ${index === currentEventIndex
-              ? "w-6 bg-orange-500"
-              : "w-2 bg-gray-300"
-              }`}
+            className={`h-2 mx-1 rounded-full ${
+              index === currentEventIndex
+                ? "w-6 bg-orange-500"
+                : "w-2 bg-gray-300"
+            }`}
           />
         ))}
       </View>
     </View>
   );
-};
-
-
+}

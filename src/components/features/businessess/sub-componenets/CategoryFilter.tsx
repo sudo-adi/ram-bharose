@@ -23,14 +23,14 @@ const CategoryFilter = ({
           key={category}
           className={`mr-2 px-4 py-2 rounded-full ${
             category === selectedCategory
-              ? "bg-pink-600"
-              : "bg-white border border-pink-200"
+              ? "bg-orange-600"
+              : "bg-white border border-orange-200"
           }`}
           onPress={() => onSelectCategory(category)}
         >
           <Text
             className={`${
-              category === selectedCategory ? "text-white" : "text-pink-700"
+              category === selectedCategory ? "text-white" : "text-orange-700"
             } font-medium`}
           >
             {category}

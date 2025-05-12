@@ -42,7 +42,7 @@ const BusinessCard = ({ business, onPress }: BusinessCardProps) => {
               />
             )}
             {/* Category Badge */}
-            <View className="absolute top-3 left-3 bg-pink-500 px-3 py-1 rounded-full">
+            <View className="absolute top-3 left-3 bg-orange-500 px-3 py-1 rounded-full">
               <Text className="text-white font-medium text-xs">
                 {business.category}
               </Text>
@@ -55,11 +55,11 @@ const BusinessCard = ({ business, onPress }: BusinessCardProps) => {
       <View className="p-4">
         <View className="flex-row justify-between items-start mb-2">
           <View className="flex-1 pr-2">
-            <Text className="text-xl font-bold text-pink-800">
+            <Text className="text-xl font-bold text-orange-800">
               {business.name}
             </Text>
             <View className="flex-row items-center mt-1">
-              <Ionicons name="location-outline" size={14} color="#be185d" />
+              <Ionicons name="location-outline" size={14} color="#ea580c" />
               <Text className="text-gray-600 text-xs ml-1 flex-1">
                 {business.location}
               </Text>
@@ -69,10 +69,10 @@ const BusinessCard = ({ business, onPress }: BusinessCardProps) => {
 
         {/* Owner Info */}
         {business.owner && (
-          <View className="flex-row items-center mb-3 bg-pink-50 p-2 rounded-lg">
+          <View className="flex-row items-center mb-3 bg-orange-50 p-2 rounded-lg">
             <Image
               source={{ uri: business.owner.image }}
-              className="w-8 h-8 rounded-full mr-2 border border-pink-200"
+              className="w-8 h-8 rounded-full mr-2 border border-orange-200"
               resizeMode="cover"
             />
             <View>
@@ -94,7 +94,7 @@ const BusinessCard = ({ business, onPress }: BusinessCardProps) => {
         {/* Contact Buttons */}
         <View className="flex-row justify-between mt-2">
           <TouchableOpacity
-            className="bg-pink-500 py-2 px-3 rounded-xl items-center flex-1 mr-2 flex-row justify-center"
+            className="bg-orange-500 py-2 px-3 rounded-xl items-center flex-1 mr-2 flex-row justify-center"
             onPress={(e) => {
               e.stopPropagation();
               handleCall(business.contact_phone);
@@ -114,7 +114,7 @@ const BusinessCard = ({ business, onPress }: BusinessCardProps) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="bg-pink-700 py-2 px-3 rounded-xl items-center flex-1 flex-row justify-center"
+            className="bg-orange-700 py-2 px-3 rounded-xl items-center flex-1 flex-row justify-center"
             onPress={(e) => {
               e.stopPropagation();
               handleWebsite(business.website);

@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useBirthdays } from "@/hooks/useSupabase";
+import { useBirthdays } from "@/hooks";
 
 export default function BirthdaysContent() {
   const [activeTab, setActiveTab] = useState<"today" | "month" | "all">(

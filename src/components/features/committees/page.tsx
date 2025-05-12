@@ -15,7 +15,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useCommittees, useCommitteeImages } from "@/hooks/useSupabase";
+import { useCommitteeImages, useCommittees } from "@/hooks";
 
 // Define types for our data structures
 type Member = {
