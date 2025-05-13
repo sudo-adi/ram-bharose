@@ -81,49 +81,6 @@ function TabButton({ title, isActive, onPress }: TabButtonProps) {
   );
 }
 
-// function ImageUploadCard({ onImageSelect, selectedImage }) {
-//   const pickImage = async () => {
-//     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-//     if (status !== "granted") {
-//       Alert.alert(
-//         "Permission needed",
-//         "Please grant camera roll permissions to upload images."
-//       );
-//       return;
-//     }
-
-//     const result = await ImagePicker.launchImageLibraryAsync({
-//       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-//       allowsEditing: true,
-//       quality: 0.8,
-//     });
-
-//     if (!result.canceled && result.assets[0]) {
-//       onImageSelect(result.assets[0]);
-//     }
-//   };
-
-//   return (
-//     <TouchableOpacity className="mb-6" onPress={pickImage}>
-//       <View className="h-32 w-full rounded-xl border-2 border-dashed border-gray-300 justify-center items-center bg-gray-50 overflow-hidden">
-//         {selectedImage ? (
-//           <Image
-//             source={{ uri: selectedImage.uri }}
-//             className="w-full h-full"
-//             resizeMode="cover"
-//           />
-//         ) : (
-//           <>
-//             <Ionicons name="add" size={32} color="#9ca3af" />
-//             <Text className="text-gray-500 text-xs mt-2">Upload Image</Text>
-//           </>
-//         )}
-//       </View>
-//     </TouchableOpacity>
-//   );
-// }
-
 function EventForm() {
   const [formData, setFormData] = useState({
     name: "",
@@ -460,35 +417,237 @@ function LoanForm() {
   };
 
   const validateLoanForm = () => {
-    // Basic validation, extend as needed per loan type
     const newErrors: Record<string, string> = {};
     if (activeLoanType === "education") {
-      if (!formData.fullName) newErrors.fullName = "Full name is required";
-      if (!formData.courseName) newErrors.courseName = "Course name is required";
-      if (!formData.loanAmountRequired) newErrors.loanAmountRequired = "Loan amount is required";
+      // Section 1: Applicant Personal Details
+      if (!formData.fullName) newErrors.fullName = "Full Name is required";
+      if (!formData.dob) newErrors.dob = "Date of Birth is required";
+      if (!formData.gender) newErrors.gender = "Gender is required";
+      if (!formData.maritalStatus) newErrors.maritalStatus = "Marital Status is required";
+      if (!formData.nationality) newErrors.nationality = "Nationality is required";
+      if (!formData.mobileNumber) newErrors.mobileNumber = "Mobile Number is required";
+      if (!formData.emailId) newErrors.emailId = "Email ID is required";
+      if (!formData.permanentAddress) newErrors.permanentAddress = "Permanent Address is required";
+      if (!formData.currentAddress) newErrors.currentAddress = "Current Address is required";
+      if (!formData.aadhaarNumber) newErrors.aadhaarNumber = "Aadhaar Number is required";
+      if (!formData.panNumber) newErrors.panNumber = "PAN Number is required";
+
+      // Section 2: Course & Institution Details
+      if (!formData.courseName) newErrors.courseName = "Course Name is required";
+      if (!formData.levelOfStudy) newErrors.levelOfStudy = "Level of Study is required";
+      if (!formData.modeOfStudy) newErrors.modeOfStudy = "Mode of Study is required";
+      if (!formData.courseDuration) newErrors.courseDuration = "Course Duration is required";
+      if (!formData.institutionName) newErrors.institutionName = "Institution Name is required";
+      if (!formData.institutionType) newErrors.institutionType = "Institution Type is required";
+      if (!formData.institutionAddress) newErrors.institutionAddress = "Institution Address is required";
+      if (!formData.admissionLetter) newErrors.admissionLetter = "Admission Letter is required";
+      if (!formData.commencementDate) newErrors.commencementDate = "Commencement Date is required";
+      if (!formData.expectedCompletionDate) newErrors.expectedCompletionDate = "Expected Completion Date is required";
+
+      // Section 3: Loan Requirement
+      if (!formData.totalCourseFee) newErrors.totalCourseFee = "Total Course Fee is required";
+      if (!formData.totalLoanAmountRequired) newErrors.totalLoanAmountRequired = "Total Loan Amount Required is required";
+      if (!formData.repaymentPeriod) newErrors.repaymentPeriod = "Repayment Period is required";
+
+      // Section 4: Academic Background
+      if (!formData.tenthDetails) newErrors.tenthDetails = "10th Details are required";
+      if (!formData.twelfthDetails) newErrors.twelfthDetails = "12th Details are required";
+      if (!formData.academicCertificates) newErrors.academicCertificates = "Academic Certificates are required";
+
+      // Section 6: Co-applicant/Guarantor Details (Mandatory)
+      if (!formData.coApplicantFullName) newErrors.coApplicantFullName = "Co-applicant Full Name is required";
+      if (!formData.coApplicantRelation) newErrors.coApplicantRelation = "Co-applicant Relation is required";
+      if (!formData.coApplicantDob) newErrors.coApplicantDob = "Co-applicant Date of Birth is required";
+      if (!formData.coApplicantMobileNumber) newErrors.coApplicantMobileNumber = "Co-applicant Mobile Number is required";
+      if (!formData.coApplicantEmailId) newErrors.coApplicantEmailId = "Co-applicant Email ID is required";
+      if (!formData.coApplicantOccupation) newErrors.coApplicantOccupation = "Co-applicant Occupation is required";
+      if (!formData.coApplicantAnnualIncome) newErrors.coApplicantAnnualIncome = "Co-applicant Annual Income is required";
+      if (!formData.coApplicantPanNumber) newErrors.coApplicantPanNumber = "Co-applicant PAN Number is required";
+      if (!formData.coApplicantAadhaarNumber) newErrors.coApplicantAadhaarNumber = "Co-applicant Aadhaar Number is required";
+      if (!formData.coApplicantAddressProof) newErrors.coApplicantAddressProof = "Co-applicant Address Proof is required";
+      if (!formData.coApplicantIncomeProof) newErrors.coApplicantIncomeProof = "Co-applicant Income Proof is required";
+
+      // Section 8: Bank Account Details
+      if (!formData.accountHolderName) newErrors.accountHolderName = "Account Holder Name is required";
+      if (!formData.bankName) newErrors.bankName = "Bank Name is required";
+      if (!formData.branch) newErrors.branch = "Branch is required";
+      if (!formData.accountNumber) newErrors.accountNumber = "Account Number is required";
+      if (!formData.ifscCode) newErrors.ifscCode = "IFSC Code is required";
+
+      // Declaration
+      if (!formData.applicantSignature) newErrors.applicantSignature = "Applicant Signature is required";
+      if (!formData.coApplicantSignature) newErrors.coApplicantSignature = "Co-applicant Signature is required";
+      if (!formData.declarationDate) newErrors.declarationDate = "Declaration Date is required";
+
     } else if (activeLoanType === "business") {
-      if (!formData.fullName) newErrors.fullName = "Full name is required";
-      if (!formData.businessName) newErrors.businessName = "Business name is required";
-      if (!formData.loanAmountRequired) newErrors.loanAmountRequired = "Loan amount is required";
+      if (!formData.fullName) newErrors.fullName = "Full name ";
+      if (!formData.dateOfBirth) newErrors.dateOfBirth = "Date of birth ";
+      if (!formData.gender) newErrors.gender = "Gender ";
+      if (!formData.residentialAddress) newErrors.residentialAddress = "Residential address ";
+      if (!formData.maritalStatus) newErrors.maritalStatus = "Marital status ";
+      if (!formData.panNumber) newErrors.panNumber = "PAN number ";
+      if (!formData.aadhaarNumber) newErrors.aadhaarNumber = "Aadhaar number ";
+      if (!formData.businessName) newErrors.businessName = "Business name ";
+      if (!formData.natureOfBusiness) newErrors.natureOfBusiness = "Nature of business ";
+      if (!formData.industryType) newErrors.industryType = "Industry type ";
+      if (!formData.businessPAN) newErrors.businessPAN = "Business PAN ";
+      if (!formData.gstin) newErrors.gstin = "GSTIN ";
+      if (!formData.businessAddress) newErrors.businessAddress = "Business address ";
+      if (!formData.annualTurnover) newErrors.annualTurnover = "Annual turnover ";
+      if (!formData.netProfit) newErrors.netProfit = "Net profit ";
+      if (!formData.monthlyRevenue) newErrors.monthlyRevenue = "Monthly revenue ";
+      if (!formData.loanAmount) newErrors.loanAmount = "Loan amount ";
+      if (!formData.loanTenure) newErrors.loanTenure = "Loan tenure ";
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!validateLoanForm()) {
-      Alert.alert("Validation Error", "Please fill in all required fields for the selected loan type.");
+      Alert.alert("Please fill in the following values: ", Object.values(errors).join('\n'));
       return;
     }
+
     setLoading(true);
-    Alert.alert("Submit Loan", "Loan submission logic to be implemented with useFormSubmission hook.");
-    // TODO: Implement actual submission logic using a dedicated function in useFormSubmission
-    // const userPhone = await AsyncStorage.getItem("userPhone");
-    // const userId = await getUserIdByPhone(userPhone);
-    // if (!userId) { Alert.alert("Error", "User not found."); setLoading(false); return; }
-    // const success = await submitLoanApplication({ userId, loanType: activeLoanType, ...formData });
-    // if (success) { ... } else { ... }
-    setLoading(false);
+    try {
+      const userPhone = await AsyncStorage.getItem('userPhone');
+      const userId = await getUserIdByPhone(userPhone);
+
+      if (!userId) {
+        Alert.alert('Error', 'User not found. Please login again.');
+        return;
+      }
+
+      if (activeLoanType === "business") {
+        const { data, error } = await supabase
+          .from('business_loan_applications')
+          .insert([{
+            user_id: userId,
+            full_name: formData.fullName,
+            date_of_birth: new Date(formData.dob),
+            gender: formData.gender,
+            residential_address: formData.address,
+            marital_status: formData.maritalStatus,
+            cibil_score: parseInt(formData.cibilScore),
+            pan_number: formData.panNumber,
+            aadhaar_number: formData.aadhaarNumber,
+            business_name: formData.businessName,
+            nature_of_business: formData.businessNature,
+            industry_type: formData.industryType,
+            business_pan: formData.businessPAN,
+            gstin: formData.gstin,
+            business_address: formData.businessAddress,
+            udyam_registration: formData.udyamRegistration,
+            website_url: formData.website,
+            annual_turnover: parseFloat(formData.annualTurnover),
+            net_profit: parseFloat(formData.netProfit),
+            monthly_revenue: parseFloat(formData.monthlyRevenue),
+            current_liabilities: parseFloat(formData.liabilities),
+            loan_amount: parseFloat(formData.loanAmount),
+            loan_tenure: parseInt(formData.loanTenure),
+            preferred_emi: parseFloat(formData.preferredEMI),
+            disbursement_date: new Date(formData.disbursementDate),
+            bank_statements_url: formData.bankStatements,
+            itr_documents_url: formData.itrDocuments,
+            pan_card_url: formData.panCard,
+            aadhaar_card_url: formData.aadhaarCard,
+            gst_certificate_url: formData.gstCertificate
+          }]);
+
+        if (error) throw error;
+      } else {
+        // Education loan submission logic
+        const educationLoanPayload = {
+          user_id: userId,
+          full_name: formData.fullName,
+          date_of_birth: formData.dob ? new Date(formData.dob) : null,
+          gender: formData.gender,
+          marital_status: formData.maritalStatus,
+          nationality: formData.nationality,
+          mobile_number: formData.mobileNumber,
+          email_id: formData.emailId,
+          permanent_address: formData.permanentAddress,
+          current_address: formData.currentAddress,
+          aadhaar_number: formData.aadhaarNumber,
+          pan_number: formData.panNumber,
+          passport_number: formData.passportNumber,
+          cibil_score: formData.cibilScore ? parseInt(formData.cibilScore) : null,
+          course_name: formData.courseName,
+          level_of_study: formData.levelOfStudy,
+          mode_of_study: formData.modeOfStudy,
+          course_duration: formData.courseDuration,
+          institution_name: formData.institutionName,
+          institution_type: formData.institutionType,
+          institution_address: formData.institutionAddress,
+          admission_letter_url: formData.admissionLetter?.uri, // Assuming image upload returns an object with uri
+          commencement_date: formData.commencementDate ? new Date(formData.commencementDate) : null,
+          completion_date: formData.expectedCompletionDate ? new Date(formData.expectedCompletionDate) : null,
+          visa_status: formData.visaStatus,
+          total_course_fee: formData.totalCourseFee ? parseFloat(formData.totalCourseFee) : null,
+          other_expenses: formData.otherExpenses ? parseFloat(formData.otherExpenses) : null,
+          loan_amount: formData.totalLoanAmountRequired ? parseFloat(formData.totalLoanAmountRequired) : null,
+          self_contribution: formData.familyContribution ? parseFloat(formData.familyContribution) : null,
+          repayment_period: formData.repaymentPeriod ? parseInt(formData.repaymentPeriod) : null,
+          moratorium_period: formData.moratoriumPeriod,
+          tenth_details: formData.tenthDetails,
+          twelfth_details: formData.twelfthDetails,
+          graduation_details: formData.graduationDetails,
+          competitive_exams: formData.competitiveExams,
+          academic_certificates_url: [formData.academicCertificates?.uri], // Assuming image upload returns an object with uri
+          employment_status: formData.currentlyEmployed,
+          company_name: formData.companyName,
+          designation: formData.designation,
+          annual_income: formData.annualIncome ? parseFloat(formData.annualIncome) : null,
+          work_experience: formData.workExperience ? parseInt(formData.workExperience) : null,
+          salary_slips_url: [formData.salarySlips?.uri], // Assuming image upload returns an object with uri
+          co_applicant_name: formData.coApplicantFullName,
+          co_applicant_relation: formData.coApplicantRelation,
+          co_applicant_dob: formData.coApplicantDob ? new Date(formData.coApplicantDob) : null,
+          co_applicant_mobile: formData.coApplicantMobileNumber,
+          co_applicant_email: formData.coApplicantEmailId,
+          co_applicant_occupation: formData.coApplicantOccupation,
+          co_applicant_employer: formData.coApplicantEmployerName,
+          co_applicant_income: formData.coApplicantAnnualIncome ? parseFloat(formData.coApplicantAnnualIncome) : null,
+          co_applicant_pan: formData.coApplicantPanNumber,
+          co_applicant_aadhaar: formData.coApplicantAadhaarNumber,
+          co_applicant_address_proof_url: formData.coApplicantAddressProof?.uri, // Assuming image upload returns an object with uri
+          co_applicant_income_proof_url: formData.coApplicantIncomeProof?.uri, // Assuming image upload returns an object with uri
+          co_applicant_cibil_score: formData.coApplicantCibilScore ? parseInt(formData.coApplicantCibilScore) : null,
+          movable_assets: formData.movableAssets,
+          immovable_assets: formData.immovableAssets,
+          existing_loans: formData.existingLoans,
+          total_liabilities: formData.totalLiabilities ? parseFloat(formData.totalLiabilities) : null,
+          security_offered: formData.securityOffered,
+          bank_account_holder_name: formData.accountHolderName,
+          bank_name: formData.bankName,
+          bank_branch: formData.branch,
+          bank_account_number: formData.accountNumber,
+          bank_ifsc_code: formData.ifscCode,
+          applicant_signature: formData.applicantSignature,
+          co_applicant_signature: formData.coApplicantSignature,
+          declaration_date: formData.declarationDate ? new Date(formData.declarationDate) : null,
+          // fee_structure_url: formData.feeStructure?.uri, // Add if feeStructure is an upload field
+          // bank_statements_url: formData.bankStatements?.uri, // Add if bankStatements is an upload field
+          // collateral_documents_url: formData.collateralDocuments?.uri // Add if collateralDocuments is an upload field
+        };
+
+        const { data, error } = await supabase
+          .from('education_loan_applications')
+          .insert([educationLoanPayload]);
+
+        if (error) throw error;
+      }
+      setFormData({});
+      setErrors({});
+      setLoading(false);
+      Alert.alert('Success', 'Application submitted successfully');
+    } catch (error) {
+      console.error('Error submitting application:', error);
+      Alert.alert('Error', 'Failed to submit application. Please try again.');
+      setLoading(false);
+    }
   };
 
   return (

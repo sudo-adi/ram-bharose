@@ -59,7 +59,7 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             />
             <FormField
                 label="Email ID"
-                placeholder="Enter your email address"
+                placeholder="Enter your email ID"
                 keyboardType="email-address"
                 value={formData.emailId || ''}
                 onChangeText={(text) => setFormData({ ...formData, emailId: text })}
@@ -67,7 +67,7 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             />
             <FormField
                 label="Permanent Address"
-                placeholder="Enter permanent address"
+                placeholder="Enter your permanent address"
                 multiline
                 value={formData.permanentAddress || ''}
                 onChangeText={(text) => setFormData({ ...formData, permanentAddress: text })}
@@ -75,7 +75,7 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             />
             <FormField
                 label="Current Address"
-                placeholder="Enter current address (if different from permanent)"
+                placeholder="Enter your current address"
                 multiline
                 value={formData.currentAddress || ''}
                 onChangeText={(text) => setFormData({ ...formData, currentAddress: text })}
@@ -98,14 +98,14 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             />
             <FormField
                 label="Passport Number (if available)"
-                placeholder="Enter passport number"
+                placeholder="Enter your passport number"
                 value={formData.passportNumber || ''}
                 onChangeText={(text) => setFormData({ ...formData, passportNumber: text })}
                 error={errors.passportNumber}
             />
             <FormField
                 label="CIBIL Score (if known)"
-                placeholder="Enter CIBIL score"
+                placeholder="Enter your CIBIL score"
                 keyboardType="numeric"
                 value={formData.cibilScore || ''}
                 onChangeText={(text) => setFormData({ ...formData, cibilScore: text })}
@@ -121,6 +121,27 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
                 error={errors.courseName}
             />
             <FormField
+                label="Level of Study (UG/PG/Diploma/PhD)"
+                placeholder="Select level of study"
+                value={formData.levelOfStudy || ''}
+                onChangeText={(text) => setFormData({ ...formData, levelOfStudy: text })}
+                error={errors.levelOfStudy}
+            />
+            <FormField
+                label="Mode of Study (Full-time/Part-time/Distance)"
+                placeholder="Select mode of study"
+                value={formData.modeOfStudy || ''}
+                onChangeText={(text) => setFormData({ ...formData, modeOfStudy: text })}
+                error={errors.modeOfStudy}
+            />
+            <FormField
+                label="Course Duration"
+                placeholder="Enter course duration"
+                value={formData.courseDuration || ''}
+                onChangeText={(text) => setFormData({ ...formData, courseDuration: text })}
+                error={errors.courseDuration}
+            />
+            <FormField
                 label="Institution Name"
                 placeholder="Enter institution name"
                 value={formData.institutionName || ''}
@@ -128,29 +149,8 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
                 error={errors.institutionName}
             />
             <FormField
-                label="Level of Study"
-                placeholder="e.g., UG/PG/Diploma/PhD"
-                value={formData.levelOfStudy || ''}
-                onChangeText={(text) => setFormData({ ...formData, levelOfStudy: text })}
-                error={errors.levelOfStudy}
-            />
-            <FormField
-                label="Mode of Study"
-                placeholder="e.g., Full-time/Part-time/Distance"
-                value={formData.modeOfStudy || ''}
-                onChangeText={(text) => setFormData({ ...formData, modeOfStudy: text })}
-                error={errors.modeOfStudy}
-            />
-            <FormField
-                label="Course Duration"
-                placeholder="e.g., 4 years"
-                value={formData.courseDuration || ''}
-                onChangeText={(text) => setFormData({ ...formData, courseDuration: text })}
-                error={errors.courseDuration}
-            />
-            <FormField
-                label="Institution Type"
-                placeholder="e.g., India/Abroad"
+                label="Institution Type (India/Abroad)"
+                placeholder="Select institution type"
                 value={formData.institutionType || ''}
                 onChangeText={(text) => setFormData({ ...formData, institutionType: text })}
                 error={errors.institutionType}
@@ -202,7 +202,7 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             />
             <FormField
                 label="Other Expenses (Accommodation, Travel, Books, etc.)"
-                placeholder="Enter other expenses amount"
+                placeholder="Enter other expenses"
                 keyboardType="numeric"
                 value={formData.otherExpenses || ''}
                 onChangeText={(text) => setFormData({ ...formData, otherExpenses: text })}
@@ -210,15 +210,15 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             />
             <FormField
                 label="Total Loan Amount Required"
-                placeholder="Enter amount"
+                placeholder="Enter total loan amount required"
                 keyboardType="numeric"
-                value={formData.loanAmountRequired || ''}
-                onChangeText={(text) => setFormData({ ...formData, loanAmountRequired: text })}
-                error={errors.loanAmountRequired}
+                value={formData.totalLoanAmountRequired || ''}
+                onChangeText={(text) => setFormData({ ...formData, totalLoanAmountRequired: text })}
+                error={errors.totalLoanAmountRequired}
             />
             <FormField
                 label="Contribution from Family/Self"
-                placeholder="Enter amount"
+                placeholder="Enter contribution amount"
                 keyboardType="numeric"
                 value={formData.familyContribution || ''}
                 onChangeText={(text) => setFormData({ ...formData, familyContribution: text })}
@@ -226,7 +226,7 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             />
             <FormField
                 label="Repayment Period (in years)"
-                placeholder="e.g., 5 years"
+                placeholder="Enter repayment period"
                 keyboardType="numeric"
                 value={formData.repaymentPeriod || ''}
                 onChangeText={(text) => setFormData({ ...formData, repaymentPeriod: text })}
@@ -234,7 +234,7 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             />
             <FormField
                 label="Moratorium Period (if required)"
-                placeholder="e.g., 6 months"
+                placeholder="Enter moratorium period"
                 value={formData.moratoriumPeriod || ''}
                 onChangeText={(text) => setFormData({ ...formData, moratoriumPeriod: text })}
                 error={errors.moratoriumPeriod}
@@ -243,28 +243,28 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 4: Academic Background</Text>
             <FormField
                 label="10th Board Name / Year / Marks"
-                placeholder="e.g., CBSE / 2015 / 90%"
-                value={formData.academic10th || ''}
-                onChangeText={(text) => setFormData({ ...formData, academic10th: text })}
-                error={errors.academic10th}
+                placeholder="Enter 10th details"
+                value={formData.tenthDetails || ''}
+                onChangeText={(text) => setFormData({ ...formData, tenthDetails: text })}
+                error={errors.tenthDetails}
             />
             <FormField
                 label="12th Board Name / Year / Marks"
-                placeholder="e.g., State Board / 2017 / 85%"
-                value={formData.academic12th || ''}
-                onChangeText={(text) => setFormData({ ...formData, academic12th: text })}
-                error={errors.academic12th}
+                placeholder="Enter 12th details"
+                value={formData.twelfthDetails || ''}
+                onChangeText={(text) => setFormData({ ...formData, twelfthDetails: text })}
+                error={errors.twelfthDetails}
             />
             <FormField
                 label="Graduation Details (if applicable)"
-                placeholder="e.g., B.Tech CSE / 2021 / 8.5 CGPA"
+                placeholder="Enter graduation details"
                 value={formData.graduationDetails || ''}
                 onChangeText={(text) => setFormData({ ...formData, graduationDetails: text })}
                 error={errors.graduationDetails}
             />
             <FormField
                 label="Competitive Exams Cleared (e.g., GRE/GMAT/IELTS)"
-                placeholder="Enter exam name and score"
+                placeholder="Enter exams cleared"
                 value={formData.competitiveExams || ''}
                 onChangeText={(text) => setFormData({ ...formData, competitiveExams: text })}
                 error={errors.competitiveExams}
@@ -275,10 +275,11 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
                 onImageSelect={(file) => setFormData({ ...formData, academicCertificates: file })}
                 error={errors.academicCertificates}
             />
+
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 5: Employment Details (If Applicable)</Text>
             <FormField
-                label="Currently Employed?"
-                placeholder="Yes/No"
+                label="Currently Employed? (Yes/No)"
+                placeholder="Select Yes or No"
                 value={formData.currentlyEmployed || ''}
                 onChangeText={(text) => setFormData({ ...formData, currentlyEmployed: text })}
                 error={errors.currentlyEmployed}
@@ -315,14 +316,14 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             />
             <ImageUploadCard
                 label="Salary Slips / ITR / Form 16 (upload)"
-                selectedImage={formData.incomeProofApplicant}
-                onImageSelect={(file) => setFormData({ ...formData, incomeProofApplicant: file })}
-                error={errors.incomeProofApplicant}
+                selectedImage={formData.salarySlips}
+                onImageSelect={(file) => setFormData({ ...formData, salarySlips: file })}
+                error={errors.salarySlips}
             />
 
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 6: Co-applicant/Guarantor Details (Mandatory)</Text>
             <FormField
-                label="Co-applicant Full Name"
+                label="Full Name"
                 placeholder="Enter co-applicant's full name"
                 value={formData.coApplicantFullName || ''}
                 onChangeText={(text) => setFormData({ ...formData, coApplicantFullName: text })}
@@ -330,20 +331,20 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             />
             <FormField
                 label="Relation to Applicant"
-                placeholder="e.g., Father, Mother"
+                placeholder="Enter relation to applicant"
                 value={formData.coApplicantRelation || ''}
                 onChangeText={(text) => setFormData({ ...formData, coApplicantRelation: text })}
                 error={errors.coApplicantRelation}
             />
             <FormField
-                label="Co-applicant Date of Birth"
+                label="Date of Birth"
                 placeholder="YYYY-MM-DD"
                 value={formData.coApplicantDob || ''}
                 onChangeText={(text) => setFormData({ ...formData, coApplicantDob: text })}
                 error={errors.coApplicantDob}
             />
             <FormField
-                label="Co-applicant Mobile Number"
+                label="Mobile Number"
                 placeholder="Enter co-applicant's mobile number"
                 keyboardType="phone-pad"
                 value={formData.coApplicantMobileNumber || ''}
@@ -351,29 +352,29 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
                 error={errors.coApplicantMobileNumber}
             />
             <FormField
-                label="Co-applicant Email ID"
-                placeholder="Enter co-applicant's email address"
+                label="Email ID"
+                placeholder="Enter co-applicant's email ID"
                 keyboardType="email-address"
                 value={formData.coApplicantEmailId || ''}
                 onChangeText={(text) => setFormData({ ...formData, coApplicantEmailId: text })}
                 error={errors.coApplicantEmailId}
             />
             <FormField
-                label="Co-applicant Occupation"
+                label="Occupation"
                 placeholder="Enter co-applicant's occupation"
                 value={formData.coApplicantOccupation || ''}
                 onChangeText={(text) => setFormData({ ...formData, coApplicantOccupation: text })}
                 error={errors.coApplicantOccupation}
             />
             <FormField
-                label="Co-applicant Employer Name"
+                label="Employer Name"
                 placeholder="Enter co-applicant's employer name"
                 value={formData.coApplicantEmployerName || ''}
                 onChangeText={(text) => setFormData({ ...formData, coApplicantEmployerName: text })}
                 error={errors.coApplicantEmployerName}
             />
             <FormField
-                label="Co-applicant Annual Income"
+                label="Annual Income"
                 placeholder="Enter co-applicant's annual income"
                 keyboardType="numeric"
                 value={formData.coApplicantAnnualIncome || ''}
@@ -381,14 +382,14 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
                 error={errors.coApplicantAnnualIncome}
             />
             <FormField
-                label="Co-applicant PAN Number"
+                label="PAN Number"
                 placeholder="Enter co-applicant's PAN number"
                 value={formData.coApplicantPanNumber || ''}
                 onChangeText={(text) => setFormData({ ...formData, coApplicantPanNumber: text })}
                 error={errors.coApplicantPanNumber}
             />
             <FormField
-                label="Co-applicant Aadhaar Number"
+                label="Aadhaar Number"
                 placeholder="Enter co-applicant's Aadhaar number"
                 keyboardType="numeric"
                 value={formData.coApplicantAadhaarNumber || ''}
@@ -396,19 +397,19 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
                 error={errors.coApplicantAadhaarNumber}
             />
             <ImageUploadCard
-                label="Co-applicant Address Proof (upload)"
+                label="Address Proof (upload)"
                 selectedImage={formData.coApplicantAddressProof}
                 onImageSelect={(file) => setFormData({ ...formData, coApplicantAddressProof: file })}
                 error={errors.coApplicantAddressProof}
             />
             <ImageUploadCard
-                label="Co-applicant Income Proof (ITR/Form16/Salary Slips)"
+                label="Income Proof (ITR/Form16/Salary Slips)"
                 selectedImage={formData.coApplicantIncomeProof}
                 onImageSelect={(file) => setFormData({ ...formData, coApplicantIncomeProof: file })}
                 error={errors.coApplicantIncomeProof}
             />
             <FormField
-                label="Co-applicant CIBIL Score (if known)"
+                label="CIBIL Score (if known)"
                 placeholder="Enter co-applicant's CIBIL score"
                 keyboardType="numeric"
                 value={formData.coApplicantCibilScore || ''}
@@ -419,35 +420,36 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 7: Asset & Liability Details</Text>
             <FormField
                 label="Movable Assets (FDs, Shares, etc.)"
-                placeholder="Enter details of movable assets"
+                placeholder="Enter movable assets"
                 value={formData.movableAssets || ''}
                 onChangeText={(text) => setFormData({ ...formData, movableAssets: text })}
                 error={errors.movableAssets}
             />
             <FormField
                 label="Immovable Assets (Land, Property)"
-                placeholder="Enter details of immovable assets"
+                placeholder="Enter immovable assets"
                 value={formData.immovableAssets || ''}
                 onChangeText={(text) => setFormData({ ...formData, immovableAssets: text })}
                 error={errors.immovableAssets}
             />
             <FormField
                 label="Existing Loans (if any)"
-                placeholder="Enter details of existing loans"
+                placeholder="Enter existing loans"
                 value={formData.existingLoans || ''}
                 onChangeText={(text) => setFormData({ ...formData, existingLoans: text })}
                 error={errors.existingLoans}
             />
             <FormField
                 label="Total Liabilities"
-                placeholder="Enter total liabilities amount"
+                placeholder="Enter total liabilities"
+                keyboardType="numeric"
                 value={formData.totalLiabilities || ''}
                 onChangeText={(text) => setFormData({ ...formData, totalLiabilities: text })}
                 error={errors.totalLiabilities}
             />
             <FormField
-                label="Security Offered (if any)"
-                placeholder="e.g., Collateral/Property/FD/Third Party Guarantee"
+                label="Security Offered (if any): (Collateral/Property/FD/Third Party Guarantee)"
+                placeholder="Enter security offered"
                 value={formData.securityOffered || ''}
                 onChangeText={(text) => setFormData({ ...formData, securityOffered: text })}
                 error={errors.securityOffered}
@@ -491,42 +493,61 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
                 error={errors.ifscCode}
             />
 
-            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 9: Document Checklist & Uploads</Text>
-            <ImageUploadCard
-                label="Photo ID (PAN/Aadhaar/Passport - Applicant)"
-                selectedImage={formData.applicantPhotoId}
-                onImageSelect={(file) => setFormData({ ...formData, applicantPhotoId: file })}
-                error={errors.applicantPhotoId}
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 9: Document Checklist</Text>
+            <View className="mb-3">
+                <Text className="text-sm text-gray-600 mb-1">
+                    {formData.panNumber || formData.aadhaarNumber || formData.passportNumber ? '✅' : '⬜️'} Photo ID (PAN/Aadhaar/Passport)
+                </Text>
+                <Text className="text-sm text-gray-600 mb-1">
+                    {formData.permanentAddress || formData.currentAddress ? '✅' : '⬜️'} Address Proof (Applicant)
+                </Text>
+                <Text className="text-sm text-gray-600 mb-1">
+                    {formData.coApplicantAddressProof ? '✅' : '⬜️'} Address Proof (Co-applicant)
+                </Text>
+                <Text className="text-sm text-gray-600 mb-1">
+                    {formData.admissionLetter ? '✅' : '⬜️'} Admission Letter
+                </Text>
+                <Text className="text-sm text-gray-600 mb-1">
+                    {(formData.tenthDetails || formData.twelfthDetails || formData.graduationDetails) ? '✅' : '⬜️'} Academic Records (Details)
+                </Text>
+                <Text className="text-sm text-gray-600 mb-1">
+                    {formData.academicCertificates ? '✅' : '⬜️'} Academic Records (Certificates Upload)
+                </Text>
+                <Text className="text-sm text-gray-600 mb-1">
+                    {formData.salarySlips ? '✅' : '⬜️'} Income Proof (Applicant)
+                </Text>
+                <Text className="text-sm text-gray-600 mb-1">
+                    {formData.coApplicantIncomeProof ? '✅' : '⬜️'} Income Proof (Co-applicant)
+                </Text>
+                <Text className="text-sm text-gray-600 mb-1">
+                    {formData.passportNumber || formData.visaStatus ? '✅' : '⬜️'} Passport & Visa (if applicable)
+                </Text>
+            </View>
+
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Declaration & Consent</Text>
+            <Text className="text-sm text-gray-600 mb-3">
+                I hereby declare that the information furnished above is true and correct to the best of my knowledge. I authorize the institution to process my application, obtain my credit information from credit bureaus, and contact me for any further clarifications.
+            </Text>
+            <FormField
+                label="Signature of Applicant"
+                placeholder="Applicant's Signature (Type Name)"
+                value={formData.applicantSignature || ''}
+                onChangeText={(text) => setFormData({ ...formData, applicantSignature: text })}
+                error={errors.applicantSignature}
             />
-            <ImageUploadCard
-                label="Address Proof (Applicant)"
-                selectedImage={formData.applicantAddressProof}
-                onImageSelect={(file) => setFormData({ ...formData, applicantAddressProof: file })}
-                error={errors.applicantAddressProof}
+            <FormField
+                label="Signature of Co-applicant"
+                placeholder="Co-applicant's Signature (Type Name)"
+                value={formData.coApplicantSignature || ''}
+                onChangeText={(text) => setFormData({ ...formData, coApplicantSignature: text })}
+                error={errors.coApplicantSignature}
             />
-            <ImageUploadCard
-                label="Fee Structure from Institution (upload)"
-                selectedImage={formData.feeStructure}
-                onImageSelect={(file) => setFormData({ ...formData, feeStructure: file })}
-                error={errors.feeStructure}
-            />
-            <ImageUploadCard
-                label="Bank Statements (Last 6 months - Applicant)"
-                selectedImage={formData.applicantBankStatements}
-                onImageSelect={(file) => setFormData({ ...formData, applicantBankStatements: file })}
-                error={errors.applicantBankStatements}
-            />
-            <ImageUploadCard
-                label="Passport & Visa (if applicable)"
-                selectedImage={formData.passportVisaUpload}
-                onImageSelect={(file) => setFormData({ ...formData, passportVisaUpload: file })}
-                error={errors.passportVisaUpload}
-            />
-            <ImageUploadCard
-                label="Collateral Documents (if secured loan)"
-                selectedImage={formData.collateralDocuments}
-                onImageSelect={(file) => setFormData({ ...formData, collateralDocuments: file })}
-                error={errors.collateralDocuments}
+            <FormField
+                label="Date"
+                placeholder="YYYY-MM-DD"
+                value={formData.declarationDate || ''}
+                onChangeText={(text) => setFormData({ ...formData, declarationDate: text })}
+                error={errors.declarationDate}
             />
         </View>
     );
