@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native'; // Added Text import
+import { View, Text, TouchableOpacity } from 'react-native'; // Added Text import
 import ImageUploadCard from './ImageUploadCard'; // Added ImageUploadCard import
 import FormField from './FormField';
 
@@ -11,22 +11,102 @@ interface EducationLoanFormProps {
 }
 
 const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setFormData, errors, setErrors }) => {
+    // Add this function at the start of your component
+    const fillTestData = () => {
+        const testData = {
+            full_name: "Test User",
+            date_of_birth: "1995-01-01",
+            gender: "Male",
+            marital_status: "Single",
+            nationality: "Indian",
+            mobile_number: "9876543210",
+            email_id: "test@example.com",
+            permanent_address: "123 Test Street, Test City",
+            current_address: "123 Test Street, Test City",
+            aadhaar_number: "123456789012",
+            pan_number: "ABCDE1234F",
+            passport_number: "A1234567",
+            cibil_score: "750",
+            course_name: "Computer Science",
+            level_of_study: "UG",
+            mode_of_study: "Full-time",
+            course_duration: "4 years",
+            institution_name: "Test University",
+            institution_type: "India",
+            institution_address: "Test University Campus, Test City",
+            commencement_date: "2024-08-01",
+            completion_date: "2028-07-31",
+            visa_status: "NA",
+            total_course_fee: "400000",
+            other_expenses: "100000",
+            loan_amount: "500000",
+            self_contribution: "100000",
+            repayment_period: "7",
+            moratorium_period: "1", // Schema type is integer, test data is string. Assuming FormField handles conversion or backend does.
+            tenth_details: "CBSE / 2010 / 95%",
+            twelfth_details: "CBSE / 2012 / 90%",
+            graduation_details: "NA",
+            competitive_exams: "JEE", // Schema type is jsonb. Assuming FormField handles as string.
+            employment_status: false,
+            company_name: "", // Assuming empty if not employed
+            designation: "", // Assuming empty if not employed
+            annual_income: "987654", // Assuming empty if not employed
+            work_experience: "1", // Assuming empty if not employed
+            co_applicant_name: "Test Parent",
+            co_applicant_relation: "Father",
+            co_applicant_dob: "1970-01-01",
+            co_applicant_mobile: "9876543211",
+            co_applicant_email: "parent@example.com",
+            co_applicant_occupation: "Business",
+            co_applicant_employer: "Self Employed",
+            co_applicant_income: "1000000",
+            co_applicant_pan: "FGHIJ4321K",
+            co_applicant_aadhaar: "987654321012",
+            co_applicant_cibil_score: "780",
+            bank_account_holder_name: "Test User",
+            bank_name: "Test Bank",
+            bank_branch: "Test Branch",
+            bank_account_number: "1234567890",
+            bank_ifsc_code: "TEST0001234",
+            declaration_date: "2024-01-01",
+            declaration_signed: true,
+            security_offered: "Some security offered details", // Added for completeness
+            // Fields for ImageUploadCards are typically not in testData unless they are URLs
+            // admission_letter_url: null, 
+            // academic_certificates_url: null,
+            // salary_slips_url: null,
+            // co_applicant_address_proof_url: null,
+            // co_applicant_income_proof_url: null,
+            // applicant_signature: null,
+            // co_applicant_signature: null,
+        };
+        setFormData({ ...formData, ...testData });
+    };
+
+    // Add this button at the start of your return statement, right after the opening View tag
     return (
         <View>
+            <TouchableOpacity
+                onPress={fillTestData}
+                className="bg-gray-200 py-2 px-4 rounded-lg mb-4"
+            >
+                <Text className="text-gray-700 text-center">Fill Test Data</Text>
+            </TouchableOpacity>
+
             <Text className="text-lg font-semibold text-gray-700 mb-3">Section 1: Applicant Personal Details</Text>
             <FormField
                 label="Full Name (as per Aadhaar/PAN)"
                 placeholder="Enter your full name"
-                value={formData.fullName || ''}
-                onChangeText={(text) => setFormData({ ...formData, fullName: text })}
-                error={errors.fullName}
+                value={formData.full_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, full_name: text })}
+                error={errors.full_name}
             />
             <FormField
                 label="Date of Birth"
                 placeholder="YYYY-MM-DD"
-                value={formData.dob || ''}
-                onChangeText={(text) => setFormData({ ...formData, dob: text })}
-                error={errors.dob}
+                value={formData.date_of_birth || ''}
+                onChangeText={(text) => setFormData({ ...formData, date_of_birth: text })}
+                error={errors.date_of_birth}
             />
             <FormField
                 label="Gender"
@@ -38,9 +118,9 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             <FormField
                 label="Marital Status"
                 placeholder="Select Marital Status"
-                value={formData.maritalStatus || ''}
-                onChangeText={(text) => setFormData({ ...formData, maritalStatus: text })}
-                error={errors.maritalStatus}
+                value={formData.marital_status || ''}
+                onChangeText={(text) => setFormData({ ...formData, marital_status: text })}
+                error={errors.marital_status}
             />
             <FormField
                 label="Nationality"
@@ -53,142 +133,142 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
                 label="Mobile Number"
                 placeholder="Enter your mobile number"
                 keyboardType="phone-pad"
-                value={formData.mobileNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, mobileNumber: text })}
-                error={errors.mobileNumber}
+                value={formData.mobile_number || ''}
+                onChangeText={(text) => setFormData({ ...formData, mobile_number: text })}
+                error={errors.mobile_number}
             />
             <FormField
                 label="Email ID"
                 placeholder="Enter your email ID"
                 keyboardType="email-address"
-                value={formData.emailId || ''}
-                onChangeText={(text) => setFormData({ ...formData, emailId: text })}
-                error={errors.emailId}
+                value={formData.email_id || ''}
+                onChangeText={(text) => setFormData({ ...formData, email_id: text })}
+                error={errors.email_id}
             />
             <FormField
                 label="Permanent Address"
                 placeholder="Enter your permanent address"
                 multiline
-                value={formData.permanentAddress || ''}
-                onChangeText={(text) => setFormData({ ...formData, permanentAddress: text })}
-                error={errors.permanentAddress}
+                value={formData.permanent_address || ''}
+                onChangeText={(text) => setFormData({ ...formData, permanent_address: text })}
+                error={errors.permanent_address}
             />
             <FormField
                 label="Current Address"
                 placeholder="Enter your current address"
                 multiline
-                value={formData.currentAddress || ''}
-                onChangeText={(text) => setFormData({ ...formData, currentAddress: text })}
-                error={errors.currentAddress}
+                value={formData.current_address || ''}
+                onChangeText={(text) => setFormData({ ...formData, current_address: text })}
+                error={errors.current_address}
             />
             <FormField
                 label="Aadhaar Number"
                 placeholder="Enter your Aadhaar number"
                 keyboardType="numeric"
-                value={formData.aadhaarNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, aadhaarNumber: text })}
-                error={errors.aadhaarNumber}
+                value={formData.aadhaar_number || ''}
+                onChangeText={(text) => setFormData({ ...formData, aadhaar_number: text })}
+                error={errors.aadhaar_number}
             />
             <FormField
                 label="PAN Number"
                 placeholder="Enter your PAN number"
-                value={formData.panNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, panNumber: text })}
-                error={errors.panNumber}
+                value={formData.pan_number || ''}
+                onChangeText={(text) => setFormData({ ...formData, pan_number: text })}
+                error={errors.pan_number}
             />
             <FormField
                 label="Passport Number (if available)"
                 placeholder="Enter your passport number"
-                value={formData.passportNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, passportNumber: text })}
-                error={errors.passportNumber}
+                value={formData.passport_number || ''}
+                onChangeText={(text) => setFormData({ ...formData, passport_number: text })}
+                error={errors.passport_number}
             />
             <FormField
                 label="CIBIL Score (if known)"
                 placeholder="Enter your CIBIL score"
                 keyboardType="numeric"
-                value={formData.cibilScore || ''}
-                onChangeText={(text) => setFormData({ ...formData, cibilScore: text })}
-                error={errors.cibilScore}
+                value={formData.cibil_score || ''}
+                onChangeText={(text) => setFormData({ ...formData, cibil_score: text })}
+                error={errors.cibil_score}
             />
 
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 2: Course & Institution Details</Text>
             <FormField
                 label="Course Name"
                 placeholder="Enter course name"
-                value={formData.courseName || ''}
-                onChangeText={(text) => setFormData({ ...formData, courseName: text })}
-                error={errors.courseName}
+                value={formData.course_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, course_name: text })}
+                error={errors.course_name}
             />
             <FormField
                 label="Level of Study (UG/PG/Diploma/PhD)"
                 placeholder="Select level of study"
-                value={formData.levelOfStudy || ''}
-                onChangeText={(text) => setFormData({ ...formData, levelOfStudy: text })}
-                error={errors.levelOfStudy}
+                value={formData.level_of_study || ''}
+                onChangeText={(text) => setFormData({ ...formData, level_of_study: text })}
+                error={errors.level_of_study}
             />
             <FormField
                 label="Mode of Study (Full-time/Part-time/Distance)"
                 placeholder="Select mode of study"
-                value={formData.modeOfStudy || ''}
-                onChangeText={(text) => setFormData({ ...formData, modeOfStudy: text })}
-                error={errors.modeOfStudy}
+                value={formData.mode_of_study || ''}
+                onChangeText={(text) => setFormData({ ...formData, mode_of_study: text })}
+                error={errors.mode_of_study}
             />
             <FormField
                 label="Course Duration"
                 placeholder="Enter course duration"
-                value={formData.courseDuration || ''}
-                onChangeText={(text) => setFormData({ ...formData, courseDuration: text })}
-                error={errors.courseDuration}
+                value={formData.course_duration || ''}
+                onChangeText={(text) => setFormData({ ...formData, course_duration: text })}
+                error={errors.course_duration}
             />
             <FormField
                 label="Institution Name"
                 placeholder="Enter institution name"
-                value={formData.institutionName || ''}
-                onChangeText={(text) => setFormData({ ...formData, institutionName: text })}
-                error={errors.institutionName}
+                value={formData.institution_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, institution_name: text })}
+                error={errors.institution_name}
             />
             <FormField
                 label="Institution Type (India/Abroad)"
                 placeholder="Select institution type"
-                value={formData.institutionType || ''}
-                onChangeText={(text) => setFormData({ ...formData, institutionType: text })}
-                error={errors.institutionType}
+                value={formData.institution_type || ''}
+                onChangeText={(text) => setFormData({ ...formData, institution_type: text })}
+                error={errors.institution_type}
             />
             <FormField
                 label="Institution Address"
                 placeholder="Enter institution address"
                 multiline
-                value={formData.institutionAddress || ''}
-                onChangeText={(text) => setFormData({ ...formData, institutionAddress: text })}
-                error={errors.institutionAddress}
+                value={formData.institution_address || ''}
+                onChangeText={(text) => setFormData({ ...formData, institution_address: text })}
+                error={errors.institution_address}
             />
             <ImageUploadCard
                 label="Admission Letter (upload)"
-                selectedImage={formData.admissionLetter}
-                onImageSelect={(file) => setFormData({ ...formData, admissionLetter: file })}
-                error={errors.admissionLetter}
+                selectedImage={formData.admission_letter_url}
+                onImageSelect={(file) => setFormData({ ...formData, admission_letter_url: file })}
+                error={errors.admission_letter_url}
             />
             <FormField
                 label="Commencement Date"
                 placeholder="YYYY-MM-DD"
-                value={formData.commencementDate || ''}
-                onChangeText={(text) => setFormData({ ...formData, commencementDate: text })}
-                error={errors.commencementDate}
+                value={formData.commencement_date || ''}
+                onChangeText={(text) => setFormData({ ...formData, commencement_date: text })}
+                error={errors.commencement_date}
             />
             <FormField
                 label="Expected Completion Date"
                 placeholder="YYYY-MM-DD"
-                value={formData.expectedCompletionDate || ''}
-                onChangeText={(text) => setFormData({ ...formData, expectedCompletionDate: text })}
-                error={errors.expectedCompletionDate}
+                value={formData.completion_date || ''}
+                onChangeText={(text) => setFormData({ ...formData, completion_date: text })}
+                error={errors.completion_date}
             />
             <FormField
                 label="Visa Status (for overseas)"
                 placeholder="Enter visa status"
-                value={formData.visaStatus || ''}
-                onChangeText={(text) => setFormData({ ...formData, visaStatus: text })}
-                error={errors.visaStatus}
+                value={formData.visa_status || ''}
+                onChangeText={(text) => setFormData({ ...formData, visa_status: text })}
+                error={errors.visa_status}
             />
 
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 3: Loan Requirement</Text>
@@ -196,100 +276,100 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
                 label="Total Course Fee"
                 placeholder="Enter total course fee"
                 keyboardType="numeric"
-                value={formData.totalCourseFee || ''}
-                onChangeText={(text) => setFormData({ ...formData, totalCourseFee: text })}
-                error={errors.totalCourseFee}
+                value={formData.total_course_fee || ''}
+                onChangeText={(text) => setFormData({ ...formData, total_course_fee: text })}
+                error={errors.total_course_fee}
             />
             <FormField
                 label="Other Expenses (Accommodation, Travel, Books, etc.)"
                 placeholder="Enter other expenses"
                 keyboardType="numeric"
-                value={formData.otherExpenses || ''}
-                onChangeText={(text) => setFormData({ ...formData, otherExpenses: text })}
-                error={errors.otherExpenses}
+                value={formData.other_expenses || ''}
+                onChangeText={(text) => setFormData({ ...formData, other_expenses: text })}
+                error={errors.other_expenses}
             />
             <FormField
                 label="Total Loan Amount Required"
                 placeholder="Enter total loan amount required"
                 keyboardType="numeric"
-                value={formData.totalLoanAmountRequired || ''}
-                onChangeText={(text) => setFormData({ ...formData, totalLoanAmountRequired: text })}
-                error={errors.totalLoanAmountRequired}
+                value={formData.loan_amount || ''}
+                onChangeText={(text) => setFormData({ ...formData, loan_amount: text })}
+                error={errors.loan_amount}
             />
             <FormField
                 label="Contribution from Family/Self"
                 placeholder="Enter contribution amount"
                 keyboardType="numeric"
-                value={formData.familyContribution || ''}
-                onChangeText={(text) => setFormData({ ...formData, familyContribution: text })}
-                error={errors.familyContribution}
+                value={formData.self_contribution || ''}
+                onChangeText={(text) => setFormData({ ...formData, self_contribution: text })}
+                error={errors.self_contribution}
             />
             <FormField
                 label="Repayment Period (in years)"
                 placeholder="Enter repayment period"
                 keyboardType="numeric"
-                value={formData.repaymentPeriod || ''}
-                onChangeText={(text) => setFormData({ ...formData, repaymentPeriod: text })}
-                error={errors.repaymentPeriod}
+                value={formData.repayment_period || ''}
+                onChangeText={(text) => setFormData({ ...formData, repayment_period: text })}
+                error={errors.repayment_period}
             />
             <FormField
                 label="Moratorium Period (if required)"
                 placeholder="Enter moratorium period"
-                value={formData.moratoriumPeriod || ''}
-                onChangeText={(text) => setFormData({ ...formData, moratoriumPeriod: text })}
-                error={errors.moratoriumPeriod}
+                value={formData.moratorium_period || ''}
+                onChangeText={(text) => setFormData({ ...formData, moratorium_period: text })}
+                error={errors.moratorium_period}
             />
 
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 4: Academic Background</Text>
             <FormField
                 label="10th Board Name / Year / Marks"
                 placeholder="Enter 10th details"
-                value={formData.tenthDetails || ''}
-                onChangeText={(text) => setFormData({ ...formData, tenthDetails: text })}
-                error={errors.tenthDetails}
+                value={formData.tenth_details || ''}
+                onChangeText={(text) => setFormData({ ...formData, tenth_details: text })}
+                error={errors.tenth_details}
             />
             <FormField
                 label="12th Board Name / Year / Marks"
                 placeholder="Enter 12th details"
-                value={formData.twelfthDetails || ''}
-                onChangeText={(text) => setFormData({ ...formData, twelfthDetails: text })}
-                error={errors.twelfthDetails}
+                value={formData.twelfth_details || ''}
+                onChangeText={(text) => setFormData({ ...formData, twelfth_details: text })}
+                error={errors.twelfth_details}
             />
             <FormField
                 label="Graduation Details (if applicable)"
                 placeholder="Enter graduation details"
-                value={formData.graduationDetails || ''}
-                onChangeText={(text) => setFormData({ ...formData, graduationDetails: text })}
-                error={errors.graduationDetails}
+                value={formData.graduation_details || ''}
+                onChangeText={(text) => setFormData({ ...formData, graduation_details: text })}
+                error={errors.graduation_details}
             />
             <FormField
                 label="Competitive Exams Cleared (e.g., GRE/GMAT/IELTS)"
                 placeholder="Enter exams cleared"
-                value={formData.competitiveExams || ''}
-                onChangeText={(text) => setFormData({ ...formData, competitiveExams: text })}
-                error={errors.competitiveExams}
+                value={formData.competitive_exams || ''}
+                onChangeText={(text) => setFormData({ ...formData, competitive_exams: text })}
+                error={errors.competitive_exams}
             />
             <ImageUploadCard
                 label="Academic Certificates (upload)"
-                selectedImage={formData.academicCertificates}
-                onImageSelect={(file) => setFormData({ ...formData, academicCertificates: file })}
-                error={errors.academicCertificates}
+                selectedImage={formData.academic_certificates_url}
+                onImageSelect={(file) => setFormData({ ...formData, academic_certificates_url: file })}
+                error={errors.academic_certificates_url}
             />
 
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 5: Employment Details (If Applicable)</Text>
             <FormField
                 label="Currently Employed? (Yes/No)"
                 placeholder="Select Yes or No"
-                value={formData.currentlyEmployed || ''}
-                onChangeText={(text) => setFormData({ ...formData, currentlyEmployed: text })}
-                error={errors.currentlyEmployed}
+                value={formData.employment_status === true ? 'Yes' : formData.employment_status === false ? 'No' : ''}
+                onChangeText={(text) => setFormData({ ...formData, employment_status: text.toLowerCase() === 'yes' ? true : text.toLowerCase() === 'no' ? false : undefined })}
+                error={errors.employment_status}
             />
             <FormField
                 label="Company Name"
                 placeholder="Enter company name"
-                value={formData.companyName || ''}
-                onChangeText={(text) => setFormData({ ...formData, companyName: text })}
-                error={errors.companyName}
+                value={formData.company_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, company_name: text })}
+                error={errors.company_name}
             />
             <FormField
                 label="Designation"
@@ -302,252 +382,235 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
                 label="Annual Income"
                 placeholder="Enter annual income"
                 keyboardType="numeric"
-                value={formData.annualIncome || ''}
-                onChangeText={(text) => setFormData({ ...formData, annualIncome: text })}
-                error={errors.annualIncome}
+                value={formData.annual_income || ''}
+                onChangeText={(text) => setFormData({ ...formData, annual_income: text })}
+                error={errors.annual_income}
             />
             <FormField
                 label="Work Experience (in years)"
                 placeholder="Enter work experience"
                 keyboardType="numeric"
-                value={formData.workExperience || ''}
-                onChangeText={(text) => setFormData({ ...formData, workExperience: text })}
-                error={errors.workExperience}
+                value={formData.work_experience || ''}
+                onChangeText={(text) => setFormData({ ...formData, work_experience: text })}
+                error={errors.work_experience}
             />
             <ImageUploadCard
                 label="Salary Slips / ITR / Form 16 (upload)"
-                selectedImage={formData.salarySlips}
-                onImageSelect={(file) => setFormData({ ...formData, salarySlips: file })}
-                error={errors.salarySlips}
+                selectedImage={formData.salary_slips_url}
+                onImageSelect={(file) => setFormData({ ...formData, salary_slips_url: file })}
+                error={errors.salary_slips_url}
             />
 
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 6: Co-applicant/Guarantor Details (Mandatory)</Text>
             <FormField
                 label="Full Name"
                 placeholder="Enter co-applicant's full name"
-                value={formData.coApplicantFullName || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantFullName: text })}
-                error={errors.coApplicantFullName}
+                value={formData.co_applicant_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_name: text })}
+                error={errors.co_applicant_name}
             />
             <FormField
                 label="Relation to Applicant"
                 placeholder="Enter relation to applicant"
-                value={formData.coApplicantRelation || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantRelation: text })}
-                error={errors.coApplicantRelation}
+                value={formData.co_applicant_relation || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_relation: text })}
+                error={errors.co_applicant_relation}
             />
             <FormField
                 label="Date of Birth"
                 placeholder="YYYY-MM-DD"
-                value={formData.coApplicantDob || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantDob: text })}
-                error={errors.coApplicantDob}
+                value={formData.co_applicant_dob || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_dob: text })}
+                error={errors.co_applicant_dob}
             />
             <FormField
                 label="Mobile Number"
                 placeholder="Enter co-applicant's mobile number"
                 keyboardType="phone-pad"
-                value={formData.coApplicantMobileNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantMobileNumber: text })}
-                error={errors.coApplicantMobileNumber}
+                value={formData.co_applicant_mobile || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_mobile: text })}
+                error={errors.co_applicant_mobile}
             />
             <FormField
                 label="Email ID"
                 placeholder="Enter co-applicant's email ID"
                 keyboardType="email-address"
-                value={formData.coApplicantEmailId || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantEmailId: text })}
-                error={errors.coApplicantEmailId}
+                value={formData.co_applicant_email || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_email: text })}
+                error={errors.co_applicant_email}
             />
             <FormField
                 label="Occupation"
                 placeholder="Enter co-applicant's occupation"
-                value={formData.coApplicantOccupation || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantOccupation: text })}
-                error={errors.coApplicantOccupation}
+                value={formData.co_applicant_occupation || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_occupation: text })}
+                error={errors.co_applicant_occupation}
             />
             <FormField
                 label="Employer Name"
                 placeholder="Enter co-applicant's employer name"
-                value={formData.coApplicantEmployerName || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantEmployerName: text })}
-                error={errors.coApplicantEmployerName}
+                value={formData.co_applicant_employer || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_employer: text })}
+                error={errors.co_applicant_employer}
             />
             <FormField
                 label="Annual Income"
                 placeholder="Enter co-applicant's annual income"
                 keyboardType="numeric"
-                value={formData.coApplicantAnnualIncome || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantAnnualIncome: text })}
-                error={errors.coApplicantAnnualIncome}
+                value={formData.co_applicant_income || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_income: text })}
+                error={errors.co_applicant_income}
             />
             <FormField
                 label="PAN Number"
                 placeholder="Enter co-applicant's PAN number"
-                value={formData.coApplicantPanNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantPanNumber: text })}
-                error={errors.coApplicantPanNumber}
+                value={formData.co_applicant_pan || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_pan: text })}
+                error={errors.co_applicant_pan}
             />
             <FormField
                 label="Aadhaar Number"
                 placeholder="Enter co-applicant's Aadhaar number"
                 keyboardType="numeric"
-                value={formData.coApplicantAadhaarNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantAadhaarNumber: text })}
-                error={errors.coApplicantAadhaarNumber}
+                value={formData.co_applicant_aadhaar || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_aadhaar: text })}
+                error={errors.co_applicant_aadhaar}
             />
             <ImageUploadCard
                 label="Address Proof (upload)"
-                selectedImage={formData.coApplicantAddressProof}
-                onImageSelect={(file) => setFormData({ ...formData, coApplicantAddressProof: file })}
-                error={errors.coApplicantAddressProof}
+                selectedImage={formData.co_applicant_address_proof_url}
+                onImageSelect={(file) => setFormData({ ...formData, co_applicant_address_proof_url: file })}
+                error={errors.co_applicant_address_proof_url}
             />
             <ImageUploadCard
                 label="Income Proof (ITR/Form16/Salary Slips)"
-                selectedImage={formData.coApplicantIncomeProof}
-                onImageSelect={(file) => setFormData({ ...formData, coApplicantIncomeProof: file })}
-                error={errors.coApplicantIncomeProof}
+                selectedImage={formData.co_applicant_income_proof_url}
+                onImageSelect={(file) => setFormData({ ...formData, co_applicant_income_proof_url: file })}
+                error={errors.co_applicant_income_proof_url}
             />
             <FormField
                 label="CIBIL Score (if known)"
                 placeholder="Enter co-applicant's CIBIL score"
                 keyboardType="numeric"
-                value={formData.coApplicantCibilScore || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantCibilScore: text })}
-                error={errors.coApplicantCibilScore}
+                value={formData.co_applicant_cibil_score || ''}
+                onChangeText={(text) => setFormData({ ...formData, co_applicant_cibil_score: text })}
+                error={errors.co_applicant_cibil_score}
             />
 
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 7: Asset & Liability Details</Text>
             <FormField
-                label="Movable Assets (FDs, Shares, etc.)"
-                placeholder="Enter movable assets"
-                value={formData.movableAssets || ''}
-                onChangeText={(text) => setFormData({ ...formData, movableAssets: text })}
-                error={errors.movableAssets}
+                label="Movable Assets (FDs, Shares, Vehicles, etc.)"
+                placeholder="Enter details of movable assets"
+                multiline
+                value={formData.movable_assets || ''} // Renamed from movableAssets
+                onChangeText={(text) => setFormData({ ...formData, movable_assets: text })}
+                error={errors.movable_assets}
             />
             <FormField
-                label="Immovable Assets (Land, Property)"
-                placeholder="Enter immovable assets"
-                value={formData.immovableAssets || ''}
-                onChangeText={(text) => setFormData({ ...formData, immovableAssets: text })}
-                error={errors.immovableAssets}
+                label="Immovable Assets (Property, Land, etc.)"
+                placeholder="Enter details of immovable assets"
+                multiline
+                value={formData.immovable_assets || ''} // Renamed from immovableAssets
+                onChangeText={(text) => setFormData({ ...formData, immovable_assets: text })}
+                error={errors.immovable_assets}
             />
             <FormField
-                label="Existing Loans (if any)"
-                placeholder="Enter existing loans"
-                value={formData.existingLoans || ''}
-                onChangeText={(text) => setFormData({ ...formData, existingLoans: text })}
-                error={errors.existingLoans}
+                label="Existing Loans (Home, Car, Personal, etc.)"
+                placeholder="Enter details of existing loans"
+                multiline
+                value={formData.existing_loans || ''} // Renamed from existingLoans
+                onChangeText={(text) => setFormData({ ...formData, existing_loans: text })}
+                error={errors.existing_loans}
             />
             <FormField
-                label="Total Liabilities"
+                label="Total Liabilities (Outstanding Loan Amounts)"
                 placeholder="Enter total liabilities"
                 keyboardType="numeric"
-                value={formData.totalLiabilities || ''}
-                onChangeText={(text) => setFormData({ ...formData, totalLiabilities: text })}
-                error={errors.totalLiabilities}
-            />
-            <FormField
-                label="Security Offered (if any): (Collateral/Property/FD/Third Party Guarantee)"
-                placeholder="Enter security offered"
-                value={formData.securityOffered || ''}
-                onChangeText={(text) => setFormData({ ...formData, securityOffered: text })}
-                error={errors.securityOffered}
+                value={formData.total_liabilities || ''} // Renamed from totalLiabilities
+                onChangeText={(text) => setFormData({ ...formData, total_liabilities: text })}
+                error={errors.total_liabilities}
             />
 
-            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 8: Bank Account Details</Text>
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 8: Security & Bank Details</Text>
+            <FormField
+                label="Details of Security Offered (Property/FD/Shares etc.)"
+                placeholder="Enter details of security offered"
+                multiline
+                value={formData.security_offered || ''} // Renamed from securityOfferedDetails
+                onChangeText={(text) => setFormData({ ...formData, security_offered: text })}
+                error={errors.security_offered}
+            />
+            {/* Removed ImageUploadCard for security_document as it's not in schema, security_offered is text */}
+
+            <Text className="text-md font-semibold text-gray-600 mt-4 mb-2">Bank Account Details for Loan Disbursement</Text>
             <FormField
                 label="Account Holder Name"
                 placeholder="Enter account holder name"
-                value={formData.accountHolderName || ''}
-                onChangeText={(text) => setFormData({ ...formData, accountHolderName: text })}
-                error={errors.accountHolderName}
+                value={formData.bank_account_holder_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, bank_account_holder_name: text })}
+                error={errors.bank_account_holder_name}
             />
             <FormField
                 label="Bank Name"
                 placeholder="Enter bank name"
-                value={formData.bankName || ''}
-                onChangeText={(text) => setFormData({ ...formData, bankName: text })}
-                error={errors.bankName}
+                value={formData.bank_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, bank_name: text })}
+                error={errors.bank_name}
             />
             <FormField
                 label="Branch"
                 placeholder="Enter branch name"
-                value={formData.branch || ''}
-                onChangeText={(text) => setFormData({ ...formData, branch: text })}
-                error={errors.branch}
+                value={formData.bank_branch || ''} // Renamed from branch
+                onChangeText={(text) => setFormData({ ...formData, bank_branch: text })}
+                error={errors.bank_branch}
             />
             <FormField
                 label="Account Number"
                 placeholder="Enter account number"
                 keyboardType="numeric"
-                value={formData.accountNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, accountNumber: text })}
-                error={errors.accountNumber}
+                value={formData.bank_account_number || ''}
+                onChangeText={(text) => setFormData({ ...formData, bank_account_number: text })}
+                error={errors.bank_account_number}
             />
             <FormField
                 label="IFSC Code"
                 placeholder="Enter IFSC code"
-                value={formData.ifscCode || ''}
-                onChangeText={(text) => setFormData({ ...formData, ifscCode: text })}
-                error={errors.ifscCode}
+                value={formData.bank_ifsc_code || ''} // Renamed from ifscCode
+                onChangeText={(text) => setFormData({ ...formData, bank_ifsc_code: text })}
+                error={errors.bank_ifsc_code}
             />
 
-            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 9: Document Checklist</Text>
-            <View className="mb-3">
-                <Text className="text-sm text-gray-600 mb-1">
-                    {formData.panNumber || formData.aadhaarNumber || formData.passportNumber ? '✅' : '⬜️'} Photo ID (PAN/Aadhaar/Passport)
-                </Text>
-                <Text className="text-sm text-gray-600 mb-1">
-                    {formData.permanentAddress || formData.currentAddress ? '✅' : '⬜️'} Address Proof (Applicant)
-                </Text>
-                <Text className="text-sm text-gray-600 mb-1">
-                    {formData.coApplicantAddressProof ? '✅' : '⬜️'} Address Proof (Co-applicant)
-                </Text>
-                <Text className="text-sm text-gray-600 mb-1">
-                    {formData.admissionLetter ? '✅' : '⬜️'} Admission Letter
-                </Text>
-                <Text className="text-sm text-gray-600 mb-1">
-                    {(formData.tenthDetails || formData.twelfthDetails || formData.graduationDetails) ? '✅' : '⬜️'} Academic Records (Details)
-                </Text>
-                <Text className="text-sm text-gray-600 mb-1">
-                    {formData.academicCertificates ? '✅' : '⬜️'} Academic Records (Certificates Upload)
-                </Text>
-                <Text className="text-sm text-gray-600 mb-1">
-                    {formData.salarySlips ? '✅' : '⬜️'} Income Proof (Applicant)
-                </Text>
-                <Text className="text-sm text-gray-600 mb-1">
-                    {formData.coApplicantIncomeProof ? '✅' : '⬜️'} Income Proof (Co-applicant)
-                </Text>
-                <Text className="text-sm text-gray-600 mb-1">
-                    {formData.passportNumber || formData.visaStatus ? '✅' : '⬜️'} Passport & Visa (if applicable)
-                </Text>
-            </View>
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 9: Documents to be Uploaded</Text>
+            {/* Removed ImageUploadCards for id_proof_applicant, address_proof_applicant, bank_statement as they are not in schema */}
+            <Text className="text-sm text-gray-600 mb-2">Please upload clear copies of the following documents:</Text>
+            <Text className="text-xs text-gray-500 mb-1">- Admission Letter (already covered in Section 2)</Text>
+            <Text className="text-xs text-gray-500 mb-1">- Academic Certificates (already covered in Section 4)</Text>
+            <Text className="text-xs text-gray-500 mb-1">- Salary Slips / ITR / Form 16 (if employed, covered in Section 5)</Text>
+            <Text className="text-xs text-gray-500 mb-1">- Co-applicant Address & Income Proof (covered in Section 6)</Text>
 
-            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Declaration & Consent</Text>
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 10: Declaration & Signature</Text>
             <Text className="text-sm text-gray-600 mb-3">
-                I hereby declare that the information furnished above is true and correct to the best of my knowledge. I authorize the institution to process my application, obtain my credit information from credit bureaus, and contact me for any further clarifications.
+                I/We hereby declare that the information provided above is true and correct to the best of my/our knowledge and belief. I/We understand that the loan is subject to the terms and conditions of the bank/financial institution.
             </Text>
-            <FormField
-                label="Signature of Applicant"
-                placeholder="Applicant's Signature (Type Name)"
-                value={formData.applicantSignature || ''}
-                onChangeText={(text) => setFormData({ ...formData, applicantSignature: text })}
-                error={errors.applicantSignature}
-            />
-            <FormField
-                label="Signature of Co-applicant"
-                placeholder="Co-applicant's Signature (Type Name)"
-                value={formData.coApplicantSignature || ''}
-                onChangeText={(text) => setFormData({ ...formData, coApplicantSignature: text })}
-                error={errors.coApplicantSignature}
-            />
             <FormField
                 label="Date"
                 placeholder="YYYY-MM-DD"
-                value={formData.declarationDate || ''}
-                onChangeText={(text) => setFormData({ ...formData, declarationDate: text })}
-                error={errors.declarationDate}
+                value={formData.declaration_date || ''} // Renamed from declarationDate
+                onChangeText={(text) => setFormData({ ...formData, declaration_date: text })}
+                error={errors.declaration_date}
+            />
+            {/* declaration_signed is a boolean, typically handled by a CheckBox or similar, not a FormField for text. For now, not adding a visible form element for it, assuming it's set programmatically or via a dedicated component. */}
+            <ImageUploadCard
+                label="Applicant Signature (upload)"
+                selectedImage={formData.applicant_signature_url}
+                onImageSelect={(file) => setFormData({ ...formData, applicant_signature_url: file })}
+                error={errors.applicant_signature_url}
+            />
+            <ImageUploadCard
+                label="Co-applicant Signature (upload)"
+                selectedImage={formData.co_applicant_signature_url}
+                onImageSelect={(file) => setFormData({ ...formData, co_applicant_signature_url: file })}
+                error={errors.co_applicant_signature_url}
             />
         </View>
     );

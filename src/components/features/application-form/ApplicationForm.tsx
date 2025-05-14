@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { decode } from 'base64-arraybuffer';
+import * as FileSystem from 'expo-file-system';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   View,
@@ -420,64 +422,64 @@ function LoanForm() {
     const newErrors: Record<string, string> = {};
     if (activeLoanType === "education") {
       // Section 1: Applicant Personal Details
-      if (!formData.fullName) newErrors.fullName = "Full Name";
-      if (!formData.dob) newErrors.dob = "Date of Birth";
+      if (!formData.full_name) newErrors.full_name = "Full Name";
+      if (!formData.date_of_birth) newErrors.date_of_birth = "Date of Birth";
       if (!formData.gender) newErrors.gender = "Gender";
-      if (!formData.maritalStatus) newErrors.maritalStatus = "Marital Status";
+      if (!formData.marital_status) newErrors.marital_status = "Marital Status";
       if (!formData.nationality) newErrors.nationality = "Nationality";
-      if (!formData.mobileNumber) newErrors.mobileNumber = "Mobile Number";
-      if (!formData.emailId) newErrors.emailId = "Email ID";
-      if (!formData.permanentAddress) newErrors.permanentAddress = "Permanent Address";
-      if (!formData.currentAddress) newErrors.currentAddress = "Current Address";
-      if (!formData.aadhaarNumber) newErrors.aadhaarNumber = "Aadhaar Number";
-      if (!formData.panNumber) newErrors.panNumber = "PAN Number";
+      if (!formData.mobile_number) newErrors.mobile_number = "Mobile Number";
+      if (!formData.email_id) newErrors.email_id = "Email ID";
+      if (!formData.permanent_address) newErrors.permanent_address = "Permanent Address";
+      if (!formData.current_address) newErrors.current_address = "Current Address";
+      if (!formData.aadhaar_number) newErrors.aadhaar_number = "Aadhaar Number";
+      if (!formData.pan_number) newErrors.pan_number = "PAN Number";
 
       // Section 2: Course & Institution Details
-      if (!formData.courseName) newErrors.courseName = "Course Name";
-      if (!formData.levelOfStudy) newErrors.levelOfStudy = "Level of Study";
-      if (!formData.modeOfStudy) newErrors.modeOfStudy = "Mode of Study";
-      if (!formData.courseDuration) newErrors.courseDuration = "Course Duration";
-      if (!formData.institutionName) newErrors.institutionName = "Institution Name";
-      if (!formData.institutionType) newErrors.institutionType = "Institution Type";
-      if (!formData.institutionAddress) newErrors.institutionAddress = "Institution Address";
-      if (!formData.admissionLetter) newErrors.admissionLetter = "Admission Letter";
-      if (!formData.commencementDate) newErrors.commencementDate = "Commencement Date";
-      if (!formData.expectedCompletionDate) newErrors.expectedCompletionDate = "Expected Completion Date";
+      if (!formData.course_name) newErrors.course_name = "Course Name";
+      if (!formData.level_of_study) newErrors.level_of_study = "Level of Study";
+      if (!formData.mode_of_study) newErrors.mode_of_study = "Mode of Study";
+      if (!formData.course_duration) newErrors.course_duration = "Course Duration";
+      if (!formData.institution_name) newErrors.institution_name = "Institution Name";
+      if (!formData.institution_type) newErrors.institution_type = "Institution Type";
+      if (!formData.institution_address) newErrors.institution_address = "Institution Address";
+      if (!formData.admission_letter_url) newErrors.admission_letter_url = "Admission Letter";
+      if (!formData.commencement_date) newErrors.commencement_date = "Commencement Date";
+      if (!formData.completion_date) newErrors.completion_date = "Expected Completion Date";
 
       // Section 3: Loan Requirement
-      if (!formData.totalCourseFee) newErrors.totalCourseFee = "Total Course Fee";
-      if (!formData.totalLoanAmountRequired) newErrors.totalLoanAmountRequired = "Total Loan Amount Required";
-      if (!formData.repaymentPeriod) newErrors.repaymentPeriod = "Repayment Period";
+      if (!formData.total_course_fee) newErrors.total_course_fee = "Total Course Fee";
+      if (!formData.loan_amount) newErrors.loan_amount = "Total Loan Amount Required";
+      if (!formData.repayment_period) newErrors.repayment_period = "Repayment Period";
 
       // Section 4: Academic Background
-      if (!formData.tenthDetails) newErrors.tenthDetails = "10th Details are required";
-      if (!formData.twelfthDetails) newErrors.twelfthDetails = "12th Details are required";
-      if (!formData.academicCertificates) newErrors.academicCertificates = "Academic Certificates are required";
+      if (!formData.tenth_details) newErrors.tenth_details = "10th Details are required";
+      if (!formData.twelfth_details) newErrors.twelfth_details = "12th Details are required";
+      if (!formData.academic_certificates_url) newErrors.academic_certificates_url = "Academic Certificates are required";
 
       // Section 6: Co-applicant/Guarantor Details (Mandatory)
-      if (!formData.coApplicantFullName) newErrors.coApplicantFullName = "Co-applicant Full Name";
-      if (!formData.coApplicantRelation) newErrors.coApplicantRelation = "Co-applicant Relation";
-      if (!formData.coApplicantDob) newErrors.coApplicantDob = "Co-applicant Date of Birth";
-      if (!formData.coApplicantMobileNumber) newErrors.coApplicantMobileNumber = "Co-applicant Mobile Number";
-      if (!formData.coApplicantEmailId) newErrors.coApplicantEmailId = "Co-applicant Email ID";
-      if (!formData.coApplicantOccupation) newErrors.coApplicantOccupation = "Co-applicant Occupation";
-      if (!formData.coApplicantAnnualIncome) newErrors.coApplicantAnnualIncome = "Co-applicant Annual Income";
-      if (!formData.coApplicantPanNumber) newErrors.coApplicantPanNumber = "Co-applicant PAN Number";
-      if (!formData.coApplicantAadhaarNumber) newErrors.coApplicantAadhaarNumber = "Co-applicant Aadhaar Number";
-      if (!formData.coApplicantAddressProof) newErrors.coApplicantAddressProof = "Co-applicant Address Proof";
-      if (!formData.coApplicantIncomeProof) newErrors.coApplicantIncomeProof = "Co-applicant Income Proof";
+      if (!formData.co_applicant_name) newErrors.co_applicant_name = "Co-applicant Full Name";
+      if (!formData.co_applicant_relation) newErrors.co_applicant_relation = "Co-applicant Relation";
+      if (!formData.co_applicant_dob) newErrors.co_applicant_dob = "Co-applicant Date of Birth";
+      if (!formData.co_applicant_mobile) newErrors.co_applicant_mobile = "Co-applicant Mobile Number";
+      if (!formData.co_applicant_email) newErrors.co_applicant_email = "Co-applicant Email ID";
+      if (!formData.co_applicant_occupation) newErrors.co_applicant_occupation = "Co-applicant Occupation";
+      if (!formData.co_applicant_income) newErrors.co_applicant_income = "Co-applicant Annual Income";
+      if (!formData.co_applicant_pan) newErrors.co_applicant_pan = "Co-applicant PAN Number";
+      if (!formData.co_applicant_aadhaar) newErrors.co_applicant_aadhaar = "Co-applicant Aadhaar Number";
+      if (!formData.co_applicant_address_proof_url) newErrors.co_applicant_address_proof_url = "Co-applicant Address Proof";
+      if (!formData.co_applicant_income_proof_url) newErrors.co_applicant_income_proof_url = "Co-applicant Income Proof";
 
       // Section 8: Bank Account Details
-      if (!formData.accountHolderName) newErrors.accountHolderName = "Account Holder Name";
-      if (!formData.bankName) newErrors.bankName = "Bank Name";
-      if (!formData.branch) newErrors.branch = "Branch";
-      if (!formData.accountNumber) newErrors.accountNumber = "Account Number";
-      if (!formData.ifscCode) newErrors.ifscCode = "IFSC Code";
+      if (!formData.bank_account_holder_name) newErrors.bank_account_holder_name = "Account Holder Name";
+      if (!formData.bank_name) newErrors.bank_name = "Bank Name";
+      if (!formData.bank_branch) newErrors.bank_branch = "Branch";
+      if (!formData.bank_account_number) newErrors.bank_account_number = "Account Number";
+      if (!formData.bank_ifsc_code) newErrors.bank_ifsc_code = "IFSC Code";
 
       // Declaration
-      if (!formData.applicantSignature) newErrors.applicantSignature = "Applicant Signature";
-      if (!formData.coApplicantSignature) newErrors.coApplicantSignature = "Co-applicant Signature";
-      if (!formData.declarationDate) newErrors.declarationDate = "Declaration Date";
+      if (!formData.applicant_signature_url) newErrors.applicant_signature_url = "Applicant Signature";
+      if (!formData.co_applicant_signature_url) newErrors.co_applicant_signature_url = "Co-applicant Signature";
+      if (!formData.declaration_date) newErrors.declaration_date = "Declaration Date";
 
     } else if (activeLoanType === "business") {
       // Step 1: Applicant Personal Details
@@ -536,198 +538,157 @@ function LoanForm() {
   };
 
   const handleSubmit = async () => {
-    if (!validateLoanForm()) {
+    // TODO: Add proper validation based on activeLoanType and specific fields
+    // if (!validateForm()) { // Assuming validateForm is adapted from validateLoanForm or a new one is created
+    //   Alert.alert("Validation Error", "Please fill in all required fields correctly.");
+    //   return;
+    // }
+    if (!validateLoanForm()) { // Retain existing validation call
       Alert.alert("Validation Error", "Please fill in all required fields highlighted in red. Missing: " + Object.values(errors).join(', '));
       return;
     }
-
     setLoading(true);
+
     try {
-      const userPhone = await AsyncStorage.getItem('userPhone');
+      const userPhone = await AsyncStorage.getItem("userPhone");
       const userId = await getUserIdByPhone(userPhone);
 
       if (!userId) {
-        Alert.alert('Error', 'User not found. Please login again.');
+        Alert.alert("Error", "User not found. Please login again.");
         setLoading(false);
         return;
       }
 
-      if (activeLoanType === "business") {
-        const monthlyRevenue6MonthsArray = formData.monthly_revenue_6months
-          ? formData.monthly_revenue_6months.split(',').map((s: string) => parseFloat(s.trim())).filter((n: number) => !isNaN(n))
-          : null;
+      let tableName = "";
+      let imageFieldKeys: string[] = [];
 
-        const businessLoanPayload = {
-          user_id: userId,
-          full_name: formData.full_name,
-          date_of_birth: formData.date_of_birth ? new Date(formData.date_of_birth) : null,
-          gender: formData.gender,
-          residential_address: formData.residential_address,
-          marital_status: formData.marital_status,
-          cibil_score: formData.cibil_score ? parseInt(formData.cibil_score) : null,
-          pan_number: formData.pan_number,
-          aadhaar_number: formData.aadhaar_number,
-          email: formData.email,
-          mobile_number: formData.mobile_number,
-          business_name: formData.business_name,
-          nature_of_business: formData.nature_of_business,
-          industry_type: formData.industry_type,
-          business_pan: formData.business_pan,
-          gstin: formData.gstin,
-          business_address: formData.business_address,
-          udyam_registration: formData.udyam_registration,
-          website_url: formData.website_url,
-          annual_turnover: formData.annual_turnover ? parseFloat(formData.annual_turnover) : null,
-          net_profit: formData.net_profit ? parseFloat(formData.net_profit) : null,
-          monthly_revenue: formData.monthly_revenue ? parseFloat(formData.monthly_revenue) : null,
-          current_liabilities: formData.current_liabilities ? parseFloat(formData.current_liabilities) : null,
-          loan_amount: formData.loan_amount ? parseFloat(formData.loan_amount) : null,
-          loan_tenure: formData.loan_tenure ? parseInt(formData.loan_tenure) : null,
-          preferred_emi: formData.preferred_emi ? parseFloat(formData.preferred_emi) : null,
-          disbursement_date: formData.disbursement_date ? new Date(formData.disbursement_date) : null,
-          bank_statements_url: formData.bank_statements_url ? [formData.bank_statements_url?.uri || formData.bank_statements_url] : null, // Assuming single file upload for now
-          itr_documents_url: formData.itr_documents_url ? [formData.itr_documents_url?.uri || formData.itr_documents_url] : null, // Assuming single file upload for now
-          pan_card_url: formData.pan_card_url?.uri || formData.pan_card_url,
-          aadhaar_card_url: formData.aadhaar_card_url?.uri || formData.aadhaar_card_url,
-          gst_certificate_url: formData.gst_certificate_url?.uri || formData.gst_certificate_url,
-          business_type: formData.business_type,
-          year_of_incorporation: formData.year_of_incorporation ? new Date(formData.year_of_incorporation) : null,
-          annual_turnover_year1: formData.annual_turnover_year1 ? parseFloat(formData.annual_turnover_year1) : null,
-          annual_turnover_year2: formData.annual_turnover_year2 ? parseFloat(formData.annual_turnover_year2) : null,
-          annual_turnover_year3: formData.annual_turnover_year3 ? parseFloat(formData.annual_turnover_year3) : null,
-          net_profit_year1: formData.net_profit_year1 ? parseFloat(formData.net_profit_year1) : null,
-          net_profit_year2: formData.net_profit_year2 ? parseFloat(formData.net_profit_year2) : null,
-          net_profit_year3: formData.net_profit_year3 ? parseFloat(formData.net_profit_year3) : null,
-          monthly_revenue_6months: monthlyRevenue6MonthsArray,
-          audited_financial_statements_url: formData.audited_financial_statements_url ? [formData.audited_financial_statements_url?.uri || formData.audited_financial_statements_url] : null,
-          loan_purpose: formData.loan_purpose,
-          co_applicant_full_name: formData.co_applicant_full_name,
-          co_applicant_relation: formData.co_applicant_relation,
-          co_applicant_pan: formData.co_applicant_pan,
-          co_applicant_aadhaar: formData.co_applicant_aadhaar,
-          co_applicant_contact: formData.co_applicant_contact,
-          co_applicant_occupation: formData.co_applicant_occupation,
-          co_applicant_annual_income: formData.co_applicant_annual_income ? parseFloat(formData.co_applicant_annual_income) : null,
-          co_applicant_cibil_score: formData.co_applicant_cibil_score ? parseInt(formData.co_applicant_cibil_score) : null,
-          co_applicant_id_proof_url: formData.co_applicant_id_proof_url?.uri || formData.co_applicant_id_proof_url,
-          co_applicant_income_proof_url: formData.co_applicant_income_proof_url?.uri || formData.co_applicant_income_proof_url,
-          has_collateral: formData.has_collateral,
-          collateral_asset_type: formData.collateral_asset_type,
-          collateral_asset_value: formData.collateral_asset_value ? parseFloat(formData.collateral_asset_value) : null,
-          collateral_ownership_proof_url: formData.collateral_ownership_proof_url?.uri || formData.collateral_ownership_proof_url,
-          collateral_asset_location: formData.collateral_asset_location,
-          udyam_registration_url: formData.udyam_registration_url?.uri || formData.udyam_registration_url,
-          business_address_proof_url: formData.business_address_proof_url?.uri || formData.business_address_proof_url,
-          collateral_documents_url: formData.collateral_documents_url ? [formData.collateral_documents_url?.uri || formData.collateral_documents_url] : null,
-          bank_account_holder_name: formData.bank_account_holder_name,
-          bank_name: formData.bank_name,
-          account_number: formData.account_number,
-          ifsc_code: formData.ifsc_code,
-          bank_branch: formData.bank_branch,
-          declaration_accepted: formData.declaration_accepted,
-          e_signature: formData.e_signature?.uri || formData.e_signature,
-          created_at: new Date(),
-        };
-
-        const { data, error } = await supabase
-          .from('business_loan_applications')
-          .insert([businessLoanPayload]);
-
-        if (error) {
-          console.error('Supabase error inserting business loan:', error);
-          Alert.alert('Error', `Failed to submit business loan application: ${error.message}`);
-          setLoading(false);
-          return;
-        }
+      if (activeLoanType === "education") {
+        tableName = "education_loan_applications";
+        // These keys should match the formData keys used in EducationLoanForm for file uploads
+        imageFieldKeys = ["admission_letter_url", "academic_certificates_url", "salary_slips_url",
+          "co_applicant_address_proof_url", "co_applicant_income_proof_url", "applicant_signature_url",
+          "co_applicant_signature_url"
+          // Add other file fields from EducationLoanForm if they exist and are file objects
+          // e.g., "photoApplicant", "aadhaarCard", "panCard", "passportCopy", "addressProof", "studyPermit",
+          // "coApplicantPhoto", "coApplicantAadhaar", "coApplicantPAN",
+          // "feeStructure", "bankStatements", "collateralDocuments"
+        ];
+      } else if (activeLoanType === "business") {
+        tableName = "business_loan_applications";
+        // These keys should match the formData keys used in BusinessLoanForm for file uploads
+        imageFieldKeys = [
+          "pan_card_url", "aadhaar_card_url", "gst_certificate_url",
+          "bank_statements_url", "itr_documents_url", "audited_financial_statements_url",
+          "co_applicant_id_proof_url", "co_applicant_income_proof_url",
+          "collateral_ownership_proof_url", "udyam_registration_url",
+          "business_address_proof_url", "collateral_documents_url", "e_signature",
+          // Add other file fields from BusinessLoanForm if they exist and are file objects
+          // e.g. "applicant_photo", "business_plan_document", "guarantor_photo", etc.
+        ];
       } else {
-        // Education loan submission logic
-        const educationLoanPayload = {
-          user_id: userId,
-          full_name: formData.fullName,
-          date_of_birth: formData.dob ? new Date(formData.dob) : null,
-          gender: formData.gender,
-          marital_status: formData.maritalStatus,
-          nationality: formData.nationality,
-          mobile_number: formData.mobileNumber,
-          email_id: formData.emailId,
-          permanent_address: formData.permanentAddress,
-          current_address: formData.currentAddress,
-          aadhaar_number: formData.aadhaarNumber,
-          pan_number: formData.panNumber,
-          passport_number: formData.passportNumber,
-          cibil_score: formData.cibilScore ? parseInt(formData.cibilScore) : null,
-          course_name: formData.courseName,
-          level_of_study: formData.levelOfStudy,
-          mode_of_study: formData.modeOfStudy,
-          course_duration: formData.courseDuration,
-          institution_name: formData.institutionName,
-          institution_type: formData.institutionType,
-          institution_address: formData.institutionAddress,
-          admission_letter_url: formData.admissionLetter?.uri, // Assuming image upload returns an object with uri
-          commencement_date: formData.commencementDate ? new Date(formData.commencementDate) : null,
-          completion_date: formData.expectedCompletionDate ? new Date(formData.expectedCompletionDate) : null,
-          visa_status: formData.visaStatus,
-          total_course_fee: formData.totalCourseFee ? parseFloat(formData.totalCourseFee) : null,
-          other_expenses: formData.otherExpenses ? parseFloat(formData.otherExpenses) : null,
-          loan_amount: formData.totalLoanAmountRequired ? parseFloat(formData.totalLoanAmountRequired) : null,
-          self_contribution: formData.familyContribution ? parseFloat(formData.familyContribution) : null,
-          repayment_period: formData.repaymentPeriod ? parseInt(formData.repaymentPeriod) : null,
-          moratorium_period: formData.moratoriumPeriod,
-          tenth_details: formData.tenthDetails,
-          twelfth_details: formData.twelfthDetails,
-          graduation_details: formData.graduationDetails,
-          competitive_exams: formData.competitiveExams,
-          academic_certificates_url: [formData.academicCertificates?.uri], // Assuming image upload returns an object with uri
-          employment_status: formData.currentlyEmployed,
-          company_name: formData.companyName,
-          designation: formData.designation,
-          annual_income: formData.annualIncome ? parseFloat(formData.annualIncome) : null,
-          work_experience: formData.workExperience ? parseInt(formData.workExperience) : null,
-          salary_slips_url: [formData.salarySlips?.uri], // Assuming image upload returns an object with uri
-          co_applicant_name: formData.coApplicantFullName,
-          co_applicant_relation: formData.coApplicantRelation,
-          co_applicant_dob: formData.coApplicantDob ? new Date(formData.coApplicantDob) : null,
-          co_applicant_mobile: formData.coApplicantMobileNumber,
-          co_applicant_email: formData.coApplicantEmailId,
-          co_applicant_occupation: formData.coApplicantOccupation,
-          co_applicant_employer: formData.coApplicantEmployerName,
-          co_applicant_income: formData.coApplicantAnnualIncome ? parseFloat(formData.coApplicantAnnualIncome) : null,
-          co_applicant_pan: formData.coApplicantPanNumber,
-          co_applicant_aadhaar: formData.coApplicantAadhaarNumber,
-          co_applicant_address_proof_url: formData.coApplicantAddressProof?.uri, // Assuming image upload returns an object with uri
-          co_applicant_income_proof_url: formData.coApplicantIncomeProof?.uri, // Assuming image upload returns an object with uri
-          co_applicant_cibil_score: formData.coApplicantCibilScore ? parseInt(formData.coApplicantCibilScore) : null,
-          movable_assets: formData.movableAssets,
-          immovable_assets: formData.immovableAssets,
-          existing_loans: formData.existingLoans,
-          total_liabilities: formData.totalLiabilities ? parseFloat(formData.totalLiabilities) : null,
-          security_offered: formData.securityOffered,
-          bank_account_holder_name: formData.accountHolderName,
-          bank_name: formData.bankName,
-          bank_branch: formData.branch,
-          bank_account_number: formData.accountNumber,
-          bank_ifsc_code: formData.ifscCode,
-          applicant_signature: formData.applicantSignature,
-          co_applicant_signature: formData.coApplicantSignature,
-          declaration_date: formData.declarationDate ? new Date(formData.declarationDate) : null,
-          // fee_structure_url: formData.feeStructure?.uri, // Add if feeStructure is an upload field
-          // bank_statements_url: formData.bankStatements?.uri, // Add if bankStatements is an upload field
-          // collateral_documents_url: formData.collateralDocuments?.uri // Add if collateralDocuments is an upload field
-        };
-
-        const { data, error } = await supabase
-          .from('education_loan_applications')
-          .insert([educationLoanPayload]);
-
-        if (error) throw error;
+        Alert.alert("Error", "Invalid loan type selected.");
+        setLoading(false);
+        return;
       }
-      setFormData({});
+
+      const dataToSubmit: Record<string, any> = { user_id: userId, bank_account_holder_name: formData.bank_account_holder_name }; // Use activeLoanType
+      const filesToUpload: Array<{ fieldName: string; file: any }> = [];
+
+      // Prepare dataToSubmit by excluding file objects and converting dates/numbers if necessary
+      for (const key in formData) {
+        if (Object.prototype.hasOwnProperty.call(formData, key)) {
+          if (imageFieldKeys.includes(key) && formData[key] && typeof formData[key] === 'object' && formData[key].uri) {
+            filesToUpload.push({ fieldName: key, file: formData[key] });
+          } else if (formData[key] !== null && formData[key] !== undefined) {
+            dataToSubmit[key] = formData[key];
+          }
+        }
+      }
+
+      // Remove original file objects from dataToSubmit if they were not handled above
+      imageFieldKeys.forEach(key => {
+        if (dataToSubmit[key] && typeof dataToSubmit[key] === 'object' && dataToSubmit[key].uri) {
+          delete dataToSubmit[key];
+        }
+      });
+
+      const { data: insertedData, error: insertError } = await supabase
+        .from(tableName)
+        .insert([dataToSubmit])
+        .select()
+        .single();
+
+      if (insertError || !insertedData) {
+        console.error(`Error inserting ${activeLoanType} loan application:`, insertError);
+        Alert.alert("Error", `Failed to submit loan application: ${insertError?.message || 'Unknown error'}`);
+        setLoading(false);
+        return;
+      }
+
+      const recordId = insertedData.id;
+      const uploadedFileUrls: Record<string, string | string[]> = {}; // Value can be string or string[] for multi-file fields
+
+      if (filesToUpload.length > 0) {
+        for (const { fieldName, file } of filesToUpload) {
+          try {
+            const fileExt = file.mimeType.split('/')[1] || 'dat';
+            const fileNameForStorage = `${fieldName}.${fileExt}`;
+            const filePathInBucket = `${userId}/${fileNameForStorage}`;
+
+            const base64 = await FileSystem.readAsStringAsync(file.uri, { encoding: 'base64' });
+
+            const { error: uploadError } = await supabase.storage
+              .from("application-docs") // Ensure this bucket exists and has correct policies
+              .upload(filePathInBucket, decode(base64), {
+                contentType: file.mimeType || 'application/octet-stream',
+                upsert: true,
+              });
+
+            if (uploadError) {
+              console.error(`Error uploading ${fieldName} for record ${recordId}:`, uploadError);
+              // Optionally, log this specific failure but continue other uploads
+              continue;
+            }
+
+            const { data: publicUrlData } = supabase.storage
+              .from("application-docs")
+              .getPublicUrl(filePathInBucket);
+
+            if (publicUrlData?.publicUrl) {
+              // Supabase schema might expect fieldName_url or just fieldName for the URL
+              // Adjust uploadedFileUrls key accordingly. Assuming fieldName_url for now.
+              console.log(fieldName);
+              uploadedFileUrls[fieldName] = publicUrlData.publicUrl;
+            } else {
+              console.warn(`Could not get public URL for ${filePathInBucket}`);
+            }
+          } catch (e: any) {
+            console.error(`Exception during upload for ${fieldName} (record ${recordId}):`, e);
+          }
+        }
+
+        if (Object.keys(uploadedFileUrls).length > 0) {
+          const { error: updateError } = await supabase
+            .from(tableName)
+            .update(uploadedFileUrls)
+            .eq("id", recordId);
+
+          if (updateError) {
+            console.error(`Error updating record ${recordId} with file URLs:`, updateError);
+            Alert.alert("Partial Success", "Application submitted, but failed to save some document links. Please contact support if issues persist.");
+          }
+        }
+      }
+
+      Alert.alert("Success", "Loan application submitted successfully!");
+      // setFormData({});
       setErrors({});
-      setLoading(false);
-      Alert.alert('Success', 'Application submitted successfully');
-    } catch (error) {
-      console.error('Error submitting application:', error);
-      Alert.alert('Error', 'Failed to submit application. Please try again.');
+      // Consider navigation or further UI updates here
+
+    } catch (error: any) {
+      console.error("Error submitting loan form:", error);
+      Alert.alert("Error", `An unexpected error occurred: ${error.message}`);
+    } finally {
       setLoading(false);
     }
   };
