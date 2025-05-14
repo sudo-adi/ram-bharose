@@ -529,11 +529,14 @@ function LoanForm() {
       if (!formData.bank_branch) newErrors.bank_branch = "Bank Branch";
 
       // Step 9: Declaration and Signature
-      if (!formData.declaration_accepted) newErrors.declaration_accepted = "Declaration acceptance";
-      if (!formData.e_signature) newErrors.e_signature = "E-Signature";
+      if (!formData.declaration_accepted) newErrors.declaration_accepted = "Declaration acceptance is required.";
+      if (!formData.e_signature) newErrors.e_signature = "E-signature is required.";
+      // co_applicant_signature_url is optional based on schema, so not strictly validated here unless specified
     }
-
     setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      // console.log("Validation Errors:", newErrors);
+    }
     return Object.keys(newErrors).length === 0;
   };
 
@@ -621,6 +624,7 @@ function LoanForm() {
       if (insertError || !insertedData) {
         console.error(`Error inserting ${activeLoanType} loan application:`, insertError);
         Alert.alert("Error", `Failed to submit loan application: ${insertError?.message || 'Unknown error'}`);
+        setFormData({});
         setLoading(false);
         return;
       }
@@ -657,7 +661,6 @@ function LoanForm() {
             if (publicUrlData?.publicUrl) {
               // Supabase schema might expect fieldName_url or just fieldName for the URL
               // Adjust uploadedFileUrls key accordingly. Assuming fieldName_url for now.
-              console.log(fieldName);
               uploadedFileUrls[fieldName] = publicUrlData.publicUrl;
             } else {
               console.warn(`Could not get public URL for ${filePathInBucket}`);
@@ -724,7 +727,7 @@ function LoanForm() {
         disabled={loading}
       >
         <Text className="text-white text-center font-semibold text-lg">
-          {loading ? "Submitting..." : `Submit ${activeLoanType === "education" ? "Education" : "Business"} Loan Application`}
+          {loading ? "Submitting..." : `Submit ${activeLoanType.charAt(0).toUpperCase() + activeLoanType.slice(1)} Loan`}
         </Text>
       </TouchableOpacity>
       <View className="mt-4">

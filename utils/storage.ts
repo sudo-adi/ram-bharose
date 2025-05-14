@@ -2,15 +2,15 @@ import { supabase } from '@/lib/supabase';
 import { decode } from 'base64-arraybuffer';
 import * as FileSystem from 'expo-file-system';
 
-export const uploadImage = async (file: any, id: number) => {
+export const uploadImage = async (file: any, id: number, fieldName = "") => {
   try {
     const base64 = await FileSystem.readAsStringAsync(file.uri, { encoding: 'base64' });
     const fileExtension = file.mimeType.split('/')[1];
-    const filePath = `${id}.${fileExtension}`;
+    const filePath = (fieldName !== "") ? `${fieldName}/${id}.${fileExtension}` : `${id}.${fileExtension}`;
     const contentType = file.mimeType;
     const { data, error } = await supabase
       .storage
-      .from('application-pictures')
+      .from('application-docs')
       .upload(filePath, decode(base64), { contentType })
     if (error) {
       console.error(error);

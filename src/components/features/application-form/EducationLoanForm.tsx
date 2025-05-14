@@ -86,12 +86,12 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
     // Add this button at the start of your return statement, right after the opening View tag
     return (
         <View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
                 onPress={fillTestData}
                 className="bg-gray-200 py-2 px-4 rounded-lg mb-4"
             >
                 <Text className="text-gray-700 text-center">Fill Test Data</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <Text className="text-lg font-semibold text-gray-700 mb-3">Section 1: Applicant Personal Details</Text>
             <FormField
