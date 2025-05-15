@@ -221,7 +221,7 @@ const MemberDetailBottomSheet = ({ visible, onClose, member }) => {
                     />
                     <DetailItem
                       label="Company"
-                      value={member.company_name}
+                      value={member.college_or_company}
                       icon="business-outline"
                     />
                     <DetailItem

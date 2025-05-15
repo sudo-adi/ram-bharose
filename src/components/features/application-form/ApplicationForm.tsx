@@ -435,7 +435,7 @@ function LoanForm() {
       if (!formData.pan_number) newErrors.pan_number = "PAN Number";
 
       // Section 2: Course & Institution Details
-      if (!formData.course_name) newErrors.course_name = "Course Name";
+      if (!formData.course_or_designation) newErrors.course_or_designation = "Course Name";
       if (!formData.level_of_study) newErrors.level_of_study = "Level of Study";
       if (!formData.mode_of_study) newErrors.mode_of_study = "Mode of Study";
       if (!formData.course_duration) newErrors.course_duration = "Course Duration";
@@ -740,6 +740,7 @@ function LoanForm() {
 }
 
 function EnrollmentForm() {
+  const { submitMulundHostelApplication, loading: submitting, error: submitError } = useFormSubmission();
   const [activeEnrollmentType, setActiveEnrollmentType] = useState("mulund_hostel");
   const [formData, setFormData] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -761,30 +762,91 @@ function EnrollmentForm() {
     }
   }
 
-  const validateEnrollmentForm = () => {
-    // Basic validation, extend as needed per enrollment type
+  const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.fullName) newErrors.fullName = "Full name is required";
-    if (!formData.mobileNumber) newErrors.mobileNumber = "Mobile number is required";
-    // Add more specific validations based on activeEnrollmentType if needed
+
+    // Personal Details
+    if (!formData.full_name) newErrors.full_name = "Full name is required";
+    if (!formData.date_of_birth) newErrors.date_of_birth = "Date of birth is required";
+    if (!formData.gender) newErrors.gender = "Gender is required";
+    if (!formData.nationality) newErrors.nationality = "Nationality is required";
+    if (!formData.mobile_number) newErrors.mobile_number = "Mobile number is required";
+    if (!formData.email_id) newErrors.email_id = "Email is required";
+    if (!formData.aadhaar_number) newErrors.aadhaar_number = "Aadhaar number is required";
+    if (!formData.pan_number) newErrors.pan_number = "PAN number is required";
+    if (!formData.blood_group) newErrors.blood_group = "Blood group is required";
+
+    // Address Information
+    if (!formData.permanent_address) newErrors.permanent_address = "Permanent address is required";
+    if (!formData.permanent_city) newErrors.permanent_city = "City is required";
+    if (!formData.permanent_state) newErrors.permanent_state = "State is required";
+    if (!formData.permanent_pincode) newErrors.permanent_pincode = "Pincode is required";
+
+    // Academic/Employment Details
+    if (!formData.education_level) newErrors.education_level = "Education level is required";
+    if (!formData.institution_name) newErrors.institution_name = "Institution name is required";
+    if (!formData.course_or_designation) newErrors.course_or_designation = "Course name is required";
+    if (!formData.year_of_study) newErrors.year_of_study = "Year of study is required";
+    if (!formData.employment_status) newErrors.employment_status = "Employment status is required";
+
+    // Guardian Information
+    if (!formData.guardian_name) newErrors.guardian_name = "Guardian name is required";
+    if (!formData.guardian_relation) newErrors.guardian_relation = "Guardian relation is required";
+    if (!formData.guardian_mobile) newErrors.guardian_mobile = "Guardian mobile is required";
+    if (!formData.guardian_address) newErrors.guardian_address = "Guardian address is required";
+    if (!formData.guardian_occupation) newErrors.guardian_occupation = "Guardian occupation is required";
+
+    // Health Details
+    if (!formData.emergency_contact_name) newErrors.emergency_contact_name = "Emergency contact name is required";
+    if (!formData.emergency_contact_number) newErrors.emergency_contact_number = "Emergency contact number is required";
+
+    // Document Uploads
+    if (!formData.photograph) newErrors.photograph = "Photograph is required";
+    if (!formData.aadhaar_card) newErrors.aadhaar_card = "Aadhaar card is required";
+    if (!formData.pan_card) newErrors.pan_card = "PAN card is required";
+    if (!formData.id_proof) newErrors.id_proof = "ID proof is required";
+    if (!formData.guardian_id_proof) newErrors.guardian_id_proof = "Guardian ID proof is required";
+
+    // Declaration
+    if (!formData.declaration_date) newErrors.declaration_date = "Declaration date is required";
+    if (!formData.declaration_signed) newErrors.declaration_signed = "Declaration must be signed";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
-    if (!validateEnrollmentForm()) {
-      Alert.alert("Validation Error", "Please fill in all required fields for the selected enrollment type.");
+    if (!validateForm()) {
+      Alert.alert("Validation Error", "Please fill in all required fields");
       return;
     }
-    setLoading(true);
-    Alert.alert("Submit Enrollment", "Enrollment submission logic to be implemented with useFormSubmission hook.");
-    // TODO: Implement actual submission logic using a dedicated function in useFormSubmission
-    // const userPhone = await AsyncStorage.getItem("userPhone");
-    // const userId = await getUserIdByPhone(userPhone);
-    // if (!userId) { Alert.alert("Error", "User not found."); setLoading(false); return; }
-    // const success = await submitEnrollmentApplication({ userId, enrollmentType: activeEnrollmentType, ...formData });
-    // if (success) { ... } else { ... }
-    setLoading(false);
+
+    try {
+      const userPhone = await AsyncStorage.getItem("userPhone");
+      const userId = await getUserIdByPhone(userPhone);
+
+      if (!userId) {
+        Alert.alert("Error", "User not found. Please login again.");
+        return;
+      }
+
+      const success = await submitMulundHostelApplication({
+        userId,
+        ...formData
+      });
+
+      if (success) {
+        Alert.alert("Success", "Hostel application submitted successfully");
+        setFormData({});
+      } else {
+        Alert.alert(
+          "Error: Failed to submit hostel application. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error submitting hostel application:", error);
+      Alert.alert("Error", "Failed to submit hostel application. Please try again.");
+    }
   };
 
   return (

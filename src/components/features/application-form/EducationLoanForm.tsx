@@ -27,7 +27,7 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             pan_number: "ABCDE1234F",
             passport_number: "A1234567",
             cibil_score: "750",
-            course_name: "Computer Science",
+            course_or_designation: "Computer Science",
             level_of_study: "UG",
             mode_of_study: "Full-time",
             course_duration: "4 years",
@@ -48,7 +48,7 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             graduation_details: "NA",
             competitive_exams: "JEE", // Schema type is jsonb. Assuming FormField handles as string.
             employment_status: false,
-            company_name: "", // Assuming empty if not employed
+            college_or_company: "", // Assuming empty if not employed
             designation: "", // Assuming empty if not employed
             annual_income: "987654", // Assuming empty if not employed
             work_experience: "1", // Assuming empty if not employed
@@ -196,9 +196,9 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             <FormField
                 label="Course Name"
                 placeholder="Enter course name"
-                value={formData.course_name || ''}
-                onChangeText={(text) => setFormData({ ...formData, course_name: text })}
-                error={errors.course_name}
+                value={formData.course_or_designation || ''}
+                onChangeText={(text) => setFormData({ ...formData, course_or_designation: text })}
+                error={errors.course_or_designation}
             />
             <FormField
                 label="Level of Study (UG/PG/Diploma/PhD)"
@@ -367,9 +367,9 @@ const EducationLoanForm: React.FC<EducationLoanFormProps> = ({ formData, setForm
             <FormField
                 label="Company Name"
                 placeholder="Enter company name"
-                value={formData.company_name || ''}
-                onChangeText={(text) => setFormData({ ...formData, company_name: text })}
-                error={errors.company_name}
+                value={formData.college_or_company || ''}
+                onChangeText={(text) => setFormData({ ...formData, college_or_company: text })}
+                error={errors.college_or_company}
             />
             <FormField
                 label="Designation"

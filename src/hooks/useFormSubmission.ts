@@ -187,11 +187,95 @@ export const useFormSubmission = () => {
     }
   };
 
+  const submitMulundHostelApplication = async (formData: any) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { userId, ...applicationData } = formData;
+      const dataToInsert: Record<string, any> = { user_id: userId };
+      const imageFilesToUpload: { fieldName: string; file: File }[] = [];
+
+      const imageFieldKeys = [
+        'photograph',
+        'aadhaar_card',
+        'pan_card',
+        'id_proof',
+        'guardian_id_proof'
+      ];
+
+      const numericFieldKeys = [
+        'year_of_study',
+        'pincode',
+        'permanent_pincode',
+        'current_pincode'
+      ];
+
+      const booleanFieldKeys = ['declaration_signed'];
+
+      for (const key in applicationData) {
+        if (Object.prototype.hasOwnProperty.call(applicationData, key)) {
+          const value = applicationData[key];
+          if (imageFieldKeys.includes(key) && value instanceof File) {
+            imageFilesToUpload.push({ fieldName: key, file: value });
+          } else if (numericFieldKeys.includes(key) && value !== null && value !== undefined && value !== '') {
+            const numValue = parseFloat(value);
+            dataToInsert[key] = isNaN(numValue) ? null : numValue;
+          } else if (booleanFieldKeys.includes(key) && value !== undefined) {
+            dataToInsert[key] = ['true', '1', 1, true, 'on'].includes(String(value).toLowerCase());
+          } else if (value !== undefined) {
+            dataToInsert[key] = value;
+          }
+        }
+      }
+
+      Object.keys(dataToInsert).forEach(key => {
+        if (dataToInsert[key] === '') {
+          dataToInsert[key] = null;
+        }
+      });
+      const { data: insertedApp, error: insertError } = await supabase
+        .from('mulund_hostel_form')
+        .insert([dataToInsert])
+        .select()
+        .single();
+      if (insertError) throw insertError;
+      if (!insertedApp) throw new Error("Failed to insert hostel application data.");
+
+      const applicationId = insertedApp.id;
+      const uploadedImagePaths: Record<string, string | null> = {};
+
+      for (const { fieldName, file } of imageFilesToUpload) {
+        const path = await uploadImage(file, applicationId.toString(), fieldName);
+        uploadedImagePaths[fieldName] = path;
+      }
+
+      if (Object.keys(uploadedImagePaths).length > 0 && Object.values(uploadedImagePaths).some(p => p !== null)) {
+        const { error: updateError } = await supabase
+          .from('mulund_hostel_form')
+          .update(uploadedImagePaths)
+          .eq('id', applicationId);
+
+        if (updateError) throw updateError;
+      }
+
+      return true;
+    } catch (err: any) {
+      console.error("Error in submitMulundHostelApplication:", err);
+      // Provide more detailed error message
+      setError(err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
     submitEvent,
     submitDonation,
-    submitBusinessLoanApplication
+    submitBusinessLoanApplication,
+    submitMulundHostelApplication
   };
 };
