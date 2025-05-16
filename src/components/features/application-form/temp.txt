@@ -393,13 +393,3 @@ I/we declare that the information provided is true. I/we give consent to Vatsaly
 •	View/Download VatsalyaDham Guidelines (PDF)
 •	Digital Signature / Thumb Impression Upload (optional)
 •	Submit Button
-
-
-
-
-add these forms to the ApplicationForm.tsx
-
-there are already 2 tabs events and domations, ad 2 more wiht the names "loans" and "enrollment".
-
-the enrollment and loans tabs should have a drop dowm which would decide the fields to be shown according to the above data
-Once sumitted they should be uploaded to database the same way as the events and donation ones

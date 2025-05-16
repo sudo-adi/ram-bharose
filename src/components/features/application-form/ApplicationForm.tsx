@@ -735,7 +735,7 @@ function LoanForm() {
 }
 
 function EnrollmentForm() {
-  const { submitMulundHostelApplication, loading: submitting, error: submitError } = useFormSubmission();
+  const { submitMulundHostelApplication, loading: submitting, error: submitError, submitGirlsHostelApplication } = useFormSubmission();
   const [activeEnrollmentType, setActiveEnrollmentType] = useState("mulund_hostel");
   const [formData, setFormData] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -811,36 +811,71 @@ function EnrollmentForm() {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      Alert.alert("Validation Error", "Please fill in all required fields");
-      return;
-    }
-
-    try {
-      const userPhone = await AsyncStorage.getItem("userPhone");
-      const userId = await getUserIdByPhone(userPhone);
-
-      if (!userId) {
-        Alert.alert("Error", "User not found. Please login again.");
+    if (activeEnrollmentType === "mulund_hostel") {
+      if (!validateForm()) {
+        Alert.alert("Validation Error", "Please fill in all required fields");
         return;
       }
 
-      const success = await submitMulundHostelApplication({
-        userId,
-        ...formData
-      });
+      try {
+        const userPhone = await AsyncStorage.getItem("userPhone");
+        const userId = await getUserIdByPhone(userPhone);
 
-      if (success) {
-        Alert.alert("Success", "Hostel application submitted successfully");
-        setFormData({});
-      } else {
-        Alert.alert(
-          "Error: Failed to submit hostel application. Please try again."
-        );
+        if (!userId) {
+          Alert.alert("Error", "User not found. Please login again.");
+          return;
+        }
+
+        const success = await submitMulundHostelApplication({
+          userId,
+          ...formData
+        });
+
+        if (success) {
+          Alert.alert("Success", "Hostel application submitted successfully");
+          setFormData({});
+        } else {
+          Alert.alert(
+            "Error: Failed to submit hostel application. Please try again."
+          );
+        }
+      } catch (error) {
+        console.error("Error submitting hostel application:", error);
+        Alert.alert("Error", "Failed to submit hostel application. Please try again.");
       }
-    } catch (error) {
-      console.error("Error submitting hostel application:", error);
-      Alert.alert("Error", "Failed to submit hostel application. Please try again.");
+    }
+    else if (activeEnrollmentType === "girls_hostel") {
+      if (!validateForm()) {
+        Alert.alert("Validation Error", "Please fill in all required fields");
+        return;
+      }
+
+      try {
+        const userPhone = await AsyncStorage.getItem("userPhone");
+        const userId = await getUserIdByPhone(userPhone);
+
+        if (!userId) {
+          Alert.alert("Error", "User not found. Please login again.");
+          return;
+        }
+
+        const success = await submitGirlsHostelApplication({
+          userId,
+          ...formData
+        });
+
+        if (success) {
+          Alert.alert("Success", "Hostel application submitted successfully");
+          setFormData({});
+        } else {
+          Alert.alert(
+            "Error: Failed to submit hostel application. Please try again."
+          );
+        }
+      } catch (error) {
+        console.error("Error submitting hostel application:", error);
+        Alert.alert("Error", "Failed to submit hostel application. Please try again.");
+      }
     }
   };
 

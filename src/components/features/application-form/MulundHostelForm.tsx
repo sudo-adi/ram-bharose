@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native'; // Added Text import
 import ImageUploadCard from './ImageUploadCard'; // Added ImageUploadCard import
 import FormField from './FormField';
-import { useFormSubmission } from '@/hooks';
 
 interface MulundHostelFormProps {
     formData: any;
@@ -70,12 +69,12 @@ const MulundHostelForm: React.FC<MulundHostelFormProps> = ({ formData, setFormDa
 
     return (
         <View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
                 onPress={fillTestData}
                 className="bg-gray-200 py-2 px-4 rounded-lg mb-4"
             >
                 <Text className="text-gray-700 text-center">Fill Test Data</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <Text className="text-lg font-semibold text-gray-700 mb-3">Section 1: Personal Details</Text>
             <FormField

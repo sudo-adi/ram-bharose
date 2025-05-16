@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native'; // Added Text import
+import { View, Text, TouchableOpacity } from 'react-native'; // Added Text import
 import ImageUploadCard from './ImageUploadCard'; // Added ImageUploadCard import
 import FormField from './FormField';
 
@@ -11,38 +11,85 @@ interface GirlsHostelFormProps {
 }
 
 const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData, errors, setErrors }) => {
+
+    // Add test data function
+    const fillTestData = () => {
+        const testData = {
+            // Personal Details
+            full_name: "Test User",
+            date_of_birth: "2000-01-01",
+            gender: "Male",
+            marital_status: "Single",
+            nationality: "Indian",
+            mobile_number: "9876543210",
+            email_id: "test@example.com",
+            aadhaar_number: "123456789012",
+            pan_number: "ABCDE1234F",
+            blood_group: "O+",
+
+            // Address Information
+            permanent_address: "123 Test Street",
+            permanent_city: "Mumbai",
+            permanent_state: "Maharashtra",
+            permanent_pincode: "400080",
+            current_address: "456 Test Avenue",
+            current_city: "Mumbai",
+            current_state: "Maharashtra",
+            current_pincode: "400081",
+
+            // Academic/Employment Details
+            education_level: "Graduate",
+            institution_name: "Test University",
+            course_or_designation: "B.Tech",
+            year_of_study: "3",
+            employment_status: "Student",
+            college_or_company: "",
+            work_experience: "",
+
+            // Guardian Information
+            guardian_name: "Test Parent",
+            guardian_relation: "Father",
+            guardian_mobile: "9876543211",
+            guardian_email: "parent@example.com",
+            guardian_address: "789 Test Road, Mumbai",
+            guardian_occupation: "Business",
+
+            // Health Details
+            health_conditions: "None",
+            medications: "None",
+            emergency_contact_name: "Test Emergency",
+            emergency_contact_number: "9876543212",
+
+            // Declaration
+            declaration_date: new Date().toISOString().split('T')[0],
+            declaration_signed: true
+        };
+        setFormData({ ...formData, ...testData });
+    };
+
     return (
         <View>
-            <Text className="text-lg font-semibold text-gray-700 mb-3">Step 1: Applicant Personal Details</Text>
+            <TouchableOpacity
+                onPress={fillTestData}
+                className="bg-gray-200 py-2 px-4 rounded-lg mb-4"
+            >
+                <Text className="text-gray-700 text-center">Fill Test Data</Text>
+            </TouchableOpacity>
+
+            <Text className="text-lg font-semibold text-gray-700 mb-3">Section 1: Personal Details</Text>
             <FormField
                 label="Full Name (as per Aadhaar)"
                 placeholder="Enter your full name"
-                value={formData.fullName || ''}
-                onChangeText={(text) => setFormData({ ...formData, fullName: text })}
-                error={errors.fullName}
+                value={formData.full_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, full_name: text })}
+                error={errors.full_name}
             />
             <FormField
                 label="Date of Birth"
                 placeholder="YYYY-MM-DD"
-                value={formData.dob || ''}
-                onChangeText={(text) => setFormData({ ...formData, dob: text })}
-                error={errors.dob}
-            />
-            <FormField
-                label="Mobile Number"
-                placeholder="Enter your mobile number"
-                keyboardType="phone-pad"
-                value={formData.mobileNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, mobileNumber: text })}
-                error={errors.mobileNumber}
-            />
-            <FormField
-                label="Email Address"
-                placeholder="Enter your email address"
-                keyboardType="email-address"
-                value={formData.emailAddress || ''}
-                onChangeText={(text) => setFormData({ ...formData, emailAddress: text })}
-                error={errors.emailAddress}
+                value={formData.date_of_birth || ''}
+                onChangeText={(text) => setFormData({ ...formData, date_of_birth: text })}
+                error={errors.date_of_birth}
             />
             <FormField
                 label="Gender"
@@ -54,9 +101,9 @@ const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData
             <FormField
                 label="Marital Status"
                 placeholder="Select Marital Status"
-                value={formData.maritalStatus || ''}
-                onChangeText={(text) => setFormData({ ...formData, maritalStatus: text })}
-                error={errors.maritalStatus}
+                value={formData.marital_status || ''}
+                onChangeText={(text) => setFormData({ ...formData, marital_status: text })}
+                error={errors.marital_status}
             />
             <FormField
                 label="Nationality"
@@ -66,124 +113,282 @@ const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData
                 error={errors.nationality}
             />
             <FormField
+                label="Mobile Number"
+                placeholder="Enter your mobile number"
+                keyboardType="phone-pad"
+                value={formData.mobile_number || ''}
+                onChangeText={(text) => setFormData({ ...formData, mobile_number: text })}
+                error={errors.mobile_number}
+            />
+            <FormField
+                label="Email ID"
+                placeholder="Enter your email ID"
+                keyboardType="email-address"
+                value={formData.email_id || ''}
+                onChangeText={(text) => setFormData({ ...formData, email_id: text })}
+                error={errors.email_id}
+            />
+            <FormField
+                label="Aadhaar Number"
+                placeholder="Enter your Aadhaar number"
+                keyboardType="numeric"
+                value={formData.aadhaar_number || ''}
+                onChangeText={(text) => setFormData({ ...formData, aadhaar_number: text })}
+                error={errors.aadhaar_number}
+            />
+            <FormField
                 label="PAN Number"
                 placeholder="Enter your PAN number"
-                value={formData.panNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, panNumber: text })}
-                error={errors.panNumber}
+                value={formData.pan_number || ''}
+                onChangeText={(text) => setFormData({ ...formData, pan_number: text })}
+                error={errors.pan_number}
             />
-            <ImageUploadCard
-                label="Profile Photo (upload)"
-                selectedImage={formData.profilePhoto}
-                onImageSelect={(file) => setFormData({ ...formData, profilePhoto: file })}
-                error={errors.profilePhoto}
+            <FormField
+                label="Blood Group"
+                placeholder="Enter your blood group"
+                value={formData.blood_group || ''}
+                onChangeText={(text) => setFormData({ ...formData, blood_group: text })}
+                error={errors.blood_group}
             />
 
-            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Step 2: Permanent Address</Text>
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 2: Address Information</Text>
             <FormField
-                label="Permanent Full Address"
-                placeholder="Enter permanent address"
+                label="Permanent Address"
+                placeholder="Enter your permanent address"
                 multiline
-                value={formData.permanentAddress || ''}
-                onChangeText={(text) => setFormData({ ...formData, permanentAddress: text })}
-                error={errors.permanentAddress}
+                value={formData.permanent_address || ''}
+                onChangeText={(text) => setFormData({ ...formData, permanent_address: text })}
+                error={errors.permanent_address}
             />
             <FormField
-                label="Current Full Address (if different)"
-                placeholder="Enter current address"
+                label="Permanent City"
+                placeholder="Enter city"
+                value={formData.permanent_city || ''}
+                onChangeText={(text) => setFormData({ ...formData, permanent_city: text })}
+                error={errors.permanent_city}
+            />
+            <FormField
+                label="Permanent State"
+                placeholder="Enter state"
+                value={formData.permanent_state || ''}
+                onChangeText={(text) => setFormData({ ...formData, permanent_state: text })}
+                error={errors.permanent_state}
+            />
+            <FormField
+                label="Permanent Pincode"
+                placeholder="Enter pincode"
+                keyboardType="numeric"
+                value={formData.permanent_pincode || ''}
+                onChangeText={(text) => setFormData({ ...formData, permanent_pincode: text })}
+                error={errors.permanent_pincode}
+            />
+            <FormField
+                label="Current Address (if different from permanent)"
+                placeholder="Enter your current address"
                 multiline
-                value={formData.currentAddress || ''}
-                onChangeText={(text) => setFormData({ ...formData, currentAddress: text })}
-                error={errors.currentAddress}
+                value={formData.current_address || ''}
+                onChangeText={(text) => setFormData({ ...formData, current_address: text })}
+                error={errors.current_address}
+            />
+            <FormField
+                label="Current City"
+                placeholder="Enter city"
+                value={formData.current_city || ''}
+                onChangeText={(text) => setFormData({ ...formData, current_city: text })}
+                error={errors.current_city}
+            />
+            <FormField
+                label="Current State"
+                placeholder="Enter state"
+                value={formData.current_state || ''}
+                onChangeText={(text) => setFormData({ ...formData, current_state: text })}
+                error={errors.current_state}
+            />
+            <FormField
+                label="Current Pincode"
+                placeholder="Enter pincode"
+                keyboardType="numeric"
+                value={formData.current_pincode || ''}
+                onChangeText={(text) => setFormData({ ...formData, current_pincode: text })}
+                error={errors.current_pincode}
             />
 
-            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Step 3: Educational / Work Details</Text>
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 3: Academic/Employment Details</Text>
             <FormField
-                label="Name of College / Company"
-                placeholder="Enter name of college or company"
-                value={formData.institutionName || ''}
-                onChangeText={(text) => setFormData({ ...formData, institutionName: text })}
-                error={errors.institutionName}
+                label="Education Level"
+                placeholder="Select education level"
+                value={formData.education_level || ''}
+                onChangeText={(text) => setFormData({ ...formData, education_level: text })}
+                error={errors.education_level}
             />
             <FormField
-                label="Course / Job Title"
-                placeholder="Enter course or job title"
-                value={formData.courseJobTitle || ''}
-                onChangeText={(text) => setFormData({ ...formData, courseJobTitle: text })}
-                error={errors.courseJobTitle}
+                label="Institution Name"
+                placeholder="Enter institution name"
+                value={formData.institution_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, institution_name: text })}
+                error={errors.institution_name}
             />
-            <ImageUploadCard
-                label="Upload College/Company ID Card"
-                selectedImage={formData.collegeCompanyIdCard}
-                onImageSelect={(file) => setFormData({ ...formData, collegeCompanyIdCard: file })}
-                error={errors.collegeCompanyIdCard}
+            <FormField
+                label="Course Name"
+                placeholder="Enter course name"
+                value={formData.course_or_designation || ''}
+                onChangeText={(text) => setFormData({ ...formData, course_or_designation: text })}
+                error={errors.course_or_designation}
+            />
+            <FormField
+                label="Year of Study"
+                placeholder="Enter year of study"
+                value={formData.year_of_study || ''}
+                onChangeText={(text) => setFormData({ ...formData, year_of_study: text })}
+                error={errors.year_of_study}
+            />
+            <FormField
+                label="Employment Status"
+                placeholder="Select employment status"
+                value={formData.employment_status || ''}
+                onChangeText={(text) => setFormData({ ...formData, employment_status: text })}
+                error={errors.employment_status}
+            />
+            <FormField
+                label="Company Name (if employed)"
+                placeholder="Enter company name"
+                value={formData.college_or_company || ''}
+                onChangeText={(text) => setFormData({ ...formData, college_or_company: text })}
+                error={errors.college_or_company}
+            />
+            <FormField
+                label="Work Experience (in years, if employed)"
+                placeholder="Enter work experience"
+                value={formData.work_experience || ''}
+                onChangeText={(text) => setFormData({ ...formData, work_experience: text })}
+                error={errors.work_experience}
             />
 
-            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Step 4: Guardian Details</Text>
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 4: Guardian Information</Text>
             <FormField
-                label="Father's / Mother's / Guardian’s Full Name"
-                placeholder="Enter guardian's full name"
-                value={formData.guardianName || ''}
-                onChangeText={(text) => setFormData({ ...formData, guardianName: text })}
-                error={errors.guardianName}
+                label="Guardian's Full Name"
+                placeholder="Enter guardian's name"
+                value={formData.guardian_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, guardian_name: text })}
+                error={errors.guardian_name}
             />
             <FormField
-                label="Guardian's Contact Number"
-                placeholder="Enter guardian's contact number"
+                label="Relationship with Guardian"
+                placeholder="Enter relationship"
+                value={formData.guardian_relation || ''}
+                onChangeText={(text) => setFormData({ ...formData, guardian_relation: text })}
+                error={errors.guardian_relation}
+            />
+            <FormField
+                label="Guardian's Mobile Number"
+                placeholder="Enter guardian's mobile number"
                 keyboardType="phone-pad"
-                value={formData.guardianContact || ''}
-                onChangeText={(text) => setFormData({ ...formData, guardianContact: text })}
-                error={errors.guardianContact}
+                value={formData.guardian_mobile || ''}
+                onChangeText={(text) => setFormData({ ...formData, guardian_mobile: text })}
+                error={errors.guardian_mobile}
             />
-            <ImageUploadCard
-                label="Upload Guardian’s ID Proof (Aadhaar / PAN)"
-                selectedImage={formData.guardianIdProof}
-                onImageSelect={(file) => setFormData({ ...formData, guardianIdProof: file })}
-                error={errors.guardianIdProof}
+            <FormField
+                label="Guardian's Email ID"
+                placeholder="Enter guardian's email ID"
+                keyboardType="email-address"
+                value={formData.guardian_email || ''}
+                onChangeText={(text) => setFormData({ ...formData, guardian_email: text })}
+                error={errors.guardian_email}
+            />
+            <FormField
+                label="Guardian's Address"
+                placeholder="Enter guardian's address"
+                multiline
+                value={formData.guardian_address || ''}
+                onChangeText={(text) => setFormData({ ...formData, guardian_address: text })}
+                error={errors.guardian_address}
+            />
+            <FormField
+                label="Guardian's Occupation"
+                placeholder="Enter guardian's occupation"
+                value={formData.guardian_occupation || ''}
+                onChangeText={(text) => setFormData({ ...formData, guardian_occupation: text })}
+                error={errors.guardian_occupation}
             />
 
-            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Step 6: Document Uploads</Text>
-            <ImageUploadCard
-                label="Aadhaar Card (Front & Back)"
-                selectedImage={formData.aadhaarCard}
-                onImageSelect={(file) => setFormData({ ...formData, aadhaarCard: file })}
-                error={errors.aadhaarCard}
-            />
-            <ImageUploadCard
-                label="Passport-size Photo"
-                selectedImage={formData.passportPhoto}
-                onImageSelect={(file) => setFormData({ ...formData, passportPhoto: file })}
-                error={errors.passportPhoto}
-            />
-            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Step 5: Safety & Health Information (Optional)</Text>
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 5: Health Details</Text>
             <FormField
-                label="Any Known Allergies"
-                placeholder="e.g., Dust, Pollen, Peanuts"
-                value={formData.allergies || ''}
-                onChangeText={(text) => setFormData({ ...formData, allergies: text })}
-                error={errors.allergies}
+                label="health_conditions (if any)"
+                placeholder="Enter health_conditions"
+                value={formData.health_conditions || ''}
+                onChangeText={(text) => setFormData({ ...formData, health_conditions: text })}
+                error={errors.health_conditions}
             />
             <FormField
-                label="Any Pre-existing Medical Conditions"
-                placeholder="e.g., Asthma, Diabetes"
-                value={formData.medicalConditions || ''}
-                onChangeText={(text) => setFormData({ ...formData, medicalConditions: text })}
-                error={errors.medicalConditions}
+                label="Regular Medications (if any)"
+                placeholder="Enter medications"
+                multiline
+                value={formData.medications || ''}
+                onChangeText={(text) => setFormData({ ...formData, medications: text })}
+                error={errors.medications}
             />
             <FormField
-                label="Emergency Contact Person (Other than Guardian)"
-                placeholder="Enter name"
-                value={formData.emergencyContactName || ''}
-                onChangeText={(text) => setFormData({ ...formData, emergencyContactName: text })}
-                error={errors.emergencyContactName}
+                label="Emergency Contact Name"
+                placeholder="Enter emergency contact name"
+                value={formData.emergency_contact_name || ''}
+                onChangeText={(text) => setFormData({ ...formData, emergency_contact_name: text })}
+                error={errors.emergency_contact_name}
             />
             <FormField
-                label="Emergency Contact Number (Other than Guardian)"
-                placeholder="Enter contact number"
+                label="Emergency Contact Number"
+                placeholder="Enter emergency contact number"
                 keyboardType="phone-pad"
-                value={formData.emergencyContactNumber || ''}
-                onChangeText={(text) => setFormData({ ...formData, emergencyContactNumber: text })}
-                error={errors.emergencyContactNumber}
+                value={formData.emergency_contact_number || ''}
+                onChangeText={(text) => setFormData({ ...formData, emergency_contact_number: text })}
+                error={errors.emergency_contact_number}
+            />
+
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 6: Document Uploads</Text>
+            <ImageUploadCard
+                label="Recent Photograph"
+                selectedImage={formData.photograph}
+                onImageSelect={(file) => setFormData({ ...formData, photograph: file })}
+                error={errors.photograph}
+            />
+            <ImageUploadCard
+                label="Aadhaar Card"
+                selectedImage={formData.aadhaar_card}
+                onImageSelect={(file) => setFormData({ ...formData, aadhaar_card: file })}
+                error={errors.aadhaar_card}
+            />
+            <ImageUploadCard
+                label="PAN Card"
+                selectedImage={formData.pan_card}
+                onImageSelect={(file) => setFormData({ ...formData, pan_card: file })}
+                error={errors.pan_card}
+            />
+            <ImageUploadCard
+                label="Student ID/Employee ID"
+                selectedImage={formData.id_proof}
+                onImageSelect={(file) => setFormData({ ...formData, id_proof: file })}
+                error={errors.id_proof}
+            />
+            <ImageUploadCard
+                label="Guardian's ID Proof"
+                selectedImage={formData.guardian_id_proof}
+                onImageSelect={(file) => setFormData({ ...formData, guardian_id_proof: file })}
+                error={errors.guardian_id_proof}
+            />
+
+            <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 7: Declaration</Text>
+            <FormField
+                label="Declaration Date"
+                placeholder="YYYY-MM-DD"
+                value={formData.declaration_date || ''}
+                onChangeText={(text) => setFormData({ ...formData, declaration_date: text })}
+                error={errors.declaration_date}
+            />
+            <FormField
+                label="Declaration Signed"
+                placeholder="true/false"
+                value={formData.declaration_signed ? 'true' : 'false'}
+                onChangeText={(text) => setFormData({ ...formData, declaration_signed: text === 'true' })}
+                error={errors.declaration_signed}
             />
         </View>
     );
