@@ -735,7 +735,7 @@ function LoanForm() {
 }
 
 function EnrollmentForm() {
-  const { submitMulundHostelApplication, loading: submitting, error: submitError, submitGirlsHostelApplication } = useFormSubmission();
+  const { submitMulundHostelApplication, loading: submitting, error: submitError, submitGirlsHostelApplication, submitVatsalyadhamApplication } = useFormSubmission();
   const [activeEnrollmentType, setActiveEnrollmentType] = useState("mulund_hostel");
   const [formData, setFormData] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -810,6 +810,87 @@ function EnrollmentForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const validateVatsalyadhamForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    // Step 1: Personal Details
+    if (!formData.full_name) newErrors.full_name = "Full name is required";
+    if (!formData.date_of_birth) newErrors.date_of_birth = "Date of birth is required";
+    if (!formData.gender) newErrors.gender = "Gender is required";
+    if (!formData.marital_status) newErrors.marital_status = "Marital status is required";
+    if (!formData.blood_group) newErrors.blood_group = "Blood group is required";
+    if (!formData.mobile_number) newErrors.mobile_number = "Mobile number is required";
+    if (!formData.aadhaar_number) newErrors.aadhaar_number = "Aadhaar number is required";
+    if (formData.mobile_number && !/^[6-9]\d{9}$/.test(formData.mobile_number))
+      newErrors.mobile_number = "Please enter a valid 10-digit mobile number";
+    if (formData.aadhaar_number && !/^\d{12}$/.test(formData.aadhaar_number))
+      newErrors.aadhaar_number = "Please enter a valid 12-digit Aadhaar number";
+    if (formData.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan))
+      newErrors.pan = "Please enter a valid PAN number";
+    if (!formData.recent_photo) newErrors.recent_photo = "Recent photo is required";
+
+    // Step 2: Current Residential Details
+    if (!formData.full_address) newErrors.full_address = "Full address is required";
+    if (!formData.city) newErrors.city = "City is required";
+    if (!formData.state) newErrors.state = "State is required";
+    if (!formData.pincode) newErrors.pincode = "Pincode is required";
+    if (formData.pincode && !/^\d{6}$/.test(formData.pincode))
+      newErrors.pincode = "Please enter a valid 6-digit pincode";
+
+    // Step 3: Guardian / Family Details
+    if (!formData.guardian_full_name) newErrors.guardian_full_name = "Guardian name is required";
+    if (!formData.relation_to_applicant) newErrors.relation_to_applicant = "Relationship with applicant is required";
+    if (!formData.guardian_contact_number) newErrors.guardian_contact_number = "Guardian contact number is required";
+    if (!formData.guardian_address) newErrors.guardian_address = "Guardian address is required";
+    if (formData.guardian_contact_number && !/^[6-9]\d{9}$/.test(formData.guardian_contact_number))
+      newErrors.guardian_contact_number = "Please enter a valid 10-digit contact number";
+    if (formData.guardian_alternate_number && !/^[6-9]\d{9}$/.test(formData.guardian_alternate_number))
+      newErrors.guardian_alternate_number = "Please enter a valid 10-digit alternate number";
+    if (formData.guardian_email && !/\S+@\S+\.\S+/.test(formData.guardian_email))
+      newErrors.guardian_email = "Please enter a valid email address";
+    if (!formData.guardian_id_proof) newErrors.guardian_id_proof = "Guardian ID proof is required";
+    if (!formData.consent_letter) newErrors.consent_letter = "Consent letter is required";
+
+    // Step 4: Health & Medical Details
+    if (!formData.known_medical_conditions)
+      newErrors.known_medical_conditions = "Medical conditions information is required (enter 'None' if not applicable)";
+    if (formData.on_regular_medication === 'true' && !formData.list_of_medications)
+      newErrors.list_of_medications = "Please list your medications";
+    if (!formData.covid_vaccination_status)
+      newErrors.covid_vaccination_status = "COVID vaccination status is required";
+    if (formData.covid_vaccination_status && formData.covid_vaccination_status !== 'Not Vaccinated' && !formData.vaccination_certificate)
+      newErrors.vaccination_certificate = "Vaccination certificate is required";
+    if (!formData.recent_medical_certificate)
+      newErrors.recent_medical_certificate = "Recent medical certificate is required";
+
+    // Step 5: Lifestyle & Support
+    if (!formData.languages_spoken)
+      newErrors.languages_spoken = "Languages spoken is required";
+    if (!formData.dietary_preferences)
+      newErrors.dietary_preferences = "Dietary preferences is required";
+    if (!formData.self_care_ability)
+      newErrors.self_care_ability = "Self-care ability information is required";
+    if (formData.disability_or_mobility_assistance === 'true' && !formData.disability_certificate)
+      newErrors.disability_certificate = "Disability certificate is required";
+
+    // Step 6: Legal & Consent
+    if (formData.under_legal_guardianship === 'true' && !formData.legal_guardian_document)
+      newErrors.legal_guardian_document = "Legal guardian document is required";
+    if (!formData.signed_undertaking)
+      newErrors.signed_undertaking = "Signed undertaking is required";
+    if (!formData.no_objection_certificate)
+      newErrors.no_objection_certificate = "No objection certificate is required";
+
+    // Step 7: Final Declaration & Submit
+    if (!formData.declaration_accepted || formData.declaration_accepted !== 'true')
+      newErrors.declaration_accepted = "You must accept the declaration";
+    if (!formData.digital_signature)
+      newErrors.digital_signature = "Digital signature is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async () => {
     if (activeEnrollmentType === "mulund_hostel") {
       if (!validateForm()) {
@@ -875,6 +956,39 @@ function EnrollmentForm() {
       } catch (error) {
         console.error("Error submitting hostel application:", error);
         Alert.alert("Error", "Failed to submit hostel application. Please try again.");
+      }
+    }
+    else if (activeEnrollmentType === "vatsalyadham") {
+      if (!validateVatsalyadhamForm()) {
+        Alert.alert("Validation Error", "Please fill in all required fields");
+        return;
+      }
+
+      try {
+        const userPhone = await AsyncStorage.getItem("userPhone");
+        const userId = await getUserIdByPhone(userPhone);
+
+        if (!userId) {
+          Alert.alert("Error", "User not found. Please login again.");
+          return;
+        }
+
+        const success = await submitVatsalyadhamApplication({
+          userId,
+          ...formData
+        });
+
+        if (success) {
+          Alert.alert("Success", "Vatsalyadham application submitted successfully");
+          setFormData({});
+        } else {
+          Alert.alert(
+            "Error: Failed to submit Vatsalyadham application. Please try again."
+          );
+        }
+      } catch (error) {
+        console.error("Error submitting Vatsalyadham application:", error);
+        Alert.alert("Error", "Failed to submit Vatsalyadham application. Please try again.");
       }
     }
   };

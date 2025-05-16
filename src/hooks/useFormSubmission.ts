@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';// Assuming BusinessLoanApplicationData is defined in types.ts
 import { uploadImage } from '../../utils/storage';
+import VatsalyadhamForm from '@/components/features/application-form/VatsalyadhamForm';
 
 export const useFormSubmission = () => {
   const [loading, setLoading] = useState(false);
@@ -281,11 +282,133 @@ export const useFormSubmission = () => {
     }
   };
 
+  const submitVatsalyadhamApplication = async (formData: any) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { userId, ...applicationData } = formData;
+      const dataToInsert: Record<string, any> = { user_id: userId };
+      const imageFilesToUpload: { fieldName: string; file: File }[] = [];
+
+      // Image fields in the vatsalyadham form
+      const imageFieldKeys = [
+        'recent_photo',
+        'guardian_id_proof',
+        'consent_letter',
+        'recent_medical_certificate',
+        'vaccination_certificate',
+        'disability_certificate',
+        'legal_guardian_document',
+        'signed_undertaking',
+        'no_objection_certificate',
+        'guidelines_pdf',
+        'digital_signature'
+      ];
+
+      // Numeric fields that need to be parsed
+      const numericFieldKeys = [
+        'pincode'
+      ];
+
+      // Boolean fields in the form
+      const booleanFieldKeys = [
+        'is_permanent_address',
+        'on_regular_medication',
+        'disability_or_mobility_assistance',
+        'requires_spiritual_support',
+        'under_legal_guardianship',
+        'declaration_accepted'
+      ];
+
+      // Process each field in the application data
+      for (const key in applicationData) {
+        if (Object.prototype.hasOwnProperty.call(applicationData, key)) {
+          const value = applicationData[key];
+
+          if (imageFieldKeys.includes(key)) {
+            // Add image files to the upload queue
+            if (value) {
+              imageFilesToUpload.push({ fieldName: key, file: value });
+            }
+          } else if (numericFieldKeys.includes(key) && value !== null && value !== undefined && value !== '') {
+            // Handle numeric values
+            const numValue = parseFloat(value);
+            dataToInsert[key] = isNaN(numValue) ? null : numValue;
+          } else if (booleanFieldKeys.includes(key) && value !== undefined) {
+            // Handle boolean values
+            dataToInsert[key] = ['true', '1', 1, true, 'on'].includes(String(value).toLowerCase());
+          } else if (value !== undefined) {
+            // Handle all other values
+            dataToInsert[key] = value;
+          }
+        }
+      }
+
+      // Convert empty strings to null for database insertion
+      Object.keys(dataToInsert).forEach(key => {
+        if (dataToInsert[key] === '') {
+          dataToInsert[key] = null;
+        }
+      });
+
+      // Insert the basic enrollment data into the database
+      const { data: insertedApp, error: insertError } = await supabase
+        .from('vatsalyadham_form')
+        .insert([dataToInsert])
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+      if (!insertedApp) throw new Error("Failed to insert vatsalyadham enrollment data.");
+
+      const applicationId = insertedApp.id;
+      const uploadedImagePaths: Record<string, string | null> = {};
+
+      // Upload all image files
+      for (const { fieldName, file } of imageFilesToUpload) {
+        const path = await uploadImage(file, applicationId.toString(), fieldName);
+        uploadedImagePaths[fieldName] = path;
+      }
+
+      const publicImageUrls: Record<string, string | null> = {};
+
+      // Get public URLs for all uploaded images
+      for (const [fieldName, path] of Object.entries(uploadedImagePaths)) {
+        if (path) {
+          const { data: publicUrl } = await supabase.storage
+            .from('application-docs')
+            .getPublicUrl(path);
+          publicImageUrls[fieldName] = publicUrl?.publicUrl || null;
+        }
+      }
+
+      // Update the database record with the URLs of the uploaded images
+      if (Object.keys(publicImageUrls).length > 0 && Object.values(publicImageUrls).some(p => p !== null)) {
+        const { error: updateError } = await supabase
+          .from('vatsalyadham_form')
+          .update(publicImageUrls)
+          .eq('id', applicationId);
+
+        if (updateError) throw updateError;
+      }
+
+      return true;
+    } catch (err: any) {
+      console.error("Error in submitVatsalyadhamApplication:", err);
+      setError(err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
     submitEvent,
     submitDonation,
+    submitVatsalyadhamApplication,
     submitGirlsHostelApplication,
     submitMulundHostelApplication
   };
