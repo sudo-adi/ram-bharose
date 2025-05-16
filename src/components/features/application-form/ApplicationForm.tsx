@@ -541,11 +541,6 @@ function LoanForm() {
   };
 
   const handleSubmit = async () => {
-    // TODO: Add proper validation based on activeLoanType and specific fields
-    // if (!validateForm()) { // Assuming validateForm is adapted from validateLoanForm or a new one is created
-    //   Alert.alert("Validation Error", "Please fill in all required fields correctly.");
-    //   return;
-    // }
     if (!validateLoanForm()) { // Retain existing validation call
       Alert.alert("Validation Error", "Please fill in all required fields highlighted in red. Missing: " + Object.values(errors).join(', '));
       return;

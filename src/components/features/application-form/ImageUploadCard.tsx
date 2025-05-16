@@ -6,8 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 interface ImageUploadCardProps {
     onImageSelect: (image: ImagePicker.ImagePickerAsset) => void;
     selectedImage: ImagePicker.ImagePickerAsset | null;
-    label?: string; // Optional label for the card
-    error?: string; // Optional error message
+    label?: string;
+    error?: string;
 }
 
 const ImageUploadCard: React.FC<ImageUploadCardProps> = ({ onImageSelect, selectedImage, label = "Upload Image", error }) => {
