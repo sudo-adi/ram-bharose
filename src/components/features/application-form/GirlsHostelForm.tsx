@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native'; // Added Text import
 import ImageUploadCard from './ImageUploadCard'; // Added ImageUploadCard import
 import FormField from './FormField';
+import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface GirlsHostelFormProps {
     formData: any;
@@ -66,6 +68,91 @@ const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData
         };
         setFormData({ ...formData, ...testData });
     };
+    const [date_of_birth_show, setDateOfBirthShow] = React.useState(false);
+    const [declaration_date_show, setDeclarationDateShow] = React.useState(false);
+
+    // Function to show date picker
+    const showDatePicker = (field: string) => {
+        if (field === 'date_of_birth') setDateOfBirthShow(true);
+        if (field === 'declaration_date') setDeclarationDateShow(true);
+    };
+
+    // Handle date selection
+    const onDateChange = (field: string, event: any, selectedDate?: Date) => {
+        if (field === 'date_of_birth') setDateOfBirthShow(false);
+        if (field === 'declaration_date') setDeclarationDateShow(false);
+
+        if (selectedDate) {
+            const formattedDate = selectedDate.toISOString().split('T')[0];
+            setFormData(prev => ({ ...prev, [field]: formattedDate }));
+        }
+    };
+
+    const genderOptions = ["Female"];
+    const bloodGroupOptions = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+    const educationLevelOptions = ["High School", "Diploma", "Graduate", "Post Graduate", "Doctorate"];
+    const employmentStatusOptions = ["Student", "Employed", "Self-employed", "Unemployed"];
+    const booleanOptions = ["true", "false"];
+    const maritalStatusOptions = ["Single", "Married", "Divorced", "Widowed"];
+
+
+    const DropdownField = ({ label, options, value, onValueChange, error }: any) => (
+        <View className="mb-4">
+            <Text className="text-gray-700 mb-1">{label}</Text>
+            <View className="border border-gray-300 rounded-md overflow-hidden">
+                <Picker
+                    selectedValue={value}
+                    onValueChange={(itemValue) => onValueChange(itemValue)}
+                    style={{ height: 50, width: '100%' }}
+                >
+                    <Picker.Item label="Select..." value="" />
+                    {options.map((option: string) => (
+                        <Picker.Item key={option} label={option} value={option} />
+                    ))}
+                </Picker>
+            </View>
+            {error && <Text className="text-red-500 mt-1">{error}</Text>}
+        </View>
+    );
+
+    const DateField = ({ label, value, onPress, error }: any) => (
+        <View className="mb-4">
+            <Text className="text-gray-700 mb-1">{label}</Text>
+            <TouchableOpacity
+                onPress={onPress}
+                className="border border-gray-300 rounded-md p-3 flex-row justify-between items-center"
+            >
+                <Text className={value ? "text-black" : "text-gray-400"}>
+                    {value || "YYYY-MM-DD"}
+                </Text>
+                <Text className="text-blue-500">📅</Text>
+            </TouchableOpacity>
+            {error && <Text className="text-red-500 mt-1">{error}</Text>}
+        </View>
+    );
+
+    const renderDatePickers = () => {
+        return (
+            <>
+                {date_of_birth_show && (
+                    <DateTimePicker
+                        value={formData['date_of_birth'] ? new Date(formData['date_of_birth']) : new Date()}
+                        mode="date"
+                        display="default"
+                        onChange={(event, selectedDate) => onDateChange('date_of_birth', event, selectedDate)}
+                    />
+                )}
+                {declaration_date_show && (
+                    <DateTimePicker
+                        value={formData['declaration_date'] ? new Date(formData['declaration_date']) : new Date()}
+                        mode="date"
+                        display="default"
+                        onChange={(event, selectedDate) => onDateChange('declaration_date', event, selectedDate)}
+                    />
+                )}
+            </>
+        );
+    };
 
     return (
         <View>
@@ -75,7 +162,6 @@ const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData
             >
                 <Text className="text-gray-700 text-center">Fill Test Data</Text>
             </TouchableOpacity> */}
-
             <Text className="text-lg font-semibold text-gray-700 mb-3">Section 1: Personal Details</Text>
             <FormField
                 label="Full Name (as per Aadhaar)"
@@ -84,25 +170,24 @@ const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData
                 onChangeText={(text) => setFormData({ ...formData, full_name: text })}
                 error={errors.full_name}
             />
-            <FormField
+            <DateField
                 label="Date of Birth"
-                placeholder="YYYY-MM-DD"
                 value={formData.date_of_birth || ''}
-                onChangeText={(text) => setFormData({ ...formData, date_of_birth: text })}
+                onPress={() => showDatePicker('date_of_birth')}
                 error={errors.date_of_birth}
             />
-            <FormField
+            <DropdownField
                 label="Gender"
-                placeholder="Select Gender"
-                value={formData.gender || ''}
-                onChangeText={(text) => setFormData({ ...formData, gender: text })}
+                options={genderOptions}
+                value={formData.gender || 'Female'}
+                onValueChange={(value: string) => setFormData({ ...formData, gender: value })}
                 error={errors.gender}
             />
-            <FormField
+            <DropdownField
                 label="Marital Status"
-                placeholder="Select Marital Status"
+                options={maritalStatusOptions}
                 value={formData.marital_status || ''}
-                onChangeText={(text) => setFormData({ ...formData, marital_status: text })}
+                onValueChange={(value: string) => setFormData({ ...formData, marital_status: value })}
                 error={errors.marital_status}
             />
             <FormField
@@ -143,11 +228,11 @@ const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData
                 onChangeText={(text) => setFormData({ ...formData, pan_number: text })}
                 error={errors.pan_number}
             />
-            <FormField
+            <DropdownField
                 label="Blood Group"
-                placeholder="Enter your blood group"
+                options={bloodGroupOptions}
                 value={formData.blood_group || ''}
-                onChangeText={(text) => setFormData({ ...formData, blood_group: text })}
+                onValueChange={(value: string) => setFormData({ ...formData, blood_group: value })}
                 error={errors.blood_group}
             />
 
@@ -214,11 +299,11 @@ const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData
             />
 
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 3: Academic/Employment Details</Text>
-            <FormField
+            <DropdownField
                 label="Education Level"
-                placeholder="Select education level"
+                options={educationLevelOptions}
                 value={formData.education_level || ''}
-                onChangeText={(text) => setFormData({ ...formData, education_level: text })}
+                onValueChange={(value: string) => setFormData({ ...formData, education_level: value })}
                 error={errors.education_level}
             />
             <FormField
@@ -242,11 +327,11 @@ const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData
                 onChangeText={(text) => setFormData({ ...formData, year_of_study: text })}
                 error={errors.year_of_study}
             />
-            <FormField
+            <DropdownField
                 label="Employment Status"
-                placeholder="Select employment status"
+                options={employmentStatusOptions}
                 value={formData.employment_status || ''}
-                onChangeText={(text) => setFormData({ ...formData, employment_status: text })}
+                onValueChange={(value: string) => setFormData({ ...formData, employment_status: value })}
                 error={errors.employment_status}
             />
             <FormField
@@ -313,8 +398,8 @@ const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData
 
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 5: Health Details</Text>
             <FormField
-                label="health_conditions (if any)"
-                placeholder="Enter health_conditions"
+                label="Health Conditions (if any)"
+                placeholder="Enter health conditions"
                 value={formData.health_conditions || ''}
                 onChangeText={(text) => setFormData({ ...formData, health_conditions: text })}
                 error={errors.health_conditions}
@@ -376,20 +461,20 @@ const GirlsHostelForm: React.FC<GirlsHostelFormProps> = ({ formData, setFormData
             />
 
             <Text className="text-lg font-semibold text-gray-700 mt-6 mb-3">Section 7: Declaration</Text>
-            <FormField
+            <DateField
                 label="Declaration Date"
-                placeholder="YYYY-MM-DD"
                 value={formData.declaration_date || ''}
-                onChangeText={(text) => setFormData({ ...formData, declaration_date: text })}
+                onPress={() => showDatePicker('declaration_date')}
                 error={errors.declaration_date}
             />
-            <FormField
+            <DropdownField
                 label="Declaration Signed"
-                placeholder="true/false"
+                options={booleanOptions}
                 value={formData.declaration_signed ? 'true' : 'false'}
-                onChangeText={(text) => setFormData({ ...formData, declaration_signed: text === 'true' })}
+                onValueChange={(value: string) => setFormData({ ...formData, declaration_signed: value === 'true' })}
                 error={errors.declaration_signed}
             />
+            {renderDatePickers()}
         </View>
     );
 };
