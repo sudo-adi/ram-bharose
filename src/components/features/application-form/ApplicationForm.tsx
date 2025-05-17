@@ -435,7 +435,7 @@ function LoanForm() {
       if (!formData.pan_number) newErrors.pan_number = "PAN Number";
 
       // Section 2: Course & Institution Details
-      if (!formData.course_or_designation) newErrors.course_or_designation = "Course Name";
+      if (!formData.course_name) newErrors.course_name = "Course Name";
       if (!formData.level_of_study) newErrors.level_of_study = "Level of Study";
       if (!formData.mode_of_study) newErrors.mode_of_study = "Mode of Study";
       if (!formData.course_duration) newErrors.course_duration = "Course Duration";
@@ -619,7 +619,7 @@ function LoanForm() {
       if (insertError || !insertedData) {
         console.error(`Error inserting ${activeLoanType} loan application:`, insertError);
         Alert.alert("Error", `Failed to submit loan application: ${insertError?.message || 'Unknown error'}`);
-        setFormData({});
+        // setFormData({});
         setLoading(false);
         return;
       }
@@ -679,7 +679,7 @@ function LoanForm() {
       }
 
       Alert.alert("Success", "Loan application submitted successfully!");
-      // setFormData({});
+      setFormData({});
       setErrors({});
       // Consider navigation or further UI updates here
 
