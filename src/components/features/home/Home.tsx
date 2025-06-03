@@ -139,7 +139,8 @@ export default function Home() {
 
   return (
     <View className="flex-1 bg-gray-50">
-      <StatusBar backgroundColor="#FF892E" />
+      <StatusBar barStyle="light-content" backgroundColor="#FF892E" />
+
 
       {/* Header Component */}
       <Header userName={userName} getGreeting={getGreeting} />
