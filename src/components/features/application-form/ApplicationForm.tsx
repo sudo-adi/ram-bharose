@@ -91,9 +91,83 @@ function EventForm() {
     duration: "",
     organizers: "",
     image: null,
+    category: "",
+    organizerType: ""
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [startTimeShow, setStartTimeShow] = useState(false);
+
+  // Dropdown options
+  const categoryOptions = ["Cultural", "Academic", "Sports", "Social", "Other"];
+  const organizerTypeOptions = ["Student Body", "Faculty", "Administration", "External"];
+
+  // Function to show date picker
+  const showDatePicker = () => {
+    setStartTimeShow(true);
+  };
+
+  // Handle date selection
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setStartTimeShow(false);
+    if (selectedDate) {
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      setFormData(prev => ({ ...prev, startTime: formattedDate }));
+    }
+  };
+
+  // Dropdown component
+  const DropdownField = ({ label, options, value, onValueChange, error }: any) => (
+    <View className="mb-4">
+      <Text className="text-gray-700 mb-1">{label}</Text>
+      <View className="border border-gray-300 rounded-md overflow-hidden">
+        <Picker
+          selectedValue={value}
+          onValueChange={(itemValue) => onValueChange(itemValue)}
+          style={{ height: 50, width: '100%' }}
+        >
+          <Picker.Item label="Select..." value="" />
+          {options.map((option: string) => (
+            <Picker.Item key={option} label={option} value={option} />
+          ))}
+        </Picker>
+      </View>
+      {error && <Text className="text-red-500 mt-1">{error}</Text>}
+    </View>
+  );
+
+  // Date Field Component
+  const DateField = ({ label, value, onPress, error }: any) => (
+    <View className="mb-4">
+      <Text className="text-gray-700 mb-1">{label}</Text>
+      <TouchableOpacity
+        onPress={onPress}
+        className="border border-gray-300 rounded-md p-3 flex-row justify-between items-center"
+      >
+        <Text className={value ? "text-black" : "text-gray-400"}>
+          {value || "YYYY-MM-DD"}
+        </Text>
+        <Text className="text-blue-500">📅</Text>
+      </TouchableOpacity>
+      {error && <Text className="text-red-500 mt-1">{error}</Text>}
+    </View>
+  );
+
+  // Render date pickers when needed
+  const renderDatePickers = () => {
+    return (
+      <>
+        {startTimeShow && (
+          <DateTimePicker
+            value={formData.startTime ? new Date(formData.startTime) : new Date()}
+            mode="date"
+            display="default"
+            onChange={onDateChange}
+          />
+        )}
+      </>
+    );
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -144,12 +218,6 @@ function EventForm() {
       if (success) {
         Alert.alert("Success", "Event submitted successfully");
         setFormData({
-          name: "",
-          description: "",
-          startTime: "",
-          duration: "",
-          organizers: "",
-          image: null,
         });
       } else {
         Alert.alert(
@@ -193,11 +261,11 @@ function EventForm() {
         onChangeText={(text) => setFormData({ ...formData, description: text })}
         error={errors.description}
       />
-      <FormField
+      {renderDatePickers()}
+      <DateField
         label="Start Time"
-        placeholder="YYYY-MM-DD HH:MM"
         value={formData.startTime}
-        onChangeText={(text) => setFormData({ ...formData, startTime: text })}
+        onPress={showDatePicker}
         error={errors.startTime}
       />
       <FormField
@@ -206,6 +274,20 @@ function EventForm() {
         value={formData.duration}
         onChangeText={(text) => setFormData({ ...formData, duration: text })}
         error={errors.duration}
+      />
+      <DropdownField
+        label="Event Category"
+        options={categoryOptions}
+        value={formData.category}
+        onValueChange={(value: string) => setFormData({ ...formData, category: value })}
+        error={errors.category}
+      />
+      <DropdownField
+        label="Organizer Type"
+        options={organizerTypeOptions}
+        value={formData.organizerType}
+        onValueChange={(value: string) => setFormData({ ...formData, organizerType: value })}
+        error={errors.organizerType}
       />
       <FormField
         label="Organizers"
@@ -265,9 +347,83 @@ function DonationForm() {
     cause: "",
     openTill: "",
     image: null,
+    donationType: "",
+    paymentMethod: ""
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [openTillShow, setOpenTillShow] = useState(false);
+
+  // Dropdown options
+  const donationTypeOptions = ["One-time", "Monthly", "Yearly", "Custom"];
+  const paymentMethodOptions = ["UPI", "Net Banking", "Credit Card", "Debit Card", "Cash"];
+
+  // Function to show date picker
+  const showDatePicker = () => {
+    setOpenTillShow(true);
+  };
+
+  // Handle date selection
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setOpenTillShow(false);
+    if (selectedDate) {
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      setFormData(prev => ({ ...prev, openTill: formattedDate }));
+    }
+  };
+
+  // Dropdown component
+  const DropdownField = ({ label, options, value, onValueChange, error }: any) => (
+    <View className="mb-4">
+      <Text className="text-gray-700 mb-1">{label}</Text>
+      <View className="border border-gray-300 rounded-md overflow-hidden">
+        <Picker
+          selectedValue={value}
+          onValueChange={(itemValue) => onValueChange(itemValue)}
+          style={{ height: 50, width: '100%' }}
+        >
+          <Picker.Item label="Select..." value="" />
+          {options.map((option: string) => (
+            <Picker.Item key={option} label={option} value={option} />
+          ))}
+        </Picker>
+      </View>
+      {error && <Text className="text-red-500 mt-1">{error}</Text>}
+    </View>
+  );
+
+  // Date Field Component
+  const DateField = ({ label, value, onPress, error }: any) => (
+    <View className="mb-4">
+      <Text className="text-gray-700 mb-1">{label}</Text>
+      <TouchableOpacity
+        onPress={onPress}
+        className="border border-gray-300 rounded-md p-3 flex-row justify-between items-center"
+      >
+        <Text className={value ? "text-black" : "text-gray-400"}>
+          {value || "YYYY-MM-DD"}
+        </Text>
+        <Text className="text-blue-500">📅</Text>
+      </TouchableOpacity>
+      {error && <Text className="text-red-500 mt-1">{error}</Text>}
+    </View>
+  );
+
+  // Render date pickers when needed
+  const renderDatePickers = () => {
+    return (
+      <>
+        {openTillShow && (
+          <DateTimePicker
+            value={formData.openTill ? new Date(formData.openTill) : new Date()}
+            mode="date"
+            display="default"
+            onChange={onDateChange}
+          />
+        )}
+      </>
+    );
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -375,12 +531,26 @@ function DonationForm() {
         onChangeText={(text) => setFormData({ ...formData, cause: text })}
         error={errors.cause}
       />
-      <FormField
+      {renderDatePickers()}
+      <DateField
         label="Open Till"
-        placeholder="YYYY-MM-DD"
         value={formData.openTill}
-        onChangeText={(text) => setFormData({ ...formData, openTill: text })}
+        onPress={showDatePicker}
         error={errors.openTill}
+      />
+      <DropdownField
+        label="Donation Type"
+        options={donationTypeOptions}
+        value={formData.donationType}
+        onValueChange={(value: string) => setFormData({ ...formData, donationType: value })}
+        error={errors.donationType}
+      />
+      <DropdownField
+        label="Payment Method"
+        options={paymentMethodOptions}
+        value={formData.paymentMethod}
+        onValueChange={(value: string) => setFormData({ ...formData, paymentMethod: value })}
+        error={errors.paymentMethod}
       />
 
       <TouchableOpacity
@@ -435,7 +605,7 @@ function LoanForm() {
       if (!formData.pan_number) newErrors.pan_number = "PAN Number";
 
       // Section 2: Course & Institution Details
-      if (!formData.course_name) newErrors.course_name = "Course Name";
+      if (!formData.course_or_designation) newErrors.course_or_designation = "Course Name";
       if (!formData.level_of_study) newErrors.level_of_study = "Level of Study";
       if (!formData.mode_of_study) newErrors.mode_of_study = "Mode of Study";
       if (!formData.course_duration) newErrors.course_duration = "Course Duration";
@@ -619,7 +789,7 @@ function LoanForm() {
       if (insertError || !insertedData) {
         console.error(`Error inserting ${activeLoanType} loan application:`, insertError);
         Alert.alert("Error", `Failed to submit loan application: ${insertError?.message || 'Unknown error'}`);
-        // setFormData({});
+        setFormData({});
         setLoading(false);
         return;
       }
@@ -679,7 +849,7 @@ function LoanForm() {
       }
 
       Alert.alert("Success", "Loan application submitted successfully!");
-      setFormData({});
+      // setFormData({});
       setErrors({});
       // Consider navigation or further UI updates here
 

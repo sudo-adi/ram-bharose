@@ -89,7 +89,7 @@ export default function ExploreContent() {
       id: 11,
       title: "Vasti Patrak",
       image: require("../../../../assets/vasti patrak.png"),
-      disabled: true,
+      disabled: false,
     },
     {
       id: 12,
@@ -160,6 +160,8 @@ export default function ExploreContent() {
                     router.push("/businesses");
                   } else if (category.title === "Shubh Chintak") {
                     router.push("/shubh-chintak");
+                  } else if (category.title === "Vasti Patrak") {
+                    router.push("/vasti-patrak");
                   }
                 }}
                 disabled={category.disabled}
