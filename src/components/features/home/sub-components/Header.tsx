@@ -226,7 +226,7 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
       </View>
 
       {/* Wide Search Bar */}
-      <View className="flex-row items-center mb-4">
+      {/* <View className="flex-row items-center mb-4">
         <View className="flex-1 bg-white/20 rounded-full flex-row items-center px-3 py-2">
           <Ionicons name="search-outline" size={18} color="white" />
           <TextInput
@@ -235,7 +235,7 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
             className="flex-1 ml-2 text-white"
           />
         </View>
-      </View>
+      </View> */}
 
       {/* Expandable Detailed Community Stats */}
       {showDetailedStats && (

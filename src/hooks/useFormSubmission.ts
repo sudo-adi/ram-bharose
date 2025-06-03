@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';// Assuming BusinessLoanApplicationData is defined in types.ts
 import { uploadImage } from '../../utils/storage';
-import VatsalyadhamForm from '@/components/features/application-form/VatsalyadhamForm';
 
 export const useFormSubmission = () => {
   const [loading, setLoading] = useState(false);

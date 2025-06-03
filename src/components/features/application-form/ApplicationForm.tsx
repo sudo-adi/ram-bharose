@@ -18,6 +18,8 @@ import MulundHostelForm from "./MulundHostelForm";
 import GirlsHostelForm from "./GirlsHostelForm";
 import VatsalyadhamForm from "./VatsalyadhamForm";
 import ImageUploadCard from "./ImageUploadCard"; // Import the new ImageUploadCard component
+import { Picker } from "@react-native-picker/picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function ApplicationForm() {
   const [activeTab, setActiveTab] = useState("event");
@@ -217,8 +219,7 @@ function EventForm() {
 
       if (success) {
         Alert.alert("Success", "Event submitted successfully");
-        setFormData({
-        });
+        setFormData({});
       } else {
         Alert.alert(
           "Error",
