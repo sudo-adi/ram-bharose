@@ -168,6 +168,8 @@ export default function ExploreContent() {
                     router.push("/shubh-chintak");
                   } else if (category.title === "Vasti Patrak") {
                     router.push("/vasti-patrak");
+                  } else if (category.title === "Family tree") {
+                    router.push("/family-tree");
                   }
                 }}
                 disabled={category.disabled}
