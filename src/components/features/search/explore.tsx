@@ -38,6 +38,12 @@ export default function ExploreContent() {
       disabled: true, // Disabled this option
     },
     {
+      id: 13,
+      title: "Family tree",
+      image: require("../../../../assets/family-tree.png"),
+      disabled: false,
+    },
+    {
       id: 3,
       title: "Birthdays",
       image: require("../../../../assets/birthday.png"),

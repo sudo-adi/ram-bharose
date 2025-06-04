@@ -227,7 +227,7 @@ export default function Committees() {
       {/* Header */}
       <View className="px-4 pt-4 pb-2">
         {/* iPhone-style Search Bar */}
-        <View className="bg-orange-100/40 rounded-xl flex-row items-center px-3 py-2 border border-black/20">
+        <View className=" rounded-xl flex-row items-center px-3 py-2 border border-black/20">
           <Ionicons name="search" size={18} color="#000000" />
           <TextInput
             placeholder="Search committees..."
@@ -260,11 +260,11 @@ export default function Committees() {
               className="bg-white rounded-xl overflow-hidden shadow-md mb-4"
               onPress={() => handleCommitteePress(committee)}
             >
-              <Image
+              {/* <Image
                 source={{ uri: committee.image }}
                 className="w-full h-40 rounded-t-xl"
                 resizeMode="cover"
-              />
+              /> */}
               <View className="p-4">
                 <Text className="text-lg font-bold text-orange-800">
                   {committee.name}

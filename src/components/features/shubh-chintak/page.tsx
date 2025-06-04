@@ -1,5 +1,3 @@
-// Updated ShubhChintak Component with console logs
-import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,6 +11,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Linking } from "react-native";
 import { useShubhChintak } from "@/hooks";
+
+import { useEffect, useState } from "react";
+import React from "react";
 
 const ShubhChintak = () => {
   const [searchQuery, setSearchQuery] = useState("");
