@@ -219,7 +219,17 @@ function EventForm() {
 
       if (success) {
         Alert.alert("Success", "Event submitted successfully");
-        setFormData({});
+        setFormData({
+          name: "",
+          description: "",
+          startTime: "",
+          duration: "",
+          organizers: "",
+          image: null,
+          category: "",
+          organizerType: ""
+        }
+        );
       } else {
         Alert.alert(
           "Error",
@@ -478,6 +488,8 @@ function DonationForm() {
           cause: "",
           openTill: "",
           image: null,
+          donationType: "",
+          paymentMethod: ""
         });
       } else {
         Alert.alert(

@@ -8,6 +8,7 @@ import {
   Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 interface FamilyTreeItem {
   name: string;
@@ -29,7 +30,7 @@ const FamilyTreeSection: React.FC<FamilyTreeSectionProps> = ({
         <Text className="text-2xl font-bold text-gray-800">
           Explore Your Family
         </Text>
-        <TouchableOpacity className="flex-row items-center">
+        <TouchableOpacity className="flex-row items-center" onPress={() => router.push("/family-tree")}>
           <Text className="text-orange-500 mr-2 font-semibold">See All</Text>
           <Ionicons name="chevron-forward" size={20} color="#f97316" />
         </TouchableOpacity>
@@ -61,7 +62,7 @@ const FamilyTreeSection: React.FC<FamilyTreeSectionProps> = ({
               <Text className="text-lg font-semibold text-gray-800 mb-1">
                 {item.name}
               </Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 className="flex-row items-center mt-2"
                 onPress={() => Linking.openURL(item.link)}
               >
