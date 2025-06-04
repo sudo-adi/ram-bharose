@@ -115,6 +115,28 @@ const BusinessSection = ({ title, onViewAll }: BusinessSectionProps) => {
     );
   }
 
+  if (!businesses || businesses.length === 0) {
+    return (
+      <View className="mb-8">
+        <View className="flex-row justify-between items-center px-5 mb-4">
+          <Text className="text-lg font-bold text-gray-800">
+            Nari Sahas
+          </Text>
+          <TouchableOpacity>
+            <Text className="text-orange-500 text-sm font-medium">
+              View All
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View className="px-5 py-8 items-center">
+          <Text className="text-gray-500">
+            No Businesses available at the moment
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View className="mb-6">
       <View className="flex-row justify-between items-center px-5 mb-3">
@@ -241,11 +263,10 @@ const BusinessSection = ({ title, onViewAll }: BusinessSectionProps) => {
                         {selectedBusiness.images.map((_, index) => (
                           <View
                             key={index}
-                            className={`w-2 h-2 rounded-full mx-1 ${
-                              index === currentImageIndex
-                                ? "bg-white"
-                                : "bg-white/50"
-                            }`}
+                            className={`w-2 h-2 rounded-full mx-1 ${index === currentImageIndex
+                              ? "bg-white"
+                              : "bg-white/50"
+                              }`}
                           />
                         ))}
                       </View>

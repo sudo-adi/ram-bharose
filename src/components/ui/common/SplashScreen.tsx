@@ -16,6 +16,11 @@ export default function SplashScreen() {
           className="w-64 h-64"
           resizeMode="contain"
         />
+        <Text className="text-purple-500 text-4xl font-bold p-4">KMS Connect</Text>
+        <Text className="text-black-500 text-xl font-bold p-4">Managed by</Text>
+        <Text className="text-center text-black-500 text-2xl font-bold p-4">
+          Shri Kutchi Maheshwari Madhyastha Mahajan Samiti
+        </Text>
       </View>
 
       <View className="items-center pb-6">

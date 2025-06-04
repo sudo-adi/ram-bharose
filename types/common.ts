@@ -33,5 +33,5 @@ export interface Article {
   body: string;
   image: string;
   created_at: string;
-  userName: string;
+  // userName: string;
 }

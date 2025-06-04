@@ -9,9 +9,11 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Article } from "types";
+
 
 type ArticleModalProps = {
-  article: any;
+  article: Article | null;
   visible: boolean;
   onClose: () => void;
   formatDate: (dateString: string) => string;
@@ -55,40 +57,29 @@ const ArticleModal = ({
               <View className="flex-row justify-between items-center mb-4">
                 <View className="flex-row items-center">
                   <View className="w-8 h-8 bg-gray-200 rounded-full mr-2" />
-                  <Text className="text-gray-700">{article.userName}</Text>
+                  {/* <Text className="text-gray-700">{article}</Text> */}
                 </View>
                 <Text className="text-gray-500 text-sm">
                   {formatDate(article.created_at)}
                 </Text>
               </View>
 
-              {/* Main Image */}
-              <Image
-                source={{ uri: article.image }}
-                className="w-full h-56 rounded-xl mb-4"
-                resizeMode="cover"
-              />
+              {/* Main Image - Only render if exists */}
+              {article.image && (
+                <Image
+                  source={{ uri: article.image }}
+                  className="w-full h-56 rounded-xl mb-4"
+                  resizeMode="contain"
+                  onError={(error) => {
+                    console.log("Image load error:", error.nativeEvent.error);
+                  }}
+                />
+              )}
 
               {/* Article Text */}
               <Text className="text-gray-800 leading-6 mb-6">
                 {article.body}
               </Text>
-
-              {/* Share and Bookmark */}
-              <View className="flex-row justify-between mt-4 pt-4 border-t border-gray-100">
-                <TouchableOpacity className="flex-row items-center">
-                  <Ionicons
-                    name="share-social-outline"
-                    size={20}
-                    color="#666"
-                  />
-                  <Text className="text-gray-700 ml-2">Share</Text>
-                </TouchableOpacity>
-                <TouchableOpacity className="flex-row items-center">
-                  <Ionicons name="bookmark-outline" size={20} color="#666" />
-                  <Text className="text-gray-700 ml-2">Save</Text>
-                </TouchableOpacity>
-              </View>
             </View>
           </ScrollView>
         </View>
