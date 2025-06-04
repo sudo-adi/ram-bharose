@@ -174,7 +174,7 @@ export default function Home() {
         />
 
         {/* Community Support Component */}
-        <CommunitySupportSection onViewAll={() => router.push("/donations")} />
+        {/* <CommunitySupportSection onViewAll={() => router.push("/donations")} /> */}
 
         {/* News Section Component */}
         <NewsSection
@@ -183,6 +183,19 @@ export default function Home() {
           onArticlePress={handleArticlePress}
           onViewAll={() => router.push("/news")}
         />
+
+        {/* making footer*/}
+        <View className="bg-transparent p-4">
+          <Text className="text-gray-500 text-5xl font-bold flex-wrap flex">
+            Jai Shree
+          </Text>
+          <Text className="text-gray-500 text-6xl font-bold flex-wrap flex">
+            Krishna
+          </Text>
+          <Text className="text-gray-500 text-md mr-20">
+            Designed and Developed with ❤ by Parth, Piyush, Gagdani (Team FullStack, Thane)
+          </Text>
+        </View>
       </ScrollView>
 
       {/* Birthday Wish Modal Component */}

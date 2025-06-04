@@ -21,88 +21,7 @@ export default function DonationsContent() {
   const [selectedAmount, setSelectedAmount] = useState("");
 
   const donations = [
-    {
-      id: 1,
-      title: "Education for Rural Children",
-      description:
-        "Help provide education to underprivileged children in rural areas",
-      image:
-        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=500",
-      additionalInfo:
-        "This initiative focuses on providing basic education facilities.",
-      organization: "Global Learning Foundation",
-      impact: "Support 500 children's education",
-      donationOptions: [
-        {
-          amount: "₹10",
-          description: "Provides school supplies for one child",
-        },
-        { amount: "₹25", description: "Covers monthly learning materials" },
-        { amount: "₹50", description: "Supports full scholarship for a month" },
-      ],
-    },
-    {
-      id: 2,
-      title: "Animal Shelter Support",
-      description:
-        "Support our local animal shelter with food and medical supplies",
-      image:
-        "https://images.unsplash.com/photo-1504595403659-9088ce801e29?w=500",
-      additionalInfo: "Your donation helps feed and care for rescued animals.",
-      organization: "Paws & Claws Rescue",
-      impact: "Care for 100 rescued animals",
-      donationOptions: [
-        { amount: "₹15", description: "Feeds 10 animals for a week" },
-        { amount: "₹30", description: "Provides medical treatment" },
-        { amount: "₹75", description: "Sponsors animal care for a month" },
-      ],
-    },
-    {
-      id: 3,
-      title: "Clean Water Initiative",
-      description: "Bring clean drinking water to drought-affected communities",
-      image:
-        "https://images.unsplash.com/photo-1702237231275-d7c87c1815f7?w=500",
-      additionalInfo:
-        "This project aims to install water purification systems.",
-      organization: "WaterHope International",
-      impact: "Provide water to 5,000 people",
-      donationOptions: [
-        { amount: "₹20", description: "Provides water for 10 people" },
-        { amount: "₹50", description: "Supplies water filters" },
-        { amount: "₹100", description: "Supports community water project" },
-      ],
-    },
-    {
-      id: 4,
-      title: "Healthcare for All",
-      description: "Provide essential healthcare services to remote areas",
-      image:
-        "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=500",
-      additionalInfo: "Your support funds mobile clinics and medical camps.",
-      organization: "Global Health Outreach",
-      impact: "Medical aid for 2,000 individuals",
-      donationOptions: [
-        { amount: "₹25", description: "Provides basic medical supplies" },
-        { amount: "₹60", description: "Covers medical consultation" },
-        { amount: "₹150", description: "Supports full medical camp" },
-      ],
-    },
-    {
-      id: 5,
-      title: "Tree Plantation Drive",
-      description: "Plant trees to combat climate change and deforestation",
-      image:
-        "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=500",
-      additionalInfo: "Join us in planting a million trees this year.",
-      organization: "Green Earth Initiative",
-      impact: "Plant 10,000 trees",
-      donationOptions: [
-        { amount: "₹5", description: "Plants 2 trees" },
-        { amount: "₹25", description: "Plants 10 trees" },
-        { amount: "₹50", description: "Plants 25 trees" },
-      ],
-    },
+
   ];
 
   // Render donation card
@@ -153,7 +72,13 @@ export default function DonationsContent() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 100 }}
           >
-            {donations.map(renderDonationCard)}
+            {donations.length > 0 ? (
+              donations.map(renderDonationCard)
+            ) : (
+              <Text className="text-gray-800 text-2xl text-center mt-8">
+                No Donations are Available as of now.
+              </Text>
+            )}
           </ScrollView>
         );
       case "my":
@@ -309,10 +234,9 @@ export default function DonationsContent() {
 
       {/* Tab Bar */}
       <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex-row justify-around items-center h-16 px-2">
-        <TouchableOpacity
-          className={`flex-1 items-center justify-center h-full ${
-            activeTab === "make" ? "border-t-2 border-orange-500" : ""
-          }`}
+        {/* <TouchableOpacity
+          className={`flex-1 items-center justify-center h-full ${activeTab === "make" ? "border-t-2 border-orange-500" : ""
+            }`}
           onPress={() => setActiveTab("make")}
         >
           <Ionicons
@@ -321,15 +245,14 @@ export default function DonationsContent() {
             color={activeTab === "make" ? "#f97316" : "#9ca3af"}
           />
           <Text
-            className={`text-xs mt-1 ${
-              activeTab === "make"
-                ? "text-orange-500 font-medium"
-                : "text-gray-500"
-            }`}
+            className={`text-xs mt-1 ${activeTab === "make"
+              ? "text-orange-500 font-medium"
+              : "text-gray-500"
+              }`}
           >
             Donate
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* <TouchableOpacity
           className={`flex-1 items-center justify-center h-full ${
