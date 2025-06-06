@@ -4,7 +4,14 @@ import { Tabs } from "expo-router";
 import SplashScreen from "@/components/ui/common/SplashScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { Keyboard, Platform, KeyboardEvent } from "react-native";
+import {
+  Keyboard,
+  Platform,
+  KeyboardEvent,
+  View,
+  ActivityIndicator,
+} from "react-native";
+import SplashScreen2 from "@/components/ui/common/SplashScreen2";
 
 export default function TabLayout() {
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +47,17 @@ export default function TabLayout() {
   }, []);
 
   if (isLoading) {
-    return <SplashScreen />;
+    return (
+      <View className="flex-1 bg-white justify-center items-center">
+        <ActivityIndicator
+          size="large"
+          color="#f97316"
+          className="text-orange-500"
+        />
+        {/* Optional: Add your logo or branding */}
+        {/* <Image source={require('@/assets/logo.png')} className="w-32 h-32 mt-4" /> */}
+      </View>
+    );
   }
 
   return (

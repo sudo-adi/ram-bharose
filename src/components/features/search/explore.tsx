@@ -35,7 +35,7 @@ export default function ExploreContent() {
       id: 2,
       title: "My Family Profile",
       image: require("../../../../assets/family.png"),
-      disabled: true, // Disabled this option
+      disabled: false, // Disabled this option
     },
     {
       id: 13,
@@ -86,17 +86,18 @@ export default function ExploreContent() {
       disabled: false,
     },
     {
-      id: 10,
-      title: "Matrimonial",
-      image: require("../../../../assets/matrimonial.png"),
-      disabled: true,
-    },
-    {
       id: 11,
       title: "Vasti Patrak",
       image: require("../../../../assets/vasti patrak.png"),
       disabled: false,
     },
+    {
+      id: 10,
+      title: "Matrimonial",
+      image: require("../../../../assets/matrimonial.png"),
+      disabled: true,
+    },
+
     {
       id: 12,
       title: "Temporary Members",

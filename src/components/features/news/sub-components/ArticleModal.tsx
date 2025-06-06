@@ -1,3 +1,4 @@
+// components/sub-components/ArticleModal.tsx - Updated to use header_image_url
 import React from "react";
 import {
   View,
@@ -10,7 +11,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Article } from "types";
-
 
 type ArticleModalProps = {
   article: Article | null;
@@ -55,29 +55,27 @@ const ArticleModal = ({
               </Text>
 
               <View className="flex-row justify-between items-center mb-4">
-                <View className="flex-row items-center">
-                  <View className="w-8 h-8 bg-gray-200 rounded-full mr-2" />
-                  {/* <Text className="text-gray-700">{article}</Text> */}
-                </View>
                 <Text className="text-gray-500 text-sm">
                   {formatDate(article.created_at)}
                 </Text>
               </View>
 
               {/* Main Image - Only render if exists */}
-              {article.image && (
-                <Image
-                  source={{ uri: article.image }}
-                  className="w-full h-56 rounded-xl mb-4"
-                  resizeMode="contain"
-                  onError={(error) => {
-                    console.log("Image load error:", error.nativeEvent.error);
-                  }}
-                />
+              {article.header_image_url && (
+                <View className="mb-4">
+                  <Image
+                    source={{ uri: article.header_image_url }}
+                    className="w-full h-56 rounded-xl"
+                    resizeMode="contain"
+                    onError={(error) => {
+                      console.log("Image load error:", error.nativeEvent.error);
+                    }}
+                  />
+                </View>
               )}
 
               {/* Article Text */}
-              <Text className="text-gray-800 leading-6 mb-6">
+              <Text className="text-gray-800 leading-6 mb-6 text-base">
                 {article.body}
               </Text>
             </View>

@@ -1,9 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, Image, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, RefreshControl, Modal, Dimensions, Linking, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  ActivityIndicator,
+  RefreshControl,
+  Modal,
+  Dimensions,
+  Linking,
+  StyleSheet,
+} from "react-native";
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get("window");
 import { useFamilies } from "../../../hooks/useSupabase";
-import { handleCall, handleEmail, handleWhatsApp } from "../businessess/sub-componenets/contactUtils";
+import {
+  handleCall,
+  handleEmail,
+  handleWhatsApp,
+} from "../businessess/sub-componenets/contactUtils";
 
 const FamilyDetailsModal = ({ visible, family, onClose }) => {
   if (!family) return null;
@@ -15,13 +32,18 @@ const FamilyDetailsModal = ({ visible, family, onClose }) => {
       visible={visible}
       onRequestClose={onClose}
     >
-      <TouchableOpacity
-        style={styles.modalOverlay}
-        activeOpacity={1}
-        onPress={onClose}
-      >
+      <View style={styles.modalOverlay}>
+        <TouchableOpacity
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={onClose}
+        />
         <View style={styles.modalContent}>
-          <ScrollView>
+          <ScrollView
+            style={styles.modalScrollView}
+            showsVerticalScrollIndicator={true}
+            bounces={true}
+          >
             <View style={styles.modalHeader}>
               <Image
                 source={{ uri: family.coverImage }}
@@ -29,7 +51,9 @@ const FamilyDetailsModal = ({ visible, family, onClose }) => {
               />
               <View style={styles.modalHeaderContent}>
                 <Text style={styles.modalTitle}>{family.name}</Text>
-                <Text style={styles.modalSubtitle}>{family.totalMembers} family members</Text>
+                <Text style={styles.modalSubtitle}>
+                  {family.totalMembers} family members
+                </Text>
               </View>
             </View>
 
@@ -46,31 +70,43 @@ const FamilyDetailsModal = ({ visible, family, onClose }) => {
               <Text style={styles.sectionTitle}>Family Members</Text>
               {family.members?.map((member) => (
                 <View key={member.uuid} style={styles.memberCard}>
-                  <Image
-                    source={{ uri: member.profile_pic }}
-                    style={styles.memberImage}
-                  />
-                  <View style={styles.memberInfo}>
-                    <Text style={styles.memberName}>
-                      {member.name} {member.surname}
-                    </Text>
-                    {member.relationship && (
-                      <Text style={styles.memberRelation}>{member.relationship}</Text>
-                    )}
-                    {member.occupation && (
-                      <Text style={styles.memberDetail}>{member.occupation}</Text>
-                    )}
-                    {member.date_of_birth && (
-                      <Text style={styles.memberDetail}>DOB: {member.date_of_birth}</Text>
-                    )}
-                    {member.blood_group && (
-                      <Text style={styles.memberDetail}>Blood Group: {member.blood_group}</Text>
-                    )}
-                    {(member.education || member.qualification) && (
-                      <Text style={styles.memberDetail}>
-                        {[member.education, member.qualification].filter(Boolean).join(" - ")}
+                  <View style={styles.memberRow}>
+                    <Image
+                      source={{ uri: member.profile_pic }}
+                      style={styles.memberImage}
+                    />
+                    <View style={styles.memberInfo}>
+                      <Text style={styles.memberName}>
+                        {member.name} {member.surname}
                       </Text>
-                    )}
+                      {member.relationship && (
+                        <Text style={styles.memberRelation}>
+                          {member.relationship}
+                        </Text>
+                      )}
+                      {member.occupation && (
+                        <Text style={styles.memberDetail}>
+                          {member.occupation}
+                        </Text>
+                      )}
+                      {member.date_of_birth && (
+                        <Text style={styles.memberDetail}>
+                          DOB: {member.date_of_birth}
+                        </Text>
+                      )}
+                      {member.blood_group && (
+                        <Text style={styles.memberDetail}>
+                          Blood Group: {member.blood_group}
+                        </Text>
+                      )}
+                      {(member.education || member.qualification) && (
+                        <Text style={styles.memberDetail}>
+                          {[member.education, member.qualification]
+                            .filter(Boolean)
+                            .join(" - ")}
+                        </Text>
+                      )}
+                    </View>
                   </View>
                   <View style={styles.memberActions}>
                     {member.mobile_no1 && (
@@ -102,8 +138,13 @@ const FamilyDetailsModal = ({ visible, family, onClose }) => {
               ))}
             </View>
           </ScrollView>
+
+          {/* Close Button */}
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     </Modal>
   );
 };
@@ -140,18 +181,18 @@ const VastiPatrak = () => {
     setModalVisible(true);
   };
 
-  const handleCall = (phoneNumber) => {
-    Linking.openURL(`tel:${phoneNumber}`);
-  };
+  // const handleCall = (phoneNumber) => {
+  //   Linking.openURL(`tel:${phoneNumber}`);
+  // };
 
-  const handleWhatsApp = (phoneNumber) => {
-    const formattedNumber = phoneNumber.replace(/\D/g, "");
-    Linking.openURL(`https://wa.me/${formattedNumber}`);
-  };
+  // const handleWhatsApp = (phoneNumber) => {
+  //   const formattedNumber = phoneNumber.replace(/\D/g, "");
+  //   Linking.openURL(`https://wa.me/${formattedNumber}`);
+  // };
 
-  const handleEmail = (email) => {
-    Linking.openURL(`mailto:${email}`);
-  };
+  // const handleEmail = (email) => {
+  //   Linking.openURL(`mailto:${email}`);
+  // };
 
   if (familiesLoading) {
     return (
@@ -165,7 +206,9 @@ const VastiPatrak = () => {
   if (familiesError) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{familiesError?.message || "Error loading families"}</Text>
+        <Text style={styles.errorText}>
+          {familiesError?.message || "Error loading families"}
+        </Text>
         <TouchableOpacity style={styles.retryButton} onPress={refetchFamilies}>
           <Text style={styles.retryButtonText}>Try Again</Text>
         </TouchableOpacity>
@@ -181,13 +224,18 @@ const VastiPatrak = () => {
     <ScrollView
       style={styles.container}
       refreshControl={
-        <RefreshControl refreshing={familiesLoading} onRefresh={refetchFamilies} />
+        <RefreshControl
+          refreshing={familiesLoading}
+          onRefresh={refetchFamilies}
+        />
       }
     >
       <View style={styles.header}>
         <View>
           <Text style={styles.title}>Families</Text>
-          <Text style={styles.subtitle}>Explore our community families and their members</Text>
+          <Text style={styles.subtitle}>
+            Explore our community families and their members
+          </Text>
         </View>
       </View>
 
@@ -211,14 +259,18 @@ const VastiPatrak = () => {
               <Image
                 source={{ uri: family.coverImage }}
                 style={styles.familyCover}
-              // defaultSource={require("../../../../assets/default-cover.png")}
+                // defaultSource={require("../../../../assets/default-cover.png")}
               />
               <View style={styles.familyInfo}>
                 <Text style={styles.familyName}>{family.name}</Text>
                 <Text style={styles.familyHead}>{family.headName}</Text>
-                <Text style={styles.memberCount}>{family.totalMembers} members</Text>
+                <Text style={styles.memberCount}>
+                  {family.totalMembers} members
+                </Text>
                 {family.city && (
-                  <Text style={styles.location}>{family.city}, {family.state}</Text>
+                  <Text style={styles.location}>
+                    {family.city}, {family.state}
+                  </Text>
                 )}
               </View>
             </TouchableOpacity>
@@ -227,7 +279,9 @@ const VastiPatrak = () => {
       ) : (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyTitle}>
-            {searchQuery ? "No families match your search" : "No families available"}
+            {searchQuery
+              ? "No families match your search"
+              : "No families available"}
           </Text>
           <Text style={styles.emptySubtitle}>
             {searchQuery
@@ -239,24 +293,39 @@ const VastiPatrak = () => {
       {families.length > 0 && totalPages > 1 && (
         <View style={styles.paginationContainer}>
           <TouchableOpacity
-            style={[styles.pageButton, currentPage === 1 && styles.pageButtonDisabled]}
+            style={[
+              styles.pageButton,
+              currentPage === 1 && styles.pageButtonDisabled,
+            ]}
             onPress={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
             disabled={currentPage === 1}
           >
-            <Text style={[styles.pageButtonText, currentPage === 1 && styles.pageButtonTextDisabled]}>Previous</Text>
+            <Text
+              style={[
+                styles.pageButtonText,
+                currentPage === 1 && styles.pageButtonTextDisabled,
+              ]}
+            >
+              Previous
+            </Text>
           </TouchableOpacity>
 
           <View style={styles.pageNumbers}>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-              const showPage = page === 1 ||
+              const showPage =
+                page === 1 ||
                 page === totalPages ||
                 (page >= currentPage - 1 && page <= currentPage + 1);
 
               if (!showPage) {
-                if ((page === currentPage - 2 && currentPage > 3) ||
-                  (page === currentPage + 2 && currentPage < totalPages - 2)) {
+                if (
+                  (page === currentPage - 2 && currentPage > 3) ||
+                  (page === currentPage + 2 && currentPage < totalPages - 2)
+                ) {
                   return (
-                    <Text key={`ellipsis-${page}`} style={styles.pageEllipsis}>...</Text>
+                    <Text key={`ellipsis-${page}`} style={styles.pageEllipsis}>
+                      ...
+                    </Text>
                   );
                 }
                 return null;
@@ -265,11 +334,17 @@ const VastiPatrak = () => {
               return (
                 <TouchableOpacity
                   key={page}
-                  style={[styles.pageNumberButton, page === currentPage && styles.pageNumberButtonActive]}
+                  style={[
+                    styles.pageNumberButton,
+                    page === currentPage && styles.pageNumberButtonActive,
+                  ]}
                   onPress={() => setCurrentPage(page)}
                 >
                   <Text
-                    style={[styles.pageNumberText, page === currentPage && styles.pageNumberTextActive]}
+                    style={[
+                      styles.pageNumberText,
+                      page === currentPage && styles.pageNumberTextActive,
+                    ]}
                   >
                     {page}
                   </Text>
@@ -279,11 +354,23 @@ const VastiPatrak = () => {
           </View>
 
           <TouchableOpacity
-            style={[styles.pageButton, currentPage >= totalPages && styles.pageButtonDisabled]}
-            onPress={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+            style={[
+              styles.pageButton,
+              currentPage >= totalPages && styles.pageButtonDisabled,
+            ]}
+            onPress={() =>
+              currentPage < totalPages && setCurrentPage(currentPage + 1)
+            }
             disabled={currentPage >= totalPages}
           >
-            <Text style={[styles.pageButtonText, currentPage >= totalPages && styles.pageButtonTextDisabled]}>Next</Text>
+            <Text
+              style={[
+                styles.pageButtonText,
+                currentPage >= totalPages && styles.pageButtonTextDisabled,
+              ]}
+            >
+              Next
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -299,69 +386,85 @@ const VastiPatrak = () => {
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
+  },
+  modalBackdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: height * 0.9,
-    minHeight: height * 0.5,
+    maxHeight: height,
+    minHeight: height * 0.9,
+    flex: 0,
+  },
+  modalScrollView: {
+    flex: 1,
   },
   modalHeader: {
-    position: 'relative',
+    position: "relative",
   },
   modalCoverImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
   modalHeaderContent: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: "bold",
+    color: "white",
   },
   modalSubtitle: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: "rgba(255, 255, 255, 0.9)",
     marginTop: 4,
   },
   modalBody: {
     padding: 16,
+    paddingBottom: 80, // Add padding to account for close button
   },
   infoSection: {
     marginBottom: 16,
   },
   infoLabel: {
     fontSize: 14,
-    color: '#6b7280',
+    color: "#6b7280",
     marginBottom: 4,
   },
   infoText: {
     fontSize: 16,
-    color: '#1f2937',
+    color: "#1f2937",
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1f2937',
+    fontWeight: "600",
+    color: "#1f2937",
     marginBottom: 16,
   },
   memberCard: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: "#f9fafb",
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
+  },
+  memberRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
   },
   memberImage: {
     width: 60,
@@ -374,44 +477,59 @@ const styles = StyleSheet.create({
   },
   memberName: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1f2937',
+    fontWeight: "600",
+    color: "#1f2937",
   },
   memberRelation: {
     fontSize: 14,
-    color: '#f97316',
+    color: "#f97316",
     marginTop: 2,
   },
   memberDetail: {
     fontSize: 14,
-    color: '#6b7280',
+    color: "#6b7280",
     marginTop: 2,
   },
   memberActions: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 12,
     gap: 8,
+    flexWrap: "wrap",
   },
   actionButton: {
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   actionButtonText: {
     fontSize: 12,
-    color: 'white',
-    fontWeight: '500',
+    color: "white",
+    fontWeight: "500",
   },
   callButton: {
-    backgroundColor: '#f97316',
+    backgroundColor: "#f97316",
   },
   whatsappButton: {
-    backgroundColor: '#25D366',
+    backgroundColor: "#25D366",
   },
   emailButton: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: "#3b82f6",
+  },
+  closeButton: {
+    backgroundColor: "#f97316",
+    marginHorizontal: 16,
+    marginVertical: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
   },
   container: {
     flex: 1,
@@ -529,9 +647,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   paginationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 20,
     paddingHorizontal: 16,
   },
@@ -539,48 +657,48 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 6,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: "#f3f4f6",
   },
   pageButtonDisabled: {
-    backgroundColor: '#e5e7eb',
+    backgroundColor: "#e5e7eb",
   },
   pageButtonText: {
     fontSize: 14,
-    color: '#4b5563',
-    fontWeight: '500',
+    color: "#4b5563",
+    fontWeight: "500",
   },
   pageButtonTextDisabled: {
-    color: '#9ca3af',
+    color: "#9ca3af",
   },
   pageNumbers: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginHorizontal: 8,
   },
   pageNumberButton: {
     minWidth: 32,
     height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginHorizontal: 2,
     borderRadius: 6,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: "#f3f4f6",
   },
   pageNumberButtonActive: {
-    backgroundColor: '#f97316',
+    backgroundColor: "#f97316",
   },
   pageNumberText: {
     fontSize: 14,
-    color: '#4b5563',
-    fontWeight: '500',
+    color: "#4b5563",
+    fontWeight: "500",
   },
   pageNumberTextActive: {
-    color: '#ffffff',
+    color: "#ffffff",
   },
   pageEllipsis: {
     marginHorizontal: 4,
     fontSize: 14,
-    color: '#6b7280',
+    color: "#6b7280",
   },
 });
 

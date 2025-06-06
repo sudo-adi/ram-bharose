@@ -1,3 +1,4 @@
+// components/sub-components/NewsCard.tsx - Updated to use header_image_url
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { Article } from "types";
@@ -15,16 +16,18 @@ const NewsCard = ({ article, onPress, formatDate }: NewsCardProps) => {
       className="mb-6 bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm"
       onPress={() => onPress(article)}
     >
-      {/* Only render image if header_image_url exists */}
-      {article.image && (
-        <Image
-          source={{ uri: article.image }}
-          className="w-full h-48"
-          resizeMode="contain"
-          onError={(error) => {
-            console.log("Image load error:", error.nativeEvent.error);
-          }}
-        />
+      {/* Render image if header_image_url exists */}
+      {article.header_image_url && (
+        <View className="h-48 w-full">
+          <Image
+            source={{ uri: article.header_image_url }}
+            className="w-full h-full"
+            resizeMode="contain"
+            onError={(error) => {
+              console.log("Image load error:", error.nativeEvent.error);
+            }}
+          />
+        </View>
       )}
 
       <View className="p-4">
@@ -41,10 +44,6 @@ const NewsCard = ({ article, onPress, formatDate }: NewsCardProps) => {
         <Text className="text-gray-600 mb-3" numberOfLines={2}>
           {article.body}
         </Text>
-
-        <View className="flex-row items-center">
-          <View className="w-6 h-6 bg-gray-200 rounded-full mr-2" />
-        </View>
       </View>
     </TouchableOpacity>
   );

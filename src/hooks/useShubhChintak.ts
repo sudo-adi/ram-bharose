@@ -1,3 +1,4 @@
+// Updated Hook - useShubhChintak.js
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import { ShubhChintak, UseQueryResult } from '../../types';
@@ -13,7 +14,7 @@ export const useShubhChintak = (limit?: number) => {
         try {
             setResult(prev => ({ ...prev, loading: true }));
 
-            // 1. Fetch magazine data from the table
+            // Fetch magazine data from the table with updated schema
             let query = supabase
                 .from('shubh_chintak')
                 .select('*')
@@ -36,26 +37,16 @@ export const useShubhChintak = (limit?: number) => {
                 return;
             }
 
-            // 2. Get cover image URLs from storage
-            const magazinesWithImages = await Promise.all(
-                magazines.map(async (magazine) => {
-                    if (magazine.cover_image_name) {
-                        const { data: { publicUrl } } = supabase
-                            .storage
-                            .from('shubh-chintak')
-                            .getPublicUrl(`magzine-cover/${magazine.cover_image_name}.png`);
-
-                        return {
-                            ...magazine,
-                            cover_image_url: publicUrl
-                        };
-                    }
-                    return magazine;
-                })
-            );
+            // Map the data to match the expected format
+            const formattedMagazines = magazines.map((magazine) => ({
+                ...magazine,
+                title: magazine.name, // Map 'name' to 'title' for component compatibility
+                file_url: magazine.link, // Map 'link' to 'file_url' for component compatibility
+                cover_image_url: magazine.cover_image_link // Use direct link instead of storage URL
+            }));
 
             setResult({
-                data: magazinesWithImages,
+                data: formattedMagazines,
                 error: null,
                 loading: false,
             });

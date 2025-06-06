@@ -52,9 +52,9 @@ export default function ProfileContent() {
 
           // Fetch cover image URL from Supabase storage
           let coverPicUrl =
-            "https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=1000"; // Default placeholder
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZTJHXrWPaD9N6czL20wVyIsRUMDl7RZHdLVt6zMqWbnb-43zT1MP2O3dz2HNeVOKcgv8&usqp=CAU"; // Default placeholder
           let profilePicUrl =
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500"; // Default placeholder
+            "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"; // Default placeholder
 
           if (profile.profile_pic) {
             const { data: profileImageData } = await supabase.storage
@@ -113,7 +113,7 @@ export default function ProfileContent() {
                       .from("profile-pictures")
                       .getPublicUrl(member.profile_pic).data?.publicUrl
                   : null) ||
-                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
+                "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg",
             }))
           );
         }

@@ -2,24 +2,41 @@ import { Stack, useRouter, usePathname } from "expo-router";
 import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import SplashScreen from "@/components/ui/common/SplashScreen";
+import SplashScreen2 from "@/components/ui/common/SplashScreen2";
 import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function RootLayout() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [splashState, setSplashState] = useState("splash1"); // "splash1", "splash2", "done"
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    // Show first splash screen for 2 seconds
+    const timer1 = setTimeout(() => {
+      setSplashState("splash2");
 
-    return () => clearTimeout(timer);
+      // Show second splash screen for 1.5 seconds
+      const timer2 = setTimeout(() => {
+        setSplashState("done");
+      }, 1500);
+
+      return () => clearTimeout(timer2);
+    }, 1500);
+
+    return () => clearTimeout(timer1);
   }, []);
 
-  if (isLoading) {
+  if (splashState === "splash1") {
     return (
       <SafeAreaProvider>
         <SplashScreen />
+      </SafeAreaProvider>
+    );
+  }
+
+  if (splashState === "splash2") {
+    return (
+      <SafeAreaProvider>
+        <SplashScreen2 />
       </SafeAreaProvider>
     );
   }
@@ -37,7 +54,7 @@ function AuthenticationWrapper() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const userPhone = await AsyncStorage.getItem('userPhone');
+      const userPhone = await AsyncStorage.getItem("userPhone");
 
       if (!userPhone) {
         if (!pathName.includes("/(auth)")) {

@@ -1,3 +1,4 @@
+// components/News.tsx - Updated to match schema
 import { useNews } from "@/hooks";
 import { Text, View, ActivityIndicator } from "react-native";
 import NewsList from "./sub-components/NewsList";
@@ -17,7 +18,6 @@ const News = () => {
 
   const handleCloseModal = () => {
     setModalVisible(false);
-    // Optional: Add a small delay before clearing the selected article
     setTimeout(() => setSelectedArticle(null), 300);
   };
 

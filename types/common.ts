@@ -25,13 +25,11 @@ export type ShubhChintak = {
   cover_image_name: string;
   cover_image_url?: string;
 };
-
+// types.ts - Updated Article interface
 export interface Article {
   id: string;
-  user_id: string;
   title: string;
   body: string;
-  image: string;
+  header_image_url: string;
   created_at: string;
-  // userName: string;
 }

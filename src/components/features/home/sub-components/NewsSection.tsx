@@ -82,13 +82,34 @@ const NewsSection = ({
             className="bg-white rounded-xl mr-3 shadow-sm overflow-hidden w-60 border border-gray-100"
             onPress={() => onArticlePress(newsItem)}
           >
-            <Image
-              source={{ uri: newsItem.image }}
-              className="w-full h-28"
-              resizeMode="cover"
-            />
+            {/* Only render image if header_image_url exists */}
+            {newsItem.header_image_url ? (
+              <View className="h-28 w-full overflow-hidden">
+                <Image
+                  source={{ uri: newsItem.header_image_url }}
+                  className="w-full h-full"
+                  resizeMode="contain"
+                  onError={(error) => {
+                    console.log(
+                      "News image load error:",
+                      error.nativeEvent.error
+                    );
+                  }}
+                />
+              </View>
+            ) : (
+              // Fallback when no image is available
+              <View className="h-28 w-full bg-gray-100 items-center justify-center">
+                <Ionicons name="image-outline" size={32} color="#9ca3af" />
+                <Text className="text-gray-400 text-xs mt-1">No Image</Text>
+              </View>
+            )}
+
             <View className="p-3">
-              <Text className="font-bold text-gray-800 text-xs mb-0.5">
+              <Text
+                className="font-bold text-gray-800 text-xs mb-0.5"
+                numberOfLines={2}
+              >
                 {newsItem.title}
               </Text>
               <Text

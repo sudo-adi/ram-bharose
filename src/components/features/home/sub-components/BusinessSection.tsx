@@ -119,12 +119,10 @@ const BusinessSection = ({ title, onViewAll }: BusinessSectionProps) => {
     return (
       <View className="mb-8">
         <View className="flex-row justify-between items-center px-5 mb-4">
-          <Text className="text-lg font-bold text-gray-800">
-            Nari Sahas
-          </Text>
+          <Text className="text-lg font-bold text-gray-800">Nari Sahas</Text>
           <TouchableOpacity>
             <Text className="text-orange-500 text-sm font-medium">
-              View All
+              {/* View All */}
             </Text>
           </TouchableOpacity>
         </View>
@@ -263,10 +261,11 @@ const BusinessSection = ({ title, onViewAll }: BusinessSectionProps) => {
                         {selectedBusiness.images.map((_, index) => (
                           <View
                             key={index}
-                            className={`w-2 h-2 rounded-full mx-1 ${index === currentImageIndex
-                              ? "bg-white"
-                              : "bg-white/50"
-                              }`}
+                            className={`w-2 h-2 rounded-full mx-1 ${
+                              index === currentImageIndex
+                                ? "bg-white"
+                                : "bg-white/50"
+                            }`}
                           />
                         ))}
                       </View>

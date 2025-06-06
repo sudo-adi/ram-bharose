@@ -27,12 +27,17 @@ const FamilyTreeSection: React.FC<FamilyTreeSectionProps> = ({
   return (
     <View className="bg-white p-4">
       <View className="flex-row justify-between items-center mb-4">
-        <Text className="text-2xl font-bold text-gray-800">
+        <Text className="text-lg font-bold text-gray-800">
           Explore Your Family
         </Text>
-        <TouchableOpacity className="flex-row items-center" onPress={() => router.push("/family-tree")}>
-          <Text className="text-orange-500 mr-2 font-semibold">See All</Text>
-          <Ionicons name="chevron-forward" size={20} color="#f97316" />
+        <TouchableOpacity
+          className="flex-row items-center"
+          onPress={() => router.push("/family-tree")}
+        >
+          <Text className="text-orange-500 mr-2 text-sm font-semibold">
+            View All
+          </Text>
+          {/* <Ionicons name="chevron-forward" size={20} color="#f97316" /> */}
         </TouchableOpacity>
       </View>
 

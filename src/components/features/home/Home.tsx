@@ -141,7 +141,6 @@ export default function Home() {
     <View className="flex-1 bg-gray-50">
       <StatusBar barStyle="light-content" backgroundColor="#FF892E" />
 
-
       {/* Header Component */}
       <Header userName={userName} getGreeting={getGreeting} />
 
@@ -193,7 +192,8 @@ export default function Home() {
             Krishna
           </Text>
           <Text className="text-gray-500 text-md mr-20">
-            Designed and Developed with ❤ by Parth, Piyush, Gagdani (Team FullStack, Thane)
+            Designed and Developed with ❤ by Parth Piyush Gagdani (Team
+            FullStack, Thane)
           </Text>
         </View>
       </ScrollView>

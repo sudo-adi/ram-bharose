@@ -148,7 +148,8 @@ export default function DoctorsDirectory() {
             }}
           >
             <Ionicons name="logo-whatsapp" size={16} color="white" />
-            <Text className="text-white text-xs font-medium ml-1">
+            <Text className="text-wh
+            ite text-xs font-medium ml-1">
               WhatsApp
             </Text>
           </TouchableOpacity>

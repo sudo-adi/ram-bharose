@@ -35,11 +35,11 @@ const NewsList = ({
   return (
     <ScrollView className="flex-1 bg-white">
       <View className="px-5 py-4">
-        <CategoryFilter
+        {/* <CategoryFilter
           categories={categories}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
-        />
+        /> */}
 
         {filteredArticles.map((article) => (
           <NewsCard

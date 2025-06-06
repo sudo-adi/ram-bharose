@@ -1,3 +1,4 @@
+// Updated Component - ShubhChintak.jsx
 import {
   View,
   Text,
@@ -18,29 +19,19 @@ import React from "react";
 const ShubhChintak = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: magazines, loading, error, refetch } = useShubhChintak();
-
-  // Log all image URLs when magazines data changes
-  useEffect(() => {
-    if (magazines && magazines.length > 0) {
-      console.log("All magazine data:", magazines);
-
-      magazines.forEach((magazine, index) => {
-        console.log(`Magazine #${index + 1}:`);
-        console.log(`Title: ${magazine.title}`);
-        console.log(
-          `Cover Image URL: ${magazine.cover_image_url || "Not available"}`
-        );
-        console.log(`PDF File URL: ${magazine.file_url || "Not available"}`);
-        console.log("------------------------");
-      });
-    }
-  }, [magazines]);
-
   // Filter magazines based on search query
   const filteredMagazines =
-    magazines?.filter((magazine) =>
-      magazine.title.toLowerCase().includes(searchQuery.toLowerCase())
-    ) || [];
+    magazines?.filter((magazine) => {
+      // Check both name and title fields, with null safety
+      const name = magazine.title || "";
+      const title = magazine.title || "";
+      const query = searchQuery || "";
+
+      return (
+        name.toLowerCase().includes(query.toLowerCase()) ||
+        title.toLowerCase().includes(query.toLowerCase())
+      );
+    }) || [];
 
   // Handle opening the magazine PDF
   const handleOpenMagazine = (fileUrl: string) => {
@@ -120,17 +111,19 @@ const ShubhChintak = () => {
         {/* Magazines Grid */}
         <View className="flex-row flex-wrap justify-between">
           {filteredMagazines.length > 0 ? (
-            filteredMagazines.map((magazine) => (
+            filteredMagazines.map((magazine: any) => (
               <TouchableOpacity
                 key={magazine.id}
                 className="w-[48%] mb-4"
-                onPress={() => handleOpenMagazine(magazine.file_url)}
+                onPress={() =>
+                  handleOpenMagazine(magazine.link || magazine.file_url)
+                }
               >
                 <View className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm">
                   <Image
                     source={{
                       uri:
-                        magazine.cover_image_url ||
+                        magazine.cover_image_link ||
                         "https://via.placeholder.com/150",
                     }}
                     className="w-full h-48"
@@ -148,11 +141,13 @@ const ShubhChintak = () => {
                       className="text-gray-800 font-bold text-sm mb-1"
                       numberOfLines={1}
                     >
-                      {magazine.title}
+                      {magazine.name || magazine.title || "Untitled Magazine"}
                     </Text>
                     <TouchableOpacity
                       className="bg-orange-500 py-2 rounded-lg"
-                      onPress={() => handleOpenMagazine(magazine.file_url)}
+                      onPress={() =>
+                        handleOpenMagazine(magazine.link || magazine.file_url)
+                      }
                     >
                       <Text className="text-white text-xs font-medium text-center">
                         Read Now

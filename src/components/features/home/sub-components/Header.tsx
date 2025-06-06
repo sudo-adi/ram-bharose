@@ -25,7 +25,7 @@ type HeaderProps = {
   getGreeting: () => string;
 };
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get("window");
 
 type NotificationDetailsModalProps = {
   visible: boolean;
@@ -41,7 +41,11 @@ type NotificationsModalProps = {
   onRefresh: () => void;
 };
 
-const NotificationDetailsModal = ({ visible, notification, onClose }: NotificationDetailsModalProps) => {
+const NotificationDetailsModal = ({
+  visible,
+  notification,
+  onClose,
+}: NotificationDetailsModalProps) => {
   if (!notification) return null;
 
   return (
@@ -63,14 +67,22 @@ const NotificationDetailsModal = ({ visible, notification, onClose }: Notificati
               {new Date(notification.created_at).toLocaleDateString()}
             </Text>
           </View>
-          <Text style={styles.modalDescription}>{notification.Description}</Text>
+          <Text style={styles.modalDescription}>
+            {notification.Description}
+          </Text>
         </View>
       </TouchableOpacity>
     </Modal>
   );
 };
 
-const NotificationsModal = ({ visible, notifications, onClose, onNotificationPress, onRefresh }: NotificationsModalProps) => {
+const NotificationsModal = ({
+  visible,
+  notifications,
+  onClose,
+  onNotificationPress,
+  onRefresh,
+}: NotificationsModalProps) => {
   return (
     <Modal
       animationType="slide"
@@ -102,7 +114,9 @@ const NotificationsModal = ({ visible, notifications, onClose, onNotificationPre
                 style={styles.notificationItem}
                 onPress={() => onNotificationPress(notification)}
               >
-                <Text style={styles.notificationTitle}>{notification.Title}</Text>
+                <Text style={styles.notificationTitle}>
+                  {notification.Title}
+                </Text>
                 <Text style={styles.notificationDate}>
                   {new Date(notification.created_at).toLocaleDateString()}
                 </Text>
@@ -110,7 +124,11 @@ const NotificationsModal = ({ visible, notifications, onClose, onNotificationPre
             ))
           ) : (
             <View style={styles.emptyState}>
-              <Ionicons name="notifications-off-outline" size={48} color="#9ca3af" />
+              <Ionicons
+                name="notifications-off-outline"
+                size={48}
+                color="#9ca3af"
+              />
               <Text style={styles.emptyStateText}>No notifications yet</Text>
             </View>
           )}
@@ -124,7 +142,8 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
   const [showDetailedStats, setShowDetailedStats] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [selectedNotification, setSelectedNotification] =
+    useState<Notification | null>(null);
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
   const { data: memberCounts, loading } = useMemberCounts();
@@ -135,9 +154,9 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
 
   const fetchNotifications = async () => {
     const { data, error } = await supabase
-      .from('Notifications')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .from("Notifications")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (data) {
       setNotifications(data);
@@ -201,7 +220,9 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
               <Ionicons name="notifications-outline" size={24} color="white" />
               {notifications.length > 0 && (
                 <View className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 items-center justify-center">
-                  <Text className="text-white text-xs">{notifications.length}</Text>
+                  <Text className="text-white text-xs">
+                    {notifications.length}
+                  </Text>
                 </View>
               )}
             </View>
@@ -283,11 +304,11 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
 const styles = {
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 16,
@@ -296,54 +317,54 @@ const styles = {
     marginBottom: 16,
   },
   modalHeaderContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1f2937',
+    fontWeight: "bold",
+    color: "#1f2937",
   },
   modalDate: {
     fontSize: 14,
-    color: '#6b7280',
+    color: "#6b7280",
     marginTop: 4,
   },
   modalDescription: {
     fontSize: 16,
-    color: '#4b5563',
+    color: "#4b5563",
     lineHeight: 24,
   },
   notificationItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: "#e5e7eb",
   },
   notificationTitle: {
     fontSize: 16,
-    color: '#1f2937',
+    color: "#1f2937",
     marginBottom: 4,
   },
   notificationDate: {
     fontSize: 12,
-    color: '#6b7280',
+    color: "#6b7280",
   },
   refreshButton: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: "#f3f4f6",
   },
   emptyState: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingBottom: 40,
   },
   emptyStateText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#6b7280',
+    color: "#6b7280",
   },
 };
 

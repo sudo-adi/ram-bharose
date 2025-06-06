@@ -1,71 +1,54 @@
-import { supabase } from '@/lib/supabase';
-import { useState, useEffect } from 'react';
-import { Article, UseQueryResult } from '../../types';
-
-export const useNews = () => {
-    const [result, setResult] = useState<UseQueryResult<Article[]>>({
-        data: null,
-        error: null,
-        loading: true,
-    });
-
-    const fetchNews = async () => {
-        try {
-            setResult(prev => ({ ...prev, loading: true }));
-            const { data: articles, error: articlesError } = await supabase
-                .from('articles')
-                .select('*');
-
-            if (articlesError) throw articlesError;
-
-            const articlesWithUserNames = await Promise.all(articles.map(async (article) => {
-                const { data: userProfile, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('name')
-                    .eq('id', article.user_id)
-                    .single();
-
-                if (profileError) throw profileError;
-
-                return {
-                    ...article,
-                    userName: userProfile.name
-                };
-            }));
-
-            const articlesWithImages = await Promise.all(articlesWithUserNames.map(async (article) => {
-                const { data: imageData } = await supabase
-                    .storage
-                    .from('articles')
-                    .getPublicUrl(article.user_id);
 
 
-                return {
-                    ...article,
-                    image: imageData.publicUrl + ".jpg",
-                };
-            }));
+  // hooks/useNews.ts - Simplified hook matching your schema
+  import { supabase } from '@/lib/supabase';
+  import { useState, useEffect } from 'react';
+  import { Article, UseQueryResult } from '../../types';
 
-            if (!articlesWithImages) throw new Error('No articles found')
+  export const useNews = () => {
+      const [result, setResult] = useState<UseQueryResult<Article[]>>({
+          data: null,
+          error: null,
+          loading: true,
+      });
 
-            setResult({
-                data: articlesWithImages,
-                error: null,
-                loading: false,
-            });
-        } catch (error) {
-            setResult({
-                data: null,
-                error: error as Error,
-                loading: false,
-            });
-        }
-    };
+      const fetchNews = async () => {
+          try {
+              setResult(prev => ({ ...prev, loading: true }));
 
+              const { data: articles, error: articlesError } = await supabase
+                  .from('articles')
+                  .select('*')
+                  .order('created_at', { ascending: false }); // Optional: order by newest first
 
-    useEffect(() => {
-        fetchNews();
-    }, []);
+              if (articlesError) throw articlesError;
 
-    return { ...result, refetch: fetchNews };
-};
+              if (!articles || articles.length === 0) {
+                  setResult({
+                      data: [],
+                      error: null,
+                      loading: false,
+                  });
+                  return;
+              }
+
+              setResult({
+                  data: articles,
+                  error: null,
+                  loading: false,
+              });
+          } catch (error) {
+              setResult({
+                  data: null,
+                  error: error as Error,
+                  loading: false,
+              });
+          }
+      };
+
+      useEffect(() => {
+          fetchNews();
+      }, []);
+
+      return { ...result, refetch: fetchNews };
+  };
