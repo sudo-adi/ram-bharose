@@ -111,13 +111,6 @@ export default function DoctorsDirectory() {
           </Text>
         </View>
 
-        <View className="flex-row items-center mb-2">
-          <Ionicons name="time-outline" size={14} color="#666" />
-          <Text className="text-gray-600 text-xs ml-1">
-            {item.experience_years} yrs experience
-          </Text>
-        </View>
-
         <View className="flex-row items-center mb-3">
           <Ionicons name="location-outline" size={14} color="#666" />
           <Text className="text-gray-600 text-xs ml-1" numberOfLines={1}>
@@ -139,7 +132,7 @@ export default function DoctorsDirectory() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="bg-green-600 py-2 px-3 rounded-lg flex-row items-center justify-center flex-1"
+            className="bg-green-600 py-2 px-3 text-white rounded-lg flex-row items-center justify-center flex-1"
             onPress={(e) => {
               e.stopPropagation();
               Linking.openURL(
@@ -148,8 +141,10 @@ export default function DoctorsDirectory() {
             }}
           >
             <Ionicons name="logo-whatsapp" size={16} color="white" />
-            <Text className="text-wh
-            ite text-xs font-medium ml-1">
+            <Text
+              className="text-wh
+            ite text-xs font-medium ml-1 text-white"
+            >
               WhatsApp
             </Text>
           </TouchableOpacity>
