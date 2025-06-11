@@ -19,11 +19,9 @@ export default function SplashScreen() {
         <Text className="text-purple-500 text-4xl font-bold p-4">
           KMS Connect
         </Text>
-        <Text className="text-black-500 text-xl font-bold p-4">
-          Design, Developed and Donated by
-        </Text>
+        {/* <Text className="text-black-500 text-xl font-bold p-4"></Text> */}
         <Text className="text-center text-black-500 text-2xl font-bold p-4">
-          Aadhya Chhatra Manda
+          Shri Kutchi Maheshwari Madhyastha Mahajan Samiti
         </Text>
       </View>
 

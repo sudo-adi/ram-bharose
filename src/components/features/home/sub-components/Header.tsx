@@ -230,7 +230,8 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
 
           <View className="flex-row items-center bg-white/20 rounded-full px-3 py-1">
             <Text className="text-white text-xs mr-2">
-              {loading ? "..." : formatNumber(memberCounts.total)}
+              {/* {loading ? "..." : formatNumber(memberCounts.total)} */}
+              4027
             </Text>
             <Ionicons name="people-outline" size={16} color="white" />
             <TouchableOpacity
@@ -263,21 +264,24 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
         <View className="flex-row justify-between bg-white/15 p-3 rounded-2xl">
           <View className="items-center">
             <Text className="text-lg font-bold text-white">
-              {loading ? "..." : formatNumber(memberCounts.total)}
+              {/* {loading ? "..." : formatNumber(memberCounts.total)} */}
+              4027
             </Text>
             <Text className="text-white text-xs">Total Members</Text>
           </View>
           <View className="h-full w-px bg-white/20" />
           <View className="items-center">
             <Text className="text-lg font-bold text-white">
-              {loading ? "..." : formatNumber(memberCounts.male)}
+              {/* {loading ? "..." : formatNumber(memberCounts.male)} */}
+              2211
             </Text>
             <Text className="text-white text-xs">Males</Text>
           </View>
           <View className="h-full w-px bg-white/20" />
           <View className="items-center">
             <Text className="text-lg font-bold text-white">
-              {loading ? "..." : formatNumber(memberCounts.female)}
+              {/* {loading ? "..." : formatNumber(memberCounts.female)} */}
+              1816
             </Text>
             <Text className="text-white text-xs">Females</Text>
           </View>

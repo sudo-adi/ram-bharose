@@ -433,7 +433,7 @@ export default function EventsContent() {
                   className="text-base font-bold text-gray-800"
                   numberOfLines={1}
                 >
-                  {event.title}
+                  {event.name}
                 </Text>
 
                 <View className="flex-row items-center mt-1">
@@ -446,9 +446,7 @@ export default function EventsContent() {
                   <Text className="text-gray-400 mx-1">•</Text>
                   <Ionicons name="time-outline" size={14} color="#666" />
                   <Text className="text-gray-600 ml-1 text-xs">
-                    {event.start_time
-                      ? formatTime(event.start_time)
-                      : event.time}
+                    {event.start_at ? formatTime(event.start_at) : event.time}
                   </Text>
                 </View>
 
@@ -500,7 +498,7 @@ export default function EventsContent() {
 
                 {/* Event Title */}
                 <Text className="text-2xl font-bold text-gray-800 mb-2">
-                  {selectedEvent.title}
+                  {selectedEvent.name}
                 </Text>
 
                 {/* Event Details */}
@@ -517,11 +515,13 @@ export default function EventsContent() {
                   <View className="flex-row items-center mb-2">
                     <Ionicons name="time-outline" size={18} color="#666" />
                     <Text className="text-gray-700 ml-2">
-                      {selectedEvent.start_time
-                        ? formatTime(selectedEvent.start_time)
+                      {selectedEvent.start_at
+                        ? formatTime(selectedEvent.start_at)
                         : selectedEvent.time}
                       {selectedEvent.end_time
-                        ? ` - ${formatTime(selectedEvent.end_time)}`
+                        ? ` - ${formatTime(
+                            selectedEvent.start_at + selectedEvent.duration
+                          )}`
                         : ""}
                     </Text>
                   </View>
@@ -590,20 +590,6 @@ export default function EventsContent() {
                   <Text className="text-gray-700 leading-6">
                     {selectedEvent.description}
                   </Text>
-                </View>
-
-                {/* Action Buttons */}
-                <View className="flex-row justify-between mt-4">
-                  <TouchableOpacity className="bg-orange-500 py-3 px-4 rounded-xl flex-1 mr-2">
-                    <Text className="text-white font-bold text-center">
-                      Register
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity className="bg-gray-100 py-3 px-4 rounded-xl flex-1 ml-2">
-                    <Text className="text-gray-700 font-bold text-center">
-                      Share
-                    </Text>
-                  </TouchableOpacity>
                 </View>
               </ScrollView>
             )}
