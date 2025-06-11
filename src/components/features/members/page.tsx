@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -14,29 +14,153 @@ import {
   StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useProfiles } from "@/hooks";
+import { useProfiles } from "@/hooks"; // Ensure this path is correct
 import MemberDetailBottomSheet from "./MemberDetailBottomSheet";
 import { handleSMS } from "./utils/memberUtils";
+
+// --- Move calculateAge and getPlaceholderImage outside the component ---
+
+const calculateAge = (dob) => {
+  if (!dob) return "Unknown";
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate.getTime())) return "Unknown";
+
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+
+  if (
+    today.getMonth() < birthDate.getMonth() ||
+    (today.getMonth() === birthDate.getMonth() &&
+      today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  return age.toString();
+};
+
+// Function to get the appropriate placeholder image based on age and gender
+const getPlaceholderImage = (member) => {
+  const age = parseInt(member.age);
+  const gender = member.gender?.toLowerCase() || "";
+
+  if (isNaN(age)) {
+    // Default fallback if age cannot be determined
+    return require("../../../../assets/icon.png");
+  }
+
+  if (gender === "male") {
+    if (age < 18) {
+      return require("../../../../assets/boy.png");
+    } else {
+      return require("../../../../assets/man.png");
+    }
+  } else if (gender === "female") {
+    if (age < 18) {
+      return require("../../../../assets/girl.png");
+    } else {
+      return require("../../../../assets/women.png");
+    }
+  } else {
+    // Default fallback if gender is not specified
+    return require("../../../../assets/icon.png");
+  }
+};
+
+// --- End of moved functions ---
 
 export default function MembersContent() {
   const [viewType, setViewType] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
-  const [members, setMembers] = useState([]);
   const [showProfessionDropdown, setShowProfessionDropdown] = useState(false);
   const [professionFilter, setProfessionFilter] = useState("");
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [selectedMember, setSelectedMember] = useState(null);
   const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
-  const PAGE_SIZE = 10;
 
-  const { data: profilesData, loading, error, refetch } = useProfiles();
+  // Pagination states
+  const [page, setPage] = useState(0); // Supabase range starts from 0
+  const PAGE_SIZE = 10;
+  const [allFetchedMembers, setAllFetchedMembers] = useState([]); // To accumulate members from different pages
 
   const [activeFilters, setActiveFilters] = useState({
     gender: [],
-    age: [],
+    age: [], // Age filtering still happens on client-side for now
     profession: "",
   });
+
+  // Call the useProfiles hook with search query, filters, and pagination parameters
+  const {
+    data: profilesData,
+    loading,
+    error,
+    totalCount, // Get total count from the hook
+    refetch, // refetch can still be used for explicit refreshes
+  } = useProfiles(searchQuery, activeFilters, page, PAGE_SIZE, 500); // 500ms debounce time
+
+  // Effect to accumulate data when new data is fetched
+  useEffect(() => {
+    if (profilesData) {
+      const transformedNewData = profilesData.map((member) => ({
+        ...member,
+        id: member.id,
+        displayName: `${member.name} ${member.surname || ""}`.trim(),
+        location: member.residential_address_city || "Unknown",
+        displayImage: member.profile_pic || null,
+        profession: member.occupation || "Not specified",
+        gender: member.gender || "Not specified",
+        phone: member.mobile_no1 || "Not available",
+        email: member.email || "Not available",
+        age: calculateAge(member.date_of_birth),
+      }));
+
+      // If it's the first page (or a new search/filter), reset the list
+      if (page === 0) {
+        setAllFetchedMembers(transformedNewData);
+      } else {
+        // Otherwise, append new data
+        setAllFetchedMembers((prev) => [...prev, ...transformedNewData]);
+      }
+    }
+  }, [profilesData]); // Depend on profilesData coming from the hook
+
+  // Reset page to 0 and clear accumulated members when search query or filters change
+  useEffect(() => {
+    setPage(0);
+    setAllFetchedMembers([]); // Clear the list to start fresh
+  }, [searchQuery, activeFilters]);
+
+  // Client-side age filtering (still needed if not handled in DB query)
+  // This filters the already accumulated and transformed members
+  const clientFilteredMembers = allFetchedMembers.filter((member) => {
+    const hasActiveAgeFilters = activeFilters.age.length > 0;
+
+    let matchesAge = !hasActiveAgeFilters;
+    if (hasActiveAgeFilters) {
+      const age = parseInt(member.age);
+      if (!isNaN(age)) {
+        matchesAge = activeFilters.age.some((ageRange) => {
+          if (ageRange === "under-18") return age < 18;
+          if (ageRange === "18-24") return age >= 18 && age <= 24;
+          if (ageRange === "25-34") return age >= 25 && age <= 34;
+          if (ageRange === "35-44") return age >= 35 && age <= 44;
+          if (ageRange === "45-54") return age >= 45 && age <= 54;
+          if (ageRange === "55+") return age >= 55;
+          return false;
+        });
+      }
+    }
+    return matchesAge;
+  });
+
+  // Determine if there are more items to load
+  const hasMore =
+    totalCount !== null && clientFilteredMembers.length < totalCount;
+
+  const loadMore = () => {
+    if (!loading && hasMore) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
 
   const filters = [
     { id: "all", label: "All", icon: "people-outline", type: "reset" },
@@ -61,48 +185,6 @@ export default function MembersContent() {
     },
   ];
 
-  useEffect(() => {
-    if (profilesData) {
-      const transformedData = profilesData.map((member) => ({
-        ...member,
-        id: member.id,
-        displayName: `${member.name} ${member.surname || ""}`.trim(),
-        location: member.residential_address_city || "Unknown",
-        displayImage: member.profile_pic || null, // Changed to null instead of default URL
-        profession: member.occupation || "Not specified",
-        gender: member.gender || "Not specified",
-        phone: member.mobile_no1 || "Not available",
-        email: member.email || "Not available",
-        age: calculateAge(member.date_of_birth),
-      }));
-      setMembers(transformedData);
-      setHasMore(false);
-    }
-  }, [profilesData]);
-
-  useEffect(() => {
-    refetch();
-  }, []);
-
-  const calculateAge = (dob) => {
-    if (!dob) return "Unknown";
-    const birthDate = new Date(dob);
-    if (isNaN(birthDate.getTime())) return "Unknown";
-
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-
-    if (
-      today.getMonth() < birthDate.getMonth() ||
-      (today.getMonth() === birthDate.getMonth() &&
-        today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-
-    return age.toString();
-  };
-
   const handleCall = (phoneNumber) => {
     if (phoneNumber && phoneNumber !== "Not available") {
       Linking.openURL(`tel:${phoneNumber}`);
@@ -122,55 +204,6 @@ export default function MembersContent() {
     }
   };
 
-  const filteredMembers = members.filter((member) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.surname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (member.profession &&
-        member.profession.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const hasActiveGenderFilters = activeFilters.gender.length > 0;
-    const hasActiveAgeFilters = activeFilters.age.length > 0;
-    const hasActiveProfessionFilter = activeFilters.profession !== "";
-
-    if (
-      !hasActiveGenderFilters &&
-      !hasActiveAgeFilters &&
-      !hasActiveProfessionFilter
-    ) {
-      return matchesSearch;
-    }
-
-    const matchesGender =
-      !hasActiveGenderFilters || activeFilters.gender.includes(member.gender);
-
-    let matchesAge = !hasActiveAgeFilters;
-    if (hasActiveAgeFilters) {
-      const age = parseInt(member.age);
-      if (!isNaN(age)) {
-        matchesAge = activeFilters.age.some((ageRange) => {
-          if (ageRange === "18-24") return age >= 18 && age <= 24;
-          if (ageRange === "25-34") return age >= 25 && age <= 34;
-          if (ageRange === "35-44") return age >= 35 && age <= 44;
-          if (ageRange === "45-54") return age >= 45 && age <= 54;
-          if (ageRange === "55+") return age >= 55;
-          return false;
-        });
-      }
-    }
-
-    const matchesProfession =
-      !hasActiveProfessionFilter ||
-      (member.profession &&
-        member.profession
-          .toLowerCase()
-          .includes(activeFilters.profession.toLowerCase()));
-
-    return matchesSearch && matchesGender && matchesAge && matchesProfession;
-  });
-
   const handleFilterPress = (filter) => {
     if (filter.type === "reset") {
       setActiveFilters({
@@ -178,9 +211,9 @@ export default function MembersContent() {
         age: [],
         profession: "",
       });
+      setSearchQuery(""); // Also clear search query on reset
       setProfessionFilter("");
       setShowProfessionDropdown(false);
-      refetch();
     } else if (filter.type === "gender") {
       setActiveFilters((prev) => {
         const newGenders = prev.gender.includes(filter.id)
@@ -207,6 +240,7 @@ export default function MembersContent() {
       return activeFilters.age.includes(filter.id);
     } else if (filter.id === "all") {
       return (
+        searchQuery === "" &&
         activeFilters.gender.length === 0 &&
         activeFilters.age.length === 0 &&
         activeFilters.profession === ""
@@ -216,223 +250,234 @@ export default function MembersContent() {
   };
 
   const handleMemberPress = (member) => {
-    // Find the original member data with all fields
-    const originalMember = profilesData.find((m) => m.id === member.id);
+    // Find the original member data with all fields (though transformedMembers should already have it)
+    // Note: If you're fetching all data for the detail sheet, you might need another hook `useProfile(member.id)`
+    // For now, we'll assume `transformedMembers` has enough detail or `profilesData` which is the current page's fetch
+    const originalMember = allFetchedMembers.find((m) => m.id === member.id); // Look in the accumulated list
     if (originalMember) {
       setSelectedMember(originalMember);
       setBottomSheetVisible(true);
     }
   };
 
-  const paginatedMembers = filteredMembers.slice(0, page * PAGE_SIZE);
+  const renderItem = useCallback(
+    ({ item }) => (
+      <TouchableOpacity
+        key={`member-${item.id}`}
+        className={`bg-white rounded-2xl mb-4 overflow-hidden ${
+          viewType === "grid" ? "w-[47%] mx-1" : "w-full"
+        }`}
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 4,
+          elevation: 2,
+        }}
+        onPress={() => handleMemberPress(item)}
+        activeOpacity={0.7}
+      >
+        <View className="p-4">
+          {viewType === "list" ? (
+            <View className="flex-row items-center">
+              <View className="relative">
+                <Image
+                  source={
+                    item.displayImage
+                      ? { uri: item.displayImage }
+                      : getPlaceholderImage(item)
+                  }
+                  className="w-16 h-16 rounded-xl"
+                />
+                <View className="absolute bottom-0 right-0 bg-orange-500 rounded-full p-1">
+                  <Ionicons name="person" size={12} color="#ffffff" />
+                </View>
+              </View>
 
-  const loadMore = () => {
-    if (paginatedMembers.length < filteredMembers.length) {
-      setPage(page + 1);
-    }
-  };
+              <View className="flex-1 ml-4">
+                <View className="flex-row justify-between items-start">
+                  <View className="flex-1 pr-2">
+                    <Text className="font-bold text-gray-900 text-base">
+                      {item.displayName}
+                    </Text>
+                    <View className="flex-row items-center mt-1">
+                      <Ionicons
+                        name="location-outline"
+                        size={12}
+                        color="#6b7280"
+                      />
+                      <Text className="text-gray-500 text-xs ml-1">
+                        {item.location}
+                      </Text>
+                    </View>
+                    <View className="flex-row items-center mt-1">
+                      <Ionicons
+                        name="briefcase-outline"
+                        size={12}
+                        color="#6b7280"
+                      />
+                      <Text className="text-gray-500 text-xs ml-1">
+                        {item.profession}
+                      </Text>
+                    </View>
+                  </View>
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      key={`member-${item.id}`}
-      className={`bg-white rounded-2xl mb-4 overflow-hidden ${
-        viewType === "grid" ? "w-[48%]" : "w-full"
-      }`}
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-      }}
-      onPress={() => handleMemberPress(item)}
-      activeOpacity={0.7}
-    >
-      <View className="p-4">
-        {viewType === "list" ? (
-          // List view - improved design
-          <View className="flex-row items-center">
-            <View className="relative">
+                  <View className="flex-row">
+                    {item.phone && item.phone !== "Not available" && (
+                      <>
+                        <TouchableOpacity
+                          className="bg-green-100 p-2 rounded-full mr-2"
+                          onPress={() => handleCall(item.phone)}
+                        >
+                          <Ionicons
+                            name="call-outline"
+                            size={16}
+                            color="#3b82f6"
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          className="bg-blue-100 p-2 rounded-full mr-2"
+                          onPress={() => handleWhatsApp(item.phone)}
+                        >
+                          <Ionicons
+                            name="logo-whatsapp"
+                            size={16}
+                            color="#10b981"
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          className="bg-purple-100 p-2 rounded-full mr-2"
+                          onPress={() => handleSMS(item.phone)}
+                        >
+                          <Ionicons
+                            name="chatbox-outline"
+                            size={16}
+                            color="#8b5cf6"
+                          />
+                        </TouchableOpacity>
+                      </>
+                    )}
+                    {item.email && item.email !== "Not available" && (
+                      <TouchableOpacity
+                        className="bg-red-100 p-2 rounded-full"
+                        onPress={() => handleEmail(item.email)}
+                      >
+                        <Ionicons
+                          name="mail-outline"
+                          size={16}
+                          color="#ef4444"
+                        />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+
+                <View className="flex-row mt-3 space-x-2">
+                  <View className="bg-blue-50 px-3 py-1 rounded-full flex-row items-center">
+                    <Ionicons
+                      name="calendar-outline"
+                      size={12}
+                      color="#3b82f6"
+                    />
+                    <Text className="text-xs text-blue-800 ml-1 font-medium">
+                      {item.age} years
+                    </Text>
+                  </View>
+                  <View className="bg-purple-50 px-3 py-1 rounded-full flex-row items-center">
+                    {item.gender === "Male" ? (
+                      <Ionicons name="man-outline" size={12} color="#8b5cf6" />
+                    ) : (
+                      <Ionicons
+                        name="woman-outline"
+                        size={12}
+                        color="#8b5cf6"
+                      />
+                    )}
+                    <Text className="text-xs text-purple-800 ml-1 font-medium">
+                      {item.gender}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View className="flex-col items-center">
               <Image
                 source={
                   item.displayImage
                     ? { uri: item.displayImage }
                     : getPlaceholderImage(item)
                 }
-                className="w-16 h-16 rounded-xl"
+                className="w-20 h-20 mb-3 rounded-full"
               />
-              <View className="absolute bottom-0 right-0 bg-orange-500 rounded-full p-1">
-                <Ionicons name="person" size={12} color="#ffffff" />
+
+              <View className="items-center mt-2">
+                <Text className="font-semibold text-gray-900 text-center">
+                  {item.displayName}
+                </Text>
+                <Text className="text-gray-500 text-sm text-center mt-1">
+                  {item.location}
+                </Text>
+                <Text className="text-gray-500 text-xs text-center mt-1">
+                  {item.profession}
+                </Text>
               </View>
-            </View>
 
-            <View className="flex-1 ml-4">
-              <View className="flex-row justify-between items-start">
-                <View className="flex-1 pr-2">
-                  <Text className="font-bold text-gray-900 text-base">
-                    {item.displayName}
-                  </Text>
-                  <View className="flex-row items-center mt-1">
-                    <Ionicons
-                      name="location-outline"
-                      size={12}
-                      color="#6b7280"
-                    />
-                    <Text className="text-gray-500 text-xs ml-1">
-                      {item.location}
-                    </Text>
-                  </View>
-                  <View className="flex-row items-center mt-1">
-                    <Ionicons
-                      name="briefcase-outline"
-                      size={12}
-                      color="#6b7280"
-                    />
-                    <Text className="text-gray-500 text-xs ml-1">
-                      {item.profession}
-                    </Text>
-                  </View>
-                </View>
+              <View className="flex-row justify-center mt-2 space-x-2 gap-2">
+                <Text className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  {item.age} years
+                </Text>
+                <Text className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                  {item.gender}
+                </Text>
+              </View>
 
-                <View className="flex-row">
-                  {item.phone && item.phone !== "Not available" && (
-                    <>
-                      <TouchableOpacity
-                        className="bg-green-100 p-2 rounded-full mr-2"
-                        onPress={() => handleCall(item.phone)}
-                      >
-                        <Ionicons
-                          name="call-outline"
-                          size={16}
-                          color="#3b82f6"
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        className="bg-blue-100 p-2 rounded-full mr-2"
-                        onPress={() => handleWhatsApp(item.phone)}
-                      >
-                        <Ionicons
-                          name="logo-whatsapp"
-                          size={16}
-                          color="#10b981"
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        className="bg-purple-100 p-2 rounded-full mr-2"
-                        onPress={() => handleSMS(item.phone)}
-                      >
-                        <Ionicons
-                          name="chatbox-outline"
-                          size={16}
-                          color="#8b5cf6"
-                        />
-                      </TouchableOpacity>
-                    </>
-                  )}
-                  {item.email && item.email !== "Not available" && (
+              <View className="flex-row justify-center mt-3">
+                {item.phone && item.phone !== "Not available" && (
+                  <>
                     <TouchableOpacity
-                      className="bg-red-100 p-2 rounded-full"
-                      onPress={() => handleEmail(item.email)}
+                      className="bg-green-100 p-2 rounded-full mr-2"
+                      onPress={() => handleCall(item.phone)}
                     >
-                      <Ionicons name="mail-outline" size={16} color="#ef4444" />
+                      <Ionicons name="call-outline" size={16} color="#10b981" />
                     </TouchableOpacity>
-                  )}
-                </View>
+                    <TouchableOpacity
+                      className="bg-blue-100 p-2 rounded-full mr-2"
+                      onPress={() => handleWhatsApp(item.phone)}
+                    >
+                      <Ionicons
+                        name="logo-whatsapp"
+                        size={16}
+                        color="#3b82f6"
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="bg-purple-100 p-2 rounded-full mr-2"
+                      onPress={() => handleSMS(item.phone)}
+                    >
+                      <Ionicons
+                        name="chatbox-outline"
+                        size={16}
+                        color="#8b5cf6"
+                      />
+                    </TouchableOpacity>
+                  </>
+                )}
+                {item.email && item.email !== "Not available" && (
+                  <TouchableOpacity
+                    className="bg-red-100 p-2 rounded-full"
+                    onPress={() => handleEmail(item.email)}
+                  >
+                    <Ionicons name="mail-outline" size={16} color="#ef4444" />
+                  </TouchableOpacity>
+                )}
               </View>
-
-              <View className="flex-row mt-3 space-x-2">
-                <View className="bg-blue-50 px-3 py-1 rounded-full flex-row items-center">
-                  <Ionicons name="calendar-outline" size={12} color="#3b82f6" />
-                  <Text className="text-xs text-blue-800 ml-1 font-medium">
-                    {item.age} years
-                  </Text>
-                </View>
-                <View className="bg-purple-50 px-3 py-1 rounded-full flex-row items-center">
-                  {item.gender === "Male" ? (
-                    <Ionicons name="man-outline" size={12} color="#8b5cf6" />
-                  ) : (
-                    <Ionicons name="woman-outline" size={12} color="#8b5cf6" />
-                  )}
-                  <Text className="text-xs text-purple-800 ml-1 font-medium">
-                    {item.gender}
-                  </Text>
-                </View>
-              </View>
             </View>
-          </View>
-        ) : (
-          // Grid view - keep existing design
-          <View className="flex-col items-center">
-            <Image
-              source={
-                item.displayImage
-                  ? { uri: item.displayImage }
-                  : getPlaceholderImage(item)
-              }
-              className="w-20 h-20 mb-3 rounded-full"
-            />
-
-            <View className="items-center mt-2">
-              <Text className="font-semibold text-gray-900 text-center">
-                {item.displayName}
-              </Text>
-              <Text className="text-gray-500 text-sm text-center mt-1">
-                {item.location}
-              </Text>
-              <Text className="text-gray-500 text-xs text-center mt-1">
-                {item.profession}
-              </Text>
-            </View>
-
-            <View className="flex-row justify-center mt-2 space-x-2 gap-2">
-              <Text className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                {item.age} years
-              </Text>
-              <Text className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
-                {item.gender}
-              </Text>
-            </View>
-
-            <View className="flex-row justify-center mt-3">
-              {item.phone && item.phone !== "Not available" && (
-                <>
-                  <TouchableOpacity
-                    className="bg-green-100 p-2 rounded-full mr-2"
-                    onPress={() => handleCall(item.phone)}
-                  >
-                    <Ionicons name="call-outline" size={16} color="#10b981" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className="bg-blue-100 p-2 rounded-full mr-2"
-                    onPress={() => handleWhatsApp(item.phone)}
-                  >
-                    <Ionicons name="logo-whatsapp" size={16} color="#3b82f6" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className="bg-purple-100 p-2 rounded-full mr-2"
-                    onPress={() => handleSMS(item.phone)}
-                  >
-                    <Ionicons
-                      name="chatbox-outline"
-                      size={16}
-                      color="#8b5cf6"
-                    />
-                  </TouchableOpacity>
-                </>
-              )}
-              {item.email && item.email !== "Not available" && (
-                <TouchableOpacity
-                  className="bg-red-100 p-2 rounded-full"
-                  onPress={() => handleEmail(item.email)}
-                >
-                  <Ionicons name="mail-outline" size={16} color="#ef4444" />
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        )}
-      </View>
-    </TouchableOpacity>
+          )}
+        </View>
+      </TouchableOpacity>
+    ),
+    [viewType]
   );
 
   return (
@@ -528,7 +573,7 @@ export default function MembersContent() {
         {/* View Toggle */}
         <View className="px-5 pb-4 flex-row justify-between items-center">
           <Text className="text-gray-500 text-sm">
-            {filteredMembers.length} members found
+            {totalCount !== null ? `${totalCount} members found` : "Loading..."}
           </Text>
           <View className="flex-row bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
             <TouchableOpacity
@@ -581,20 +626,39 @@ export default function MembersContent() {
 
       {/* Content with padding to account for sticky header */}
       <View className="flex-1 px-5 ">
-        <ScrollView
-          className="flex-1"
-          contentContainerStyle={{ paddingTop: 180 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {loading ? (
-            <View className="items-center justify-center py-10">
-              <ActivityIndicator size="large" color="#f97316" />
-              <Text className="text-gray-500 mt-2">Loading members...</Text>
-            </View>
-          ) : (
-            <View className="flex-row flex-wrap justify-between">
-              {paginatedMembers.map((item) => renderItem({ item }))}
-              {paginatedMembers.length < filteredMembers.length && (
+        {/* Use FlatList for better performance with potentially long lists and easy pagination */}
+        {loading && clientFilteredMembers.length === 0 ? ( // Only show full screen loader if no data has been fetched yet
+          <View className="items-center justify-center py-10">
+            <ActivityIndicator size="large" color="#f97316" />
+            <Text className="text-gray-500 mt-2">Loading members...</Text>
+          </View>
+        ) : clientFilteredMembers.length === 0 && !loading ? ( // Show "No members found" only if not loading and no data
+          <View className="items-center justify-center py-10 w-full">
+            <Ionicons name="people-outline" size={48} color="#9ca3af" />
+            <Text className="text-gray-500 mt-4">No members found</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={clientFilteredMembers}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={viewType === "grid" ? 2 : 1}
+            key={viewType === "grid" ? "grid" : "list"} // Important for FlatList to re-render when changing numColumns
+            contentContainerStyle={{
+              paddingTop: 180, // Space for sticky header
+              paddingBottom: 20, // Add some padding at the bottom
+              justifyContent:
+                viewType === "grid" ? "space-between" : "flex-start",
+            }}
+            onEndReached={loadMore}
+            onEndReachedThreshold={0.5} // Trigger loadMore when 50% from the end
+            ListFooterComponent={() =>
+              loading && clientFilteredMembers.length > 0 ? ( // Show loader at bottom only if loading more data
+                <View className="py-4 items-center">
+                  <ActivityIndicator size="small" color="#f97316" />
+                  <Text className="text-gray-500 mt-2">Loading more...</Text>
+                </View>
+              ) : hasMore && clientFilteredMembers.length > 0 && !loading ? (
                 <View className="w-full py-4 items-center">
                   <TouchableOpacity
                     onPress={loadMore}
@@ -611,16 +675,10 @@ export default function MembersContent() {
                     />
                   </TouchableOpacity>
                 </View>
-              )}
-              {paginatedMembers.length === 0 && (
-                <View className="items-center justify-center py-10 w-full">
-                  <Ionicons name="people-outline" size={48} color="#9ca3af" />
-                  <Text className="text-gray-500 mt-4">No members found</Text>
-                </View>
-              )}
-            </View>
-          )}
-        </ScrollView>
+              ) : null
+            }
+          />
+        )}
       </View>
 
       <MemberDetailBottomSheet
@@ -631,32 +689,3 @@ export default function MembersContent() {
     </SafeAreaView>
   );
 }
-
-// Function to get the appropriate placeholder image based on age and gender
-const getPlaceholderImage = (member) => {
-  const age = parseInt(member.age);
-  const gender = member.gender?.toLowerCase() || "";
-
-  if (isNaN(age)) {
-    // Default fallback if age cannot be determined
-    return require("../../../../assets/icon.png");
-  }
-
-  // Fix the gender condition to prevent "female" from matching "male"
-  if (gender === "male") {
-    if (age < 18) {
-      return require("../../../../assets/boy.png");
-    } else {
-      return require("../../../../assets/man.png");
-    }
-  } else if (gender === "female") {
-    if (age < 18) {
-      return require("../../../../assets/girl.png");
-    } else {
-      return require("../../../../assets/women.png");
-    }
-  } else {
-    // Default fallback if gender is not specified
-    return require("../../../../assets/icon.png");
-  }
-};
