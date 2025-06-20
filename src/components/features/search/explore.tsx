@@ -79,31 +79,31 @@ export default function ExploreContent() {
       image: require("../../../../assets/committie.png"),
       disabled: false,
     },
-    {
-      id: 9,
-      title: "Nari Sahas",
-      image: require("../../../../assets/nari-sahas.png"),
-      disabled: false,
-    },
+    // {
+    //   id: 9,
+    //   title: "Nari Sahas",
+    //   image: require("../../../../assets/nari-sahas.png"),
+    //   disabled: false,
+    // },
     {
       id: 11,
       title: "Vasti Patrak",
       image: require("../../../../assets/vasti patrak.png"),
       disabled: false,
     },
-    {
-      id: 10,
-      title: "Matrimonial",
-      image: require("../../../../assets/matrimonial.png"),
-      disabled: true,
-    },
+    // {
+    //   id: 10,
+    //   title: "Matrimonial",
+    //   image: require("../../../../assets/matrimonial.png"),
+    //   disabled: true,
+    // },
 
-    {
-      id: 12,
-      title: "Temporary Members",
-      image: require("../../../../assets/temp-member.png"),
-      disabled: true,
-    },
+    // {
+    //   id: 12,
+    //   title: "Temporary Members",
+    //   image: require("../../../../assets/temp-member.png"),
+    //   disabled: true,
+    // },
   ];
 
   return (

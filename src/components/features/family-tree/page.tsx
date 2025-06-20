@@ -23,14 +23,18 @@ interface FamilyTreeSectionProps {
 
 const FamilyTree = () => {
   const { result: familyTree, loading: familyTreeLoading } = useFamilyTree();
+
+  // Sort family tree alphabetically by name
+  const sortedFamilyTree =
+    familyTree?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+
   return (
     <View className="bg-white p-2">
-
       <ScrollView
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 10 }}
       >
-        {familyTree.map((item) => (
+        {sortedFamilyTree.map((item) => (
           <TouchableOpacity
             key={item.name}
             className="bg-white my-2 rounded-xl shadow-sm mx-1 w-screen overflow-hidden border border-gray-100"
@@ -64,6 +68,6 @@ const FamilyTree = () => {
       </ScrollView>
     </View>
   );
-}
+};
 
 export default FamilyTree;

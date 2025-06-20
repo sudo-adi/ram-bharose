@@ -37,7 +37,7 @@ export const useProfiles = (
     try {
       setResult(prev => ({ ...prev, loading: true }));
 
-      let query = supabase.from('profiles').select('*', { count: 'exact' }); // Request exact count
+      let query = supabase.from('profiles_production_beta').select('*', { count: 'exact' }); // Request exact count
 
       // Apply search query
       if (currentSearchQuery) {
@@ -107,22 +107,24 @@ export const useMemberCounts = () => {
 
       // Get total count
       const { count: total, error: totalError } = await supabase
-        .from('profiles')
+        .from('profiles_production_beta')
         .select('*', { count: 'exact' });
 
       if (totalError) throw totalError;
 
       // Get male count
       const { count: male, error: maleError } = await supabase
-        .from('profiles')
+        .from('profiles_production_beta')
         .select('*', { count: 'exact' })
         .eq('gender', 'Male');
 
       if (maleError) throw maleError;
 
+      // change the table name to make it correct
+
       // Get female count
       const { count: female, error: femaleError } = await supabase
-        .from('profiles')
+        .from('profiles_production_beta')
         .select('*', { count: 'exact' })
         .eq('gender', 'Female');
 
@@ -161,7 +163,7 @@ export const useProfile = (id: number) => {
     try {
       setResult(prev => ({ ...prev, loading: true }));
       const { data, error } = await supabase
-        .from('profiles')
+        .from('profiles_production_beta')
         .select('*')
         .eq('id', id)
         .single();
@@ -200,7 +202,7 @@ export const useFamilyVerification = (email: string) => {
     try {
       setResult(prev => ({ ...prev, loading: true }));
       const { data, error } = await supabase
-        .from('profiles')
+        .from('profiles_production_beta')
         .select('*')
         .eq('email', email);
 

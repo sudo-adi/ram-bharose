@@ -18,6 +18,7 @@ type Person = {
   image?: string;
   phone?: string;
   gender?: string;
+  birthDate?: string; // Assuming there's a birth date field
 };
 
 type BirthdaySectionProps = {
@@ -75,6 +76,12 @@ const BirthdaySection = ({
     handleGreetPress(person);
   };
 
+  // Sort birthdays by ascending age (youngest first)
+  const sortedTodayBirthdays =
+    todayBirthdays?.sort((a, b) => {
+      return a.age - b.age;
+    }) || [];
+
   return (
     <View className="mb-6">
       <View className="flex-row justify-between items-center px-5 mb-3">
@@ -92,7 +99,7 @@ const BirthdaySection = ({
             Loading birthdays...
           </Text>
         </View>
-      ) : !todayBirthdays || todayBirthdays.length === 0 ? (
+      ) : !sortedTodayBirthdays || sortedTodayBirthdays.length === 0 ? (
         <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 items-center justify-center mx-5">
           <Ionicons name="calendar-outline" size={32} color="#ff8c37" />
           <Text className="text-gray-800 font-medium text-center mt-2 mb-1">
@@ -108,15 +115,15 @@ const BirthdaySection = ({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingLeft: 20, paddingRight: 10 }}
         >
-          {todayBirthdays.map((person) => (
+          {sortedTodayBirthdays.map((person) => (
             <TouchableOpacity
               key={person.id}
               className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 mr-3"
               style={{
                 width:
-                  todayBirthdays.length === 1
+                  sortedTodayBirthdays.length === 1
                     ? screenWidth - 100 // Reduced from screenWidth - 80
-                    : todayBirthdays.length <= 3
+                    : sortedTodayBirthdays.length <= 3
                     ? (screenWidth - 200) / 2 // Reduced from (screenWidth - 80) / 2
                     : 90, // Reduced from 100
               }}
@@ -131,9 +138,9 @@ const BirthdaySection = ({
                 className="w-full"
                 style={{
                   height:
-                    todayBirthdays.length === 1
+                    sortedTodayBirthdays.length === 1
                       ? 75
-                      : todayBirthdays.length <= 3
+                      : sortedTodayBirthdays.length <= 3
                       ? 80
                       : 50,
                 }}
@@ -149,9 +156,9 @@ const BirthdaySection = ({
                   className="font-bold text-gray-800"
                   style={{
                     fontSize:
-                      todayBirthdays.length === 1
+                      sortedTodayBirthdays.length === 1
                         ? 16
-                        : todayBirthdays.length <= 3
+                        : sortedTodayBirthdays.length <= 3
                         ? 12
                         : 11,
                   }}
@@ -163,9 +170,9 @@ const BirthdaySection = ({
                   className="text-gray-500 mb-1.5"
                   style={{
                     fontSize:
-                      todayBirthdays.length === 1
+                      sortedTodayBirthdays.length === 1
                         ? 12
-                        : todayBirthdays.length <= 3
+                        : sortedTodayBirthdays.length <= 3
                         ? 10
                         : 9,
                   }}
@@ -182,9 +189,9 @@ const BirthdaySection = ({
                     className="text-white font-medium text-center"
                     style={{
                       fontSize:
-                        todayBirthdays.length === 1
+                        sortedTodayBirthdays.length === 1
                           ? 12
-                          : todayBirthdays.length <= 3
+                          : sortedTodayBirthdays.length <= 3
                           ? 10
                           : 9,
                     }}

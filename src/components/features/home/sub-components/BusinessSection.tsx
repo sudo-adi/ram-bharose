@@ -1,451 +1,219 @@
+import React from "react";
 import {
   View,
   Text,
   Image,
   ScrollView,
   TouchableOpacity,
-  Modal,
-  Linking,
+  Dimensions,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
-import React from "react";
 import { useRouter } from "expo-router";
-import { useBusiness } from "@/hooks";
 
-type Business = {
+type Person = {
   id: string;
-  user_id: string;
   name: string;
-  category: string;
-  description: string;
-  location: string;
-  contact_email: string;
-  contact_phone: string;
-  website: string;
-  created_at: string;
-  images?: string[];
-  logo?: string;
-  rating?: number; // Optional for backward compatibility
+  age: number;
+  image?: string;
+  phone?: string;
+  gender?: string;
+  birthDate?: string; // Assuming there's a birth date field
 };
 
-type BusinessSectionProps = {
-  title: string;
-  onViewAll?: () => void;
+type BirthdaySectionProps = {
+  todayBirthdays: Person[] | null;
+  birthdaysLoading: boolean;
+  onWishPress: (person: Person) => void;
+  hasContactInfo: (person: Person) => boolean;
 };
 
-const BusinessSection = ({ title, onViewAll }: BusinessSectionProps) => {
-  const router = useRouter();
-  const { data: businesses, loading, error } = useBusiness();
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
-    null
-  );
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+// Image placeholder utility
+const getPlaceholderImage = (person: Person) => {
+  const age = person.age;
+  const gender = person.gender?.toLowerCase() || "";
 
-  // Show only the first 4 businesses
-  const displayBusinesses = businesses?.slice(0, 4) || [];
-
-  const handleBusinessPress = (business: Business) => {
-    setSelectedBusiness(business);
-    setCurrentImageIndex(0);
-    setModalVisible(true);
-  };
-
-  const handleViewAll = () => {
-    if (onViewAll) {
-      onViewAll();
+  if (gender === "male") {
+    if (age < 18) {
+      return require("../../../../../assets/boy.png");
     } else {
-      // Navigate to the businesses page
-      router.push("/businesses");
+      return require("../../../../../assets/man.png");
     }
-  };
+  } else if (gender === "female") {
+    if (age < 18) {
+      return require("../../../../../assets/girl.png");
+    } else {
+      return require("../../../../../assets/women.png");
+    }
+  } else {
+    return require("../../../../../assets/icon.png");
+  }
+};
 
-  const handleCall = (phoneNumber: string) => {
-    Linking.openURL(`tel:${phoneNumber}`);
-  };
+const BirthdaySection = ({
+  todayBirthdays,
+  birthdaysLoading,
+  onWishPress,
+  hasContactInfo,
+}: BirthdaySectionProps) => {
+  const screenWidth = Dimensions.get("window").width;
+  const router = useRouter();
 
-  const handleEmail = (email: string) => {
-    Linking.openURL(`mailto:${email}`);
-  };
-
-  const handleWebsite = (website: string) => {
-    // Add https:// if not present
-    const url = website.startsWith("http") ? website : `https://${website}`;
-    Linking.openURL(url);
-  };
-
-  const handleWhatsApp = (phoneNumber: string) => {
-    // Remove any non-numeric characters from the phone number
-    const formattedNumber = phoneNumber.replace(/\D/g, "");
-    Linking.openURL(`whatsapp://send?phone=${formattedNumber}`);
-  };
-
-  const nextImage = () => {
-    if (selectedBusiness?.images) {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === selectedBusiness.images!.length - 1 ? 0 : prevIndex + 1
+  const handleGreetPress = (person: Person) => {
+    if (hasContactInfo(person)) {
+      onWishPress(person);
+    } else {
+      Alert.alert(
+        "Contact Info Missing",
+        `${person.name} has not updated their contact information yet.`,
+        [{ text: "OK", style: "default" }]
       );
     }
   };
 
-  const prevImage = () => {
-    if (selectedBusiness?.images) {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === 0 ? selectedBusiness.images!.length - 1 : prevIndex - 1
-      );
-    }
+  // Handle card press - same behavior as greet button
+  const handleCardPress = (person: Person) => {
+    handleGreetPress(person);
   };
 
-  if (loading) {
-    return (
-      <View className="mb-6">
-        <Text className="text-lg font-bold text-gray-800 px-5">{title}</Text>
-        <Text className="px-5 mt-2 text-gray-500">Loading businesses...</Text>
-      </View>
-    );
-  }
+  // Sort birthdays chronologically
+  const sortedTodayBirthdays =
+    todayBirthdays?.sort((a, b) => {
+      // If birthDate is available, use it for sorting
+      if (a.birthDate && b.birthDate) {
+        const dateA = new Date(a.birthDate);
+        const dateB = new Date(b.birthDate);
+        return dateA.getTime() - dateB.getTime();
+      }
 
-  if (error) {
-    return (
-      <View className="mb-6">
-        <Text className="text-lg font-bold text-gray-800 px-5">{title}</Text>
-        <Text className="px-5 mt-2 text-red-500">Error loading businesses</Text>
-      </View>
-    );
-  }
-
-  if (!businesses || businesses.length === 0) {
-    return (
-      <View className="mb-8">
-        <View className="flex-row justify-between items-center px-5 mb-4">
-          <Text className="text-lg font-bold text-gray-800">Nari Sahas</Text>
-          <TouchableOpacity>
-            <Text className="text-orange-500 text-sm font-medium">
-              {/* View All */}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View className="px-5 py-8 items-center">
-          <Text className="text-gray-500">
-            No Businesses available at the moment
-          </Text>
-        </View>
-      </View>
-    );
-  }
+      // Fallback: sort by name if no birth date available
+      return a.name.localeCompare(b.name);
+    }) || [];
 
   return (
     <View className="mb-6">
       <View className="flex-row justify-between items-center px-5 mb-3">
-        <Text className="text-lg font-bold text-gray-800">{title}</Text>
-        <TouchableOpacity onPress={handleViewAll}>
+        <Text className="text-lg font-bold text-gray-800">
+          Today's Birthdays 🎂
+        </Text>
+        <TouchableOpacity onPress={() => router.push("/birthdays")}>
           <Text className="text-orange-500 text-sm font-medium">View All</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingLeft: 20, paddingRight: 20 }}
-      >
-        {displayBusinesses.map((business, index) => (
-          <TouchableOpacity
-            key={business.id || index}
-            className="bg-white rounded-xl mr-3 shadow-sm overflow-hidden w-52 border border-gray-100"
-            onPress={() => handleBusinessPress(business)}
-          >
-            <View className="h-24 w-full">
+      {birthdaysLoading ? (
+        <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 items-center justify-center mx-5">
+          <Text className="text-gray-800 font-medium text-center mt-2 mb-1">
+            Loading birthdays...
+          </Text>
+        </View>
+      ) : !sortedTodayBirthdays || sortedTodayBirthdays.length === 0 ? (
+        <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 items-center justify-center mx-5">
+          <Ionicons name="calendar-outline" size={32} color="#ff8c37" />
+          <Text className="text-gray-800 font-medium text-center mt-2 mb-1">
+            No Birthdays Today
+          </Text>
+          <Text className="text-gray-500 text-xs text-center">
+            Check back tomorrow for more celebrations
+          </Text>
+        </View>
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingLeft: 20, paddingRight: 10 }}
+        >
+          {sortedTodayBirthdays.map((person) => (
+            <TouchableOpacity
+              key={person.id}
+              className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 mr-3"
+              style={{
+                width:
+                  sortedTodayBirthdays.length === 1
+                    ? screenWidth - 100 // Reduced from screenWidth - 80
+                    : sortedTodayBirthdays.length <= 3
+                    ? (screenWidth - 200) / 2 // Reduced from (screenWidth - 80) / 2
+                    : 90, // Reduced from 100
+              }}
+              onPress={() => handleCardPress(person)}
+            >
               <Image
-                source={{
-                  uri:
-                    business.images?.[0] ||
-                    business.logo ||
-                    "https://via.placeholder.com/150",
+                source={
+                  person.image
+                    ? { uri: person.image }
+                    : getPlaceholderImage(person)
+                }
+                className="w-full"
+                style={{
+                  height:
+                    sortedTodayBirthdays.length === 1
+                      ? 75
+                      : sortedTodayBirthdays.length <= 3
+                      ? 80
+                      : 50,
                 }}
-                className="w-full h-full"
                 resizeMode="cover"
               />
-            </View>
-
-            <View className="p-3">
-              <Text className="font-bold text-gray-800 text-xs">
-                {business.name}
-              </Text>
-              <Text className="text-gray-500 text-[10px] mt-0.5">
-                {business.category}
-              </Text>
-
-              <View className="flex-row items-center mt-1.5">
-                <Ionicons name="location-outline" size={12} color="#666" />
-                <Text className="text-gray-600 text-[10px] ml-1">
-                  {business.location}
-                </Text>
-              </View>
-
-              <TouchableOpacity
-                className="mt-2 bg-orange-50 rounded-lg py-1.5"
-                onPress={() => handleBusinessPress(business)}
-              >
-                <Text className="text-orange-600 font-medium text-[10px] text-center">
-                  Visit Business
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* Business Detail Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <TouchableOpacity
-          className="flex-1 justify-end bg-black/40"
-          activeOpacity={1}
-          onPress={() => setModalVisible(false)}
-        >
-          <View className="bg-white rounded-t-3xl w-full max-h-[120%]">
-            {/* Drag handle */}
-            <View className="py-3 items-center">
-              <View className="w-12 h-1.5 bg-orange-200 rounded-full" />
-            </View>
-
-            {selectedBusiness && (
-              <ScrollView
-                className="px-6 pt-2 pb-4"
-                showsVerticalScrollIndicator={false}
-              >
-                {/* Image Carousel */}
-                {selectedBusiness.images &&
-                  selectedBusiness.images.length > 0 && (
-                    <View className="mb-6 relative">
-                      <Image
-                        source={{
-                          uri: selectedBusiness.images[currentImageIndex],
-                        }}
-                        className="w-full h-56 rounded-xl"
-                        resizeMode="cover"
-                      />
-
-                      {/* Image Navigation */}
-                      <View className="flex-row justify-between absolute top-1/2 w-full px-2 -mt-5">
-                        <TouchableOpacity
-                          onPress={prevImage}
-                          className="bg-black/30 w-10 h-10 rounded-full items-center justify-center"
-                        >
-                          <Ionicons
-                            name="chevron-back"
-                            size={24}
-                            color="white"
-                          />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          onPress={nextImage}
-                          className="bg-black/30 w-10 h-10 rounded-full items-center justify-center"
-                        >
-                          <Ionicons
-                            name="chevron-forward"
-                            size={24}
-                            color="white"
-                          />
-                        </TouchableOpacity>
-                      </View>
-
-                      {/* Image Indicators */}
-                      <View className="flex-row justify-center absolute bottom-2 w-full">
-                        {selectedBusiness.images.map((_, index) => (
-                          <View
-                            key={index}
-                            className={`w-2 h-2 rounded-full mx-1 ${
-                              index === currentImageIndex
-                                ? "bg-white"
-                                : "bg-white/50"
-                            }`}
-                          />
-                        ))}
-                      </View>
-                    </View>
-                  )}
-
-                {/* Business Header with Logo */}
-                <View className="items-center mb-6 flex-row justify-center">
-                  {selectedBusiness.logo && (
-                    <Image
-                      source={{ uri: selectedBusiness.logo }}
-                      className="w-14 h-14 rounded-full border-2 border-orange-100 mr-3"
-                      resizeMode="cover"
-                    />
-                  )}
-                  <View>
-                    <Text className="text-xl font-bold text-orange-800">
-                      {selectedBusiness.name}
-                    </Text>
-                    <Text className="text-orange-600 text-base mb-1">
-                      {selectedBusiness.category}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Contact Actions */}
-                <View className="flex-row justify-around mb-6">
-                  <TouchableOpacity
-                    className="items-center"
-                    onPress={() => handleCall(selectedBusiness.contact_phone)}
-                  >
-                    <View className="bg-orange-500 w-12 h-12 rounded-full items-center justify-center mb-1">
-                      <Ionicons name="call" size={20} color="white" />
-                    </View>
-                    <Text className="text-xs text-gray-600">Call</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    className="items-center"
-                    onPress={() =>
-                      handleWhatsApp(selectedBusiness.contact_phone)
-                    }
-                  >
-                    <View className="bg-green-500 w-12 h-12 rounded-full items-center justify-center mb-1">
-                      <Ionicons name="logo-whatsapp" size={20} color="white" />
-                    </View>
-                    <Text className="text-xs text-gray-600">WhatsApp</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    className="items-center"
-                    onPress={() => handleEmail(selectedBusiness.contact_email)}
-                  >
-                    <View className="bg-pink-600 w-12 h-12 rounded-full items-center justify-center mb-1">
-                      <Ionicons name="mail" size={20} color="white" />
-                    </View>
-                    <Text className="text-xs text-gray-600">Email</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    className="items-center"
-                    onPress={() => handleWebsite(selectedBusiness.website)}
-                  >
-                    <View className="bg-pink-700 w-12 h-12 rounded-full items-center justify-center mb-1">
-                      <Ionicons name="globe" size={20} color="white" />
-                    </View>
-                    <Text className="text-xs text-gray-600">Website</Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* Business Details */}
-                <View className="mb-6">
-                  <Text className="text-lg font-semibold text-orange-800 mb-4">
-                    Business Information
+              <View className="p-2">
+                <View className="flex-row items-center mb-0.5">
+                  <Text className="text-orange-500 font-bold text-[10px] mr-1">
+                    TODAY
                   </Text>
-
-                  <View className="space-y-4 flex flex-col gap-5">
-                    <View className="flex-row items-start">
-                      <Ionicons
-                        name="information-circle-outline"
-                        size={18}
-                        color="#ea580c"
-                        style={{ marginTop: 2, width: 24 }}
-                      />
-                      <View className="ml-2 flex-1">
-                        <Text className="text-orange-600 text-xs mb-1">
-                          Description
-                        </Text>
-                        <Text className="text-gray-800 text-sm">
-                          {selectedBusiness.description}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View className="flex-row items-start">
-                      <Ionicons
-                        name="location-outline"
-                        size={18}
-                        color="#ea580c"
-                        style={{ marginTop: 2, width: 24 }}
-                      />
-                      <View className="ml-2 flex-1">
-                        <Text className="text-orange-600 text-xs mb-1">
-                          Location
-                        </Text>
-                        <Text className="text-gray-800 text-sm">
-                          {selectedBusiness.location}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View className="flex-row items-start">
-                      <Ionicons
-                        name="call-outline"
-                        size={18}
-                        color="#ea580c"
-                        style={{ marginTop: 2, width: 24 }}
-                      />
-                      <View className="ml-2 flex-1">
-                        <Text className="text-orange-600 text-xs mb-1">
-                          Phone
-                        </Text>
-                        <Text className="text-gray-800 text-sm">
-                          {selectedBusiness.contact_phone}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View className="flex-row items-start">
-                      <Ionicons
-                        name="mail-outline"
-                        size={18}
-                        color="#ea580c"
-                        style={{ marginTop: 2, width: 24 }}
-                      />
-                      <View className="ml-2 flex-1">
-                        <Text className="text-orange-600 text-xs mb-1">
-                          Email
-                        </Text>
-                        <Text className="text-gray-800 text-sm">
-                          {selectedBusiness.contact_email}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View className="flex-row items-start">
-                      <Ionicons
-                        name="globe-outline"
-                        size={18}
-                        color="#ea580c"
-                        style={{ marginTop: 2, width: 24 }}
-                      />
-                      <View className="ml-2 flex-1">
-                        <Text className="text-orange-600 text-xs mb-1">
-                          Website
-                        </Text>
-                        <Text className="text-gray-800 text-sm">
-                          {selectedBusiness.website}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
                 </View>
-
-                {/* Close Button - Made more prominent */}
-                <TouchableOpacity
-                  className="bg-orange-500 py-4 rounded-lg mt-4 mb-10"
-                  onPress={() => setModalVisible(false)}
+                <Text
+                  className="font-bold text-gray-800"
+                  style={{
+                    fontSize:
+                      sortedTodayBirthdays.length === 1
+                        ? 16
+                        : sortedTodayBirthdays.length <= 3
+                        ? 12
+                        : 11,
+                  }}
+                  numberOfLines={1}
                 >
-                  <Text className="text-white font-medium text-center text-base">
-                    Close
+                  {person.name}
+                </Text>
+                <Text
+                  className="text-gray-500 mb-1.5"
+                  style={{
+                    fontSize:
+                      sortedTodayBirthdays.length === 1
+                        ? 12
+                        : sortedTodayBirthdays.length <= 3
+                        ? 10
+                        : 9,
+                  }}
+                >
+                  Turning {person.age} today
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleGreetPress(person)}
+                  className={`py-1 rounded-lg ${
+                    hasContactInfo(person) ? "bg-orange-500" : "bg-gray-300"
+                  }`}
+                >
+                  <Text
+                    className="text-white font-medium text-center"
+                    style={{
+                      fontSize:
+                        sortedTodayBirthdays.length === 1
+                          ? 12
+                          : sortedTodayBirthdays.length <= 3
+                          ? 10
+                          : 9,
+                    }}
+                  >
+                    Greet 🎉
                   </Text>
                 </TouchableOpacity>
-              </ScrollView>
-            )}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 };
 
-export default BusinessSection;
+export default BirthdaySection;

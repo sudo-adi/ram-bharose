@@ -81,6 +81,7 @@ export default function MembersContent() {
   const [page, setPage] = useState(0); // Supabase range starts from 0
   const PAGE_SIZE = 10;
   const [allFetchedMembers, setAllFetchedMembers] = useState([]); // To accumulate members from different pages
+  const [originalMembersData, setOriginalMembersData] = useState([]); // Store original member data
 
   const [activeFilters, setActiveFilters] = useState({
     gender: [],
@@ -116,9 +117,11 @@ export default function MembersContent() {
       // If it's the first page (or a new search/filter), reset the list
       if (page === 0) {
         setAllFetchedMembers(transformedNewData);
+        setOriginalMembersData(profilesData); // Store original data
       } else {
         // Otherwise, append new data
         setAllFetchedMembers((prev) => [...prev, ...transformedNewData]);
+        setOriginalMembersData((prev) => [...prev, ...profilesData]); // Append original data
       }
     }
   }, [profilesData]); // Depend on profilesData coming from the hook
@@ -127,6 +130,7 @@ export default function MembersContent() {
   useEffect(() => {
     setPage(0);
     setAllFetchedMembers([]); // Clear the list to start fresh
+    setOriginalMembersData([]); // Clear original data
   }, [searchQuery, activeFilters]);
 
   // Client-side age filtering (still needed if not handled in DB query)
@@ -249,13 +253,21 @@ export default function MembersContent() {
     return false;
   };
 
+  // FIXED: handleMemberPress function
   const handleMemberPress = (member) => {
-    // Find the original member data with all fields (though transformedMembers should already have it)
-    // Note: If you're fetching all data for the detail sheet, you might need another hook `useProfile(member.id)`
-    // For now, we'll assume `transformedMembers` has enough detail or `profilesData` which is the current page's fetch
-    const originalMember = allFetchedMembers.find((m) => m.id === member.id); // Look in the accumulated list
+    console.log("Member pressed:", member.id); // Debug log
+
+    // Find the original member data from the raw API response
+    const originalMember = originalMembersData.find((m) => m.id === member.id);
+
     if (originalMember) {
+      console.log("Found original member:", originalMember); // Debug log
       setSelectedMember(originalMember);
+      setBottomSheetVisible(true);
+    } else {
+      console.log("Original member not found, using transformed member"); // Debug log
+      // Fallback to the transformed member if original not found
+      setSelectedMember(member);
       setBottomSheetVisible(true);
     }
   };
@@ -477,7 +489,7 @@ export default function MembersContent() {
         </View>
       </TouchableOpacity>
     ),
-    [viewType]
+    [viewType, originalMembersData] // Added originalMembersData as dependency
   );
 
   return (
@@ -683,7 +695,10 @@ export default function MembersContent() {
 
       <MemberDetailBottomSheet
         visible={bottomSheetVisible}
-        onClose={() => setBottomSheetVisible(false)}
+        onClose={() => {
+          setBottomSheetVisible(false);
+          setSelectedMember(null); // Clear selected member when closing
+        }}
         member={selectedMember}
       />
     </SafeAreaView>

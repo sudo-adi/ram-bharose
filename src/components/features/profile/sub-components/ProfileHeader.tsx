@@ -97,7 +97,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <View className="flex-1">
             {isEditing ? (
               <TextInput
-                value={profileData.name}
+                value={profileData.name + " " + profileData.surname}
                 onChangeText={(text) =>
                   setProfileData({ ...profileData, name: text })
                 }

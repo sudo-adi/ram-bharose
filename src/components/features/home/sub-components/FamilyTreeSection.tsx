@@ -24,6 +24,10 @@ interface FamilyTreeSectionProps {
 const FamilyTreeSection: React.FC<FamilyTreeSectionProps> = ({
   familyTree,
 }) => {
+  // Sort family tree alphabetically by name
+  const sortedFamilyTree =
+    familyTree?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+
   return (
     <View className="bg-white p-4">
       <View className="flex-row justify-between items-center mb-4">
@@ -46,7 +50,7 @@ const FamilyTreeSection: React.FC<FamilyTreeSectionProps> = ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 10 }}
       >
-        {familyTree.map((item) => (
+        {sortedFamilyTree.map((item) => (
           <TouchableOpacity
             key={item.name}
             className="bg-white rounded-2xl shadow-sm mr-4 w-56 overflow-hidden border border-gray-100"

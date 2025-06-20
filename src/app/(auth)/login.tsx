@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Alert
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "@/lib/supabase";
@@ -38,10 +38,12 @@ export default function Login() {
     { label: "September", value: "09" },
     { label: "October", value: "10" },
     { label: "November", value: "11" },
-    { label: "December", value: "12" }
+    { label: "December", value: "12" },
   ];
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 100 }, (_, i) => (currentYear - i).toString());
+  const years = Array.from({ length: 100 }, (_, i) =>
+    (currentYear - i).toString()
+  );
 
   const onPress = async () => {
     try {
@@ -72,16 +74,18 @@ export default function Login() {
 
       if (profile) {
         // Store the phone number in AsyncStorage before redirecting
-        await AsyncStorage.setItem('userPhone', phone);
+        await AsyncStorage.setItem("userPhone", phone);
         router.replace("/(tabs)");
       } else {
         Alert.alert("Error", "User not found");
       }
-
     } catch (err) {
       console.error("Login error:", err);
       setError("Failed to login. Please try again.");
-      Alert.alert("Login Error", "There was a problem logging in. Please try again.");
+      Alert.alert(
+        "Login Error",
+        "There was a problem logging in. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -117,9 +121,10 @@ export default function Login() {
             <Picker
               selectedValue={day}
               onValueChange={setDay}
-              style={{ backgroundColor: '#f3f4f6', borderRadius: 12 }}>
+              style={{ backgroundColor: "#f3f4f6", borderRadius: 12 }}
+            >
               <Picker.Item label="Day" value="" />
-              {days.map(d => (
+              {days.map((d) => (
                 <Picker.Item key={d} label={d} value={d} />
               ))}
             </Picker>
@@ -129,9 +134,10 @@ export default function Login() {
             <Picker
               selectedValue={month}
               onValueChange={setMonth}
-              style={{ backgroundColor: '#f3f4f6', borderRadius: 12 }}>
+              style={{ backgroundColor: "#f3f4f6", borderRadius: 12 }}
+            >
               <Picker.Item label="Month" value="" />
-              {months.map(m => (
+              {months.map((m) => (
                 <Picker.Item key={m.value} label={m.label} value={m.value} />
               ))}
             </Picker>
@@ -141,9 +147,10 @@ export default function Login() {
             <Picker
               selectedValue={year}
               onValueChange={setYear}
-              style={{ backgroundColor: '#f3f4f6', borderRadius: 12 }}>
+              style={{ backgroundColor: "#f3f4f6", borderRadius: 12 }}
+            >
               <Picker.Item label="Year" value="" />
-              {years.map(y => (
+              {years.map((y) => (
                 <Picker.Item key={y} label={y} value={y} />
               ))}
             </Picker>
@@ -160,15 +167,11 @@ export default function Login() {
           onPress={onPress}
           className="bg-orange-500 py-4 rounded-xl flex-row justify-center items-center mt-6"
         >
-          <Text className="text-white font-semibold text-lg">
-            Login
-          </Text>
+          <Text className="text-white font-semibold text-lg">Login</Text>
         </TouchableOpacity>
       )}
 
-      {error && (
-        <Text className="text-red-500 text-center mt-4">{error}</Text>
-      )}
+      {error && <Text className="text-red-500 text-center mt-4">{error}</Text>}
     </View>
   );
 }

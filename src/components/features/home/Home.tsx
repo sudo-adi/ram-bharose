@@ -5,6 +5,7 @@ import {
   Linking,
   Dimensions,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import { useBirthdays, useNews } from "@/hooks";
 import { supabase } from "@/lib/supabase";
@@ -12,6 +13,7 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFamilyTree } from "@/hooks";
 import { Text, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 // Import sub-components
 import Header from "./sub-components/Header";
@@ -37,6 +39,7 @@ export default function Home() {
   const [wishModalVisible, setWishModalVisible] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [articleModalVisible, setArticleModalVisible] = useState(false);
+  const [developmentPopupVisible, setDevelopmentPopupVisible] = useState(true);
   const screenWidth = Dimensions.get("window").width;
 
   // Fetch user profile data
@@ -167,10 +170,10 @@ export default function Home() {
         <FamilyTreeSection familyTree={familyTree} />
 
         {/* Women-Led Businesses Component */}
-        <BusinessSection
+        {/* <BusinessSection
           title="Nari Sahas"
           onViewAll={() => router.push("/businesses")}
-        />
+        /> */}
 
         {/* Community Support Component */}
         {/* <CommunitySupportSection onViewAll={() => router.push("/donations")} /> */}
@@ -197,6 +200,43 @@ export default function Home() {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Development Notice Popup */}
+      <Modal
+        visible={developmentPopupVisible}
+        transparent={true}
+        animationType="fade"
+        statusBarTranslucent={true}
+      >
+        <View className="flex-1 bg-black/50 justify-center items-center px-6">
+          <View className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-lg">
+            {/* Info Icon */}
+            <View className="items-center mb-4">
+              <View className="bg-orange-100 rounded-full p-3 mb-3">
+                <Ionicons name="information-circle" size={32} color="#FF892E" />
+              </View>
+              <Text className="text-lg font-semibold text-gray-800 text-center">
+                Development Notice
+              </Text>
+            </View>
+
+            {/* Message */}
+            <Text className="text-gray-600 text-center mb-6 leading-5">
+              App data is currently under development. Some features may not
+              work as expected.
+            </Text>
+
+            {/* Close Button */}
+            <TouchableOpacity
+              className="bg-[#FF892E] rounded-lg py-3 px-6"
+              onPress={() => setDevelopmentPopupVisible(false)}
+              activeOpacity={0.8}
+            >
+              <Text className="text-white font-medium text-center">Got it</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Birthday Wish Modal Component */}
       <BirthdayWishModal

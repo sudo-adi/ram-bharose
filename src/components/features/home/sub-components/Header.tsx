@@ -273,7 +273,7 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
           <View className="items-center">
             <Text className="text-lg font-bold text-white">
               {/* {loading ? "..." : formatNumber(memberCounts.male)} */}
-              2211
+              2069
             </Text>
             <Text className="text-white text-xs">Males</Text>
           </View>
@@ -281,7 +281,7 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
           <View className="items-center">
             <Text className="text-lg font-bold text-white">
               {/* {loading ? "..." : formatNumber(memberCounts.female)} */}
-              1816
+              1958
             </Text>
             <Text className="text-white text-xs">Females</Text>
           </View>

@@ -45,6 +45,25 @@ export default function BirthdaysContent() {
     }
   };
 
+  // Sort birthdays chronologically
+  const sortedBirthdays =
+    birthdays?.sort((a, b) => {
+      // Parse dates for comparison
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+
+      // For "today" and "month" tabs, sort by date within the period
+      if (activeTab === "today" || activeTab === "month") {
+        return dateA.getTime() - dateB.getTime();
+      }
+
+      // For "all" tab, sort by month and day (ignoring year for recurring birthdays)
+      const monthDayA = dateA.getMonth() * 32 + dateA.getDate();
+      const monthDayB = dateB.getMonth() * 32 + dateB.getDate();
+
+      return monthDayA - monthDayB;
+    }) || [];
+
   return (
     <View className="flex-1 bg-white">
       {/* Header Stats */}
@@ -112,8 +131,8 @@ export default function BirthdaysContent() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
         >
-          {birthdays && birthdays.length > 0 ? (
-            birthdays.map((birthday) => (
+          {sortedBirthdays && sortedBirthdays.length > 0 ? (
+            sortedBirthdays.map((birthday) => (
               <View
                 key={birthday.id}
                 className="mb-4 bg-white rounded-2xl border border-gray-100 shadow-sm"

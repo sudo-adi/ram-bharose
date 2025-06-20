@@ -35,7 +35,6 @@
           "data": [
             {
               "scheme": "https",
-              "host": "master-reptile-14.clerk.accounts.dev",
               "pathPrefix": "/oauth-callback"
             },
             {
@@ -51,7 +50,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.kmsit.KMS",
-      "buildNumber": "1.0.0",
+      "buildNumber": "1.0.1",
       "supportsTablet": true,
       "icon": "./assets/icon.png"
     },
@@ -60,7 +59,7 @@
         "origin": "https://n"
       },
       "eas": {
-        "projectId": "c4f00689-b11b-4772-ad2b-cc9c4454afc9"
+        "projectId": "f5760e41-8af8-4e31-a8ee-331709a01c56"
       }
     }
   }
