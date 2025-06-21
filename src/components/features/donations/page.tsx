@@ -8,21 +8,54 @@ import {
   Modal,
   Alert,
   Dimensions,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useDonations } from "@/hooks/useDonations";
 
 const { height, width } = Dimensions.get("window");
 
 export default function DonationsContent() {
-  const [activeTab, setActiveTab] = useState("make");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDonation, setSelectedDonation] = useState(null);
   const [qrModalVisible, setQrModalVisible] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState("");
 
-  const donations = [
+  // Use the custom hook
+  const { donations, loading, error, refetch } = useDonations();
 
-  ];
+  // Handle refresh
+  const onRefresh = () => {
+    refetch();
+  };
+
+  // Show error if there's an issue
+  const renderError = () => (
+    <View className="flex-1 items-center justify-center px-5">
+      <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
+      <Text className="text-red-600 text-xl font-semibold mt-4 text-center">
+        Error Loading Donations
+      </Text>
+      <Text className="text-gray-600 mt-2 text-center">
+        {error}
+      </Text>
+      <TouchableOpacity
+        className="bg-orange-500 py-3 px-6 rounded-xl mt-4"
+        onPress={onRefresh}
+      >
+        <Text className="text-white font-semibold">Try Again</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  // Show loading spinner
+  const renderLoading = () => (
+    <View className="flex-1 items-center justify-center">
+      <ActivityIndicator size="large" color="#f97316" />
+      <Text className="text-gray-600 mt-4">Loading donations...</Text>
+    </View>
+  );
 
   // Render donation card
   const renderDonationCard = (donation) => (
@@ -41,7 +74,7 @@ export default function DonationsContent() {
         <Text className="text-gray-600 mt-1 leading-5">
           {donation.description}
         </Text>
-
+  
         <TouchableOpacity
           className="bg-orange-500 py-4 rounded-xl mt-4 shadow-sm"
           style={{
@@ -62,66 +95,74 @@ export default function DonationsContent() {
     </View>
   );
 
-  // Render content based on active tab
+  // Render main content
   const renderContent = () => {
-    switch (activeTab) {
-      case "make":
-        return (
-          <ScrollView
-            className="px-5 pt-6 flex-1"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 100 }}
-          >
-            {donations.length > 0 ? (
-              donations.map(renderDonationCard)
-            ) : (
-              <Text className="text-gray-800 text-2xl text-center mt-8">
-                No Donations are Available as of now.
-              </Text>
-            )}
-          </ScrollView>
-        );
-      case "my":
-        return (
-          <View className="flex-1 items-center justify-center">
-            <Ionicons name="wallet-outline" size={64} color="#f97316" />
-            <Text className="text-gray-600 mt-4 text-center px-10">
-              You haven't made any donations yet. Start supporting causes you
-              care about!
+    if (loading) return renderLoading();
+    if (error) return renderError();
+    
+    return (
+      <ScrollView
+        className="px-5 pt-6 flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={onRefresh}
+            colors={["#f97316"]}
+            tintColor="#f97316"
+          />
+        }
+      >
+        {donations.length > 0 ? (
+          donations.map(renderDonationCard)
+        ) : (
+          <View className="items-center mt-20">
+            <Ionicons name="heart-outline" size={64} color="#9ca3af" />
+            <Text className="text-gray-600 text-xl text-center mt-4">
+              No Donations Available
+            </Text>
+            <Text className="text-gray-500 text-center mt-2 px-8">
+              Check back later for new causes to support
             </Text>
           </View>
-        );
-      default:
-        return null;
-    }
+        )}
+      </ScrollView>
+    );
   };
 
-  // Render donation options
+  // Render donation options with scrollable container
   const renderDonationOptions = (options) => (
     <View className="mt-4">
       <Text className="text-gray-700 font-semibold mb-2">
         Donation Options:
       </Text>
-      {options.map((option, index) => (
-        <View
-          key={index}
-          className="flex-row justify-between items-center bg-gray-100 p-3 rounded-lg mb-2"
-        >
-          <View className="flex-1 pr-2">
-            <Text className="text-gray-800 font-medium">{option.amount}</Text>
-            <Text className="text-gray-600 text-sm">{option.description}</Text>
-          </View>
-          <TouchableOpacity
-            className="bg-orange-500 px-4 py-2 rounded-lg"
-            onPress={() => {
-              setSelectedAmount(option.amount);
-              setQrModalVisible(true);
-            }}
+      <ScrollView 
+        className=""
+        showsVerticalScrollIndicator={true}
+        nestedScrollEnabled={true}
+      >
+        {options.map((option, index) => (
+          <View
+            key={index}
+            className="flex-row justify-between items-center bg-gray-100 p-3 rounded-lg mb-2"
           >
-            <Text className="text-white font-semibold">Donate</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
+            <View className="flex-1 pr-2">
+              <Text className="text-gray-800 font-medium">{option.amount}</Text>
+              <Text className="text-gray-600 text-sm">{option.description}</Text>
+            </View>
+            <TouchableOpacity
+              className="bg-orange-500 px-4 py-2 rounded-lg"
+              onPress={() => {
+                setSelectedAmount(option.amount);
+                setQrModalVisible(true);
+              }}
+            >
+              <Text className="text-white font-semibold">Donate</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 
@@ -135,6 +176,7 @@ export default function DonationsContent() {
         visible={modalVisible}
         transparent
         animationType="slide"
+        className="flex-1 h-full"
         onRequestClose={() => setModalVisible(false)}
       >
         <View className="flex-1 bg-black/50 justify-end">
@@ -157,14 +199,6 @@ export default function DonationsContent() {
                   <Text className="text-2xl font-bold text-gray-800 mb-2">
                     {selectedDonation.title}
                   </Text>
-                  <View className="bg-gray-100 p-3 rounded-lg mb-3">
-                    <Text className="text-gray-700 font-semibold">
-                      {selectedDonation.organization}
-                    </Text>
-                    <Text className="text-gray-600 text-sm">
-                      {selectedDonation.impact}
-                    </Text>
-                  </View>
                   <Text className="text-gray-600 mb-3">
                     {selectedDonation.description}
                   </Text>
@@ -231,51 +265,6 @@ export default function DonationsContent() {
           </View>
         </View>
       </Modal>
-
-      {/* Tab Bar */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex-row justify-around items-center h-16 px-2">
-        {/* <TouchableOpacity
-          className={`flex-1 items-center justify-center h-full ${activeTab === "make" ? "border-t-2 border-orange-500" : ""
-            }`}
-          onPress={() => setActiveTab("make")}
-        >
-          <Ionicons
-            name="heart"
-            size={24}
-            color={activeTab === "make" ? "#f97316" : "#9ca3af"}
-          />
-          <Text
-            className={`text-xs mt-1 ${activeTab === "make"
-              ? "text-orange-500 font-medium"
-              : "text-gray-500"
-              }`}
-          >
-            Donate
-          </Text>
-        </TouchableOpacity> */}
-
-        {/* <TouchableOpacity
-          className={`flex-1 items-center justify-center h-full ${
-            activeTab === "my" ? "border-t-2 border-orange-500" : ""
-          }`}
-          onPress={() => setActiveTab("my")}
-        >
-          <Ionicons
-            name="wallet"
-            size={24}
-            color={activeTab === "my" ? "#f97316" : "#9ca3af"}
-          />
-          <Text
-            className={`text-xs mt-1 ${
-              activeTab === "my"
-                ? "text-orange-500 font-medium"
-                : "text-gray-500"
-            }`}
-          >
-            My Donations
-          </Text>
-        </TouchableOpacity> */}
-      </View>
     </View>
   );
 }

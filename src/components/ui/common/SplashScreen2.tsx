@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, StatusBar } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import icon from "@/../assets/icon-two.png"; // Not ideal
 
@@ -11,6 +11,7 @@ export default function SplashScreen2() {
       className="flex-1 bg-red-100" // Changed from gradient to solid red background
       style={{ paddingTop: top, paddingBottom: bottom }}
     >
+      <StatusBar barStyle="light-content" backgroundColor="#FF892E" />
       <View className="flex-1 items-center justify-center">
         <Image source={icon} className="w-64 h-64" resizeMode="contain" />
         <Text className="text-purple-500 text-4xl font-bold p-4">

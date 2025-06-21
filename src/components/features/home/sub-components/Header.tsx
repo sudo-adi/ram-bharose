@@ -6,6 +6,7 @@ import {
   Animated,
   Modal,
   Dimensions,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRef, useState, useEffect } from "react";
@@ -199,6 +200,7 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
         backgroundColor: "#ff8c37",
         borderBottomLeftRadius: 24,
         borderBottomRightRadius: 24,
+        paddingTop: Platform.OS === 'ios' ? 50 : 10, // Add 
       }}
     >
       <View className="flex-row justify-between items-center mb-4">
@@ -230,8 +232,7 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
 
           <View className="flex-row items-center bg-white/20 rounded-full px-3 py-1">
             <Text className="text-white text-xs mr-2">
-              {/* {loading ? "..." : formatNumber(memberCounts.total)} */}
-              4027
+              {loading ? "..." : formatNumber(memberCounts?.total || 0)}
             </Text>
             <Ionicons name="people-outline" size={16} color="white" />
             <TouchableOpacity
@@ -247,41 +248,26 @@ const Header = ({ userName, getGreeting }: HeaderProps) => {
         </View>
       </View>
 
-      {/* Wide Search Bar */}
-      {/* <View className="flex-row items-center mb-4">
-        <View className="flex-1 bg-white/20 rounded-full flex-row items-center px-3 py-2">
-          <Ionicons name="search-outline" size={18} color="white" />
-          <TextInput
-            placeholder="Search..."
-            placeholderTextColor="rgba(255,255,255,0.7)"
-            className="flex-1 ml-2 text-white"
-          />
-        </View>
-      </View> */}
-
       {/* Expandable Detailed Community Stats */}
       {showDetailedStats && (
         <View className="flex-row justify-between bg-white/15 p-3 rounded-2xl">
           <View className="items-center">
             <Text className="text-lg font-bold text-white">
-              {/* {loading ? "..." : formatNumber(memberCounts.total)} */}
-              4027
+              {loading ? "..." : formatNumber(memberCounts?.total || 0)}
             </Text>
             <Text className="text-white text-xs">Total Members</Text>
           </View>
           <View className="h-full w-px bg-white/20" />
           <View className="items-center">
             <Text className="text-lg font-bold text-white">
-              {/* {loading ? "..." : formatNumber(memberCounts.male)} */}
-              2069
+              {loading ? "..." : formatNumber(memberCounts?.male || 0)}
             </Text>
             <Text className="text-white text-xs">Males</Text>
           </View>
           <View className="h-full w-px bg-white/20" />
           <View className="items-center">
             <Text className="text-lg font-bold text-white">
-              {/* {loading ? "..." : formatNumber(memberCounts.female)} */}
-              1958
+              {loading ? "..." : formatNumber(memberCounts?.female || 0)}
             </Text>
             <Text className="text-white text-xs">Females</Text>
           </View>

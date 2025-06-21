@@ -112,11 +112,17 @@ export default function ExploreContent() {
       style={{
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
       }}
+
     >
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#ffffff"
+        translucent={false}
+      />
       {/* Sticky Search Bar */}
       <View
         className="bg-white z-10 shadow-sm"
-        style={{ position: "absolute", top: 0, left: 0, right: 0 }}
+        style={{ position: "absolute", top: 0, left: 0, right: 0, paddingTop: Platform.OS === "ios" ? 50 : 0 }}
       >
         <View className="px-5 py-4">
           <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3">

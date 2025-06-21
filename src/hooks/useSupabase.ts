@@ -173,7 +173,7 @@ export const useFamilies = (page = 1, pageSize = 12, searchQuery = "") => {
                         email: member.email || "",
                         profile_pic:
                             member.profile_pic ||
-                            "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=300",
+                            "https://kmxrfddgzveqlmsvmsub.supabase.co/storage/v1/object/public/extras//user.png",
                         family_cover_pic: member.family_cover_pic || "",
                         blood_group: member.blood_group || "",
                         native_place: member.native_place || "",
@@ -199,10 +199,10 @@ export const useFamilies = (page = 1, pageSize = 12, searchQuery = "") => {
                         headName: `${headMember.name} ${headMember.surname || ""}`.trim(),
                         headImage:
                             headMember.profile_pic ||
-                            "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=300",
+                            "https://kmxrfddgzveqlmsvmsub.supabase.co/storage/v1/object/public/extras//user.png",
                         coverImage:
                             headMember.family_cover_pic ||
-                            "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=2000",
+                            "https://kmxrfddgzveqlmsvmsub.supabase.co/storage/v1/object/public/extras//fam.png",
                         address: headMember.residential_address_line1 || "",
                         city: headMember.residential_address_city || "",
                         state: headMember.residential_address_state || "",

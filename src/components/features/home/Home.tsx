@@ -6,6 +6,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Modal,
+  Platform, // Add Platform import
 } from "react-native";
 import { useBirthdays, useNews } from "@/hooks";
 import { supabase } from "@/lib/supabase";
@@ -141,7 +142,9 @@ export default function Home() {
   const { result: familyTree, loading: familyTreeLoading } = useFamilyTree();
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View 
+      className="flex-1 bg-gray-50"
+    >
       <StatusBar barStyle="light-content" backgroundColor="#FF892E" />
 
       {/* Header Component */}

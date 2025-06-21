@@ -12,9 +12,28 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useEvents } from "@/hooks";
 
+type Event = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  start_at: string;
+  duration: string;
+  organizers: string[];
+  submitted_at: string;
+  image_url: string;
+  location: string;
+  city: string;
+  contact_email: string;
+  contact_phone: string;
+  website: string;
+  image?: string; // For backward compatibility with useEvents hook
+};
+
 export default function EventsContent() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showEventDetails, setShowEventDetails] = useState(false);
   const [showYearPicker, setShowYearPicker] = useState(false);
   const [filteredByDate, setFilteredByDate] = useState(false);
@@ -24,7 +43,7 @@ export default function EventsContent() {
   const touchStartX = useRef(0);
 
   // Function to handle event selection
-  const handleEventPress = (event) => {
+  const handleEventPress = (event: Event) => {
     setSelectedEvent(event);
     setShowEventDetails(true);
   };
@@ -35,7 +54,7 @@ export default function EventsContent() {
   };
 
   // Format date for display
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -45,15 +64,78 @@ export default function EventsContent() {
     });
   };
 
-  // Format time for display
-  const formatTime = (timeString) => {
-    if (!timeString) return "";
-    // Handle time format from database (HH:MM:SS)
-    const [hours, minutes] = timeString.split(":");
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
+  // Format time for display (updated for timestamp format)
+  const formatTime = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  // Format duration from interval string
+  const formatDuration = (duration: string) => {
+    if (!duration) return "";
+    
+    // Parse PostgreSQL interval format (e.g., "02:00:00" or "1 day 02:00:00")
+    const timeMatch = duration.match(/(\d{1,2}):(\d{2}):(\d{2})/);
+    const dayMatch = duration.match(/(\d+)\s+day/);
+    
+    if (timeMatch) {
+      const hours = parseInt(timeMatch[1], 10);
+      const minutes = parseInt(timeMatch[2], 10);
+      let result = "";
+      
+      if (dayMatch) {
+        const days = parseInt(dayMatch[1], 10);
+        result += `${days} day${days > 1 ? 's' : ''} `;
+      }
+      
+      if (hours > 0) {
+        result += `${hours}h `;
+      }
+      if (minutes > 0) {
+        result += `${minutes}m`;
+      }
+      
+      return result.trim();
+    }
+    
+    return duration;
+  };
+
+  // Calculate end time from start time and duration
+  const getEndTime = (startAt: string, duration: string) => {
+    if (!startAt || !duration) return null;
+    
+    try {
+      const start = new Date(startAt);
+      const timeMatch = duration.match(/(\d{1,2}):(\d{2}):(\d{2})/);
+      const dayMatch = duration.match(/(\d+)\s+day/);
+      
+      let totalMinutes = 0;
+      
+      if (dayMatch) {
+        totalMinutes += parseInt(dayMatch[1], 10) * 24 * 60;
+      }
+      
+      if (timeMatch) {
+        const hours = parseInt(timeMatch[1], 10);
+        const minutes = parseInt(timeMatch[2], 10);
+        totalMinutes += hours * 60 + minutes;
+      }
+      
+      const end = new Date(start.getTime() + totalMinutes * 60000);
+      return end.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch (e) {
+      return null;
+    }
   };
 
   // Calendar navigation functions
@@ -69,7 +151,7 @@ export default function EventsContent() {
     setSelectedDate(newDate);
   };
 
-  const handleYearSelection = (year) => {
+  const handleYearSelection = (year: number) => {
     const newDate = new Date(selectedDate);
     newDate.setFullYear(year);
     setSelectedDate(newDate);
@@ -116,48 +198,18 @@ export default function EventsContent() {
     return calendarDays;
   };
 
-  // Check if a date has an event
-  const hasEventOnDate = (date) => {
+  // Check if a date has an event (updated for new schema)
+  const hasEventOnDate = (date: Date) => {
     if (!date || !displayEvents || displayEvents.length === 0) return false;
 
     return displayEvents.some((event) => {
-      // Check for event_date from API data
-      if (event.event_date) {
-        const eventDate = new Date(event.event_date);
+      // Check for start_at from new schema
+      if (event.start_at) {
+        const eventDate = new Date(event.start_at);
         return (
           eventDate.getDate() === date.getDate() &&
           eventDate.getMonth() === date.getMonth() &&
           eventDate.getFullYear() === date.getFullYear()
-        );
-      }
-
-      // Check for date from mock data
-      if (event.date) {
-        const eventDateParts = event.date.split(", ")[0].split(" ");
-        const eventMonth = eventDateParts[0];
-        const eventDay = parseInt(eventDateParts[1], 10);
-        const eventYear = parseInt(event.date.split(", ")[1], 10);
-
-        const monthNames = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-        const eventMonthIndex = monthNames.indexOf(eventMonth);
-
-        return (
-          eventDay === date.getDate() &&
-          eventMonthIndex === date.getMonth() &&
-          eventYear === date.getFullYear()
         );
       }
 
@@ -166,7 +218,7 @@ export default function EventsContent() {
   };
 
   // Check if a date is today
-  const isToday = (date) => {
+  const isToday = (date: Date | null) => {
     if (!date) return false;
     const today = new Date();
     return (
@@ -189,16 +241,14 @@ export default function EventsContent() {
   // Calendar days
   const calendarDays = generateCalendarDays();
 
-  // Function to get events for a specific date
-  const getEventsForDate = (date) => {
+  // Function to get events for a specific date (updated for new schema)
+  const getEventsForDate = (date: Date) => {
     if (!date || !events) return [];
 
-    const eventsToFilter = events;
-
-    return eventsToFilter.filter((event) => {
-      // Check for event_date from API data
-      if (event.event_date) {
-        const eventDate = new Date(event.event_date);
+    return events.filter((event) => {
+      // Check for start_at from new schema
+      if (event.start_at) {
+        const eventDate = new Date(event.start_at);
         return (
           eventDate.getDate() === date.getDate() &&
           eventDate.getMonth() === date.getMonth() &&
@@ -206,41 +256,11 @@ export default function EventsContent() {
         );
       }
 
-      // Check for date from mock data
-      if (event.date) {
-        const eventDateParts = event.date.split(", ")[0].split(" ");
-        const eventMonth = eventDateParts[0];
-        const eventDay = parseInt(eventDateParts[1], 10);
-        const eventYear = parseInt(event.date.split(", ")[1], 10);
-
-        const monthNames = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-        const eventMonthIndex = monthNames.indexOf(eventMonth);
-
-        return (
-          eventDay === date.getDate() &&
-          eventMonthIndex === date.getMonth() &&
-          eventYear === date.getFullYear()
-        );
-      }
-
       return false;
     });
   };
 
-  // Use actual events data if available, otherwise use mock data
+  // Use actual events data if available
   // If filtered by date, only show events for the selected date
   const displayEvents = filteredByDate
     ? getEventsForDate(selectedDate)
@@ -390,7 +410,7 @@ export default function EventsContent() {
         <View className="flex-row justify-between items-center mb-4">
           <Text className="text-lg font-bold text-gray-800">
             {filteredByDate
-              ? `Events on ${formatDate(selectedDate)}`
+              ? `Events on ${formatDate(selectedDate.toISOString())}`
               : "Upcoming Events"}
           </Text>
           <TouchableOpacity onPress={() => setFilteredByDate(false)}>
@@ -411,7 +431,7 @@ export default function EventsContent() {
             <Ionicons name="alert-circle-outline" size={48} color="#9ca3af" />
             <Text className="text-gray-500 mt-4">Error loading events</Text>
           </View>
-        ) : displayEvents.length === 0 ? (
+        ) : !displayEvents || displayEvents.length === 0 ? (
           <View className="items-center justify-center py-10">
             <Ionicons name="calendar-outline" size={48} color="#9ca3af" />
             <Text className="text-gray-500 mt-4">No upcoming events</Text>
@@ -424,7 +444,7 @@ export default function EventsContent() {
               onPress={() => handleEventPress(event)}
             >
               <Image
-                source={{ uri: event.image }}
+                source={{ uri: event.image || event.image_url }}
                 className="w-20 h-20"
                 resizeMode="cover"
               />
@@ -439,18 +459,16 @@ export default function EventsContent() {
                 <View className="flex-row items-center mt-1">
                   <Ionicons name="calendar-outline" size={14} color="#666" />
                   <Text className="text-gray-600 ml-1 text-xs">
-                    {event.event_date
-                      ? formatDate(event.event_date)
-                      : event.date}
+                    {formatDate(event.start_at)}
                   </Text>
                   <Text className="text-gray-400 mx-1">•</Text>
                   <Ionicons name="time-outline" size={14} color="#666" />
                   <Text className="text-gray-600 ml-1 text-xs">
-                    {event.start_at ? formatTime(event.start_at) : event.time}
+                    {formatTime(event.start_at)}
                   </Text>
                 </View>
 
-                <View className="flex-row items-center mt-1">
+                {/* <View className="flex-row items-center mt-1">
                   <Ionicons name="location-outline" size={14} color="#666" />
                   <Text
                     className="text-gray-600 ml-1 text-xs"
@@ -458,7 +476,7 @@ export default function EventsContent() {
                   >
                     {event.location}
                   </Text>
-                </View>
+                </View> */}
               </View>
             </TouchableOpacity>
           ))
@@ -491,7 +509,7 @@ export default function EventsContent() {
               >
                 {/* Event Image */}
                 <Image
-                  source={{ uri: selectedEvent.image }}
+                  source={{ uri: selectedEvent.image || selectedEvent.image_url }}
                   className="w-full h-48 rounded-xl mb-4"
                   resizeMode="cover"
                 />
@@ -506,51 +524,42 @@ export default function EventsContent() {
                   <View className="flex-row items-center mb-2">
                     <Ionicons name="calendar-outline" size={18} color="#666" />
                     <Text className="text-gray-700 ml-2">
-                      {selectedEvent.event_date
-                        ? formatDate(selectedEvent.event_date)
-                        : selectedEvent.date}
+                      {formatDate(selectedEvent.start_at)}
                     </Text>
                   </View>
 
                   <View className="flex-row items-center mb-2">
                     <Ionicons name="time-outline" size={18} color="#666" />
                     <Text className="text-gray-700 ml-2">
-                      {selectedEvent.start_at
-                        ? formatTime(selectedEvent.start_at)
-                        : selectedEvent.time}
-                      {selectedEvent.end_time
-                        ? ` - ${formatTime(
-                            selectedEvent.start_at + selectedEvent.duration
-                          )}`
-                        : ""}
+                      {formatTime(selectedEvent.start_at)}
+                      {selectedEvent.duration && getEndTime(selectedEvent.start_at, selectedEvent.duration) && (
+                        ` - ${getEndTime(selectedEvent.start_at, selectedEvent.duration)}`
+                      )}
                     </Text>
                   </View>
 
-                  <View className="flex-row items-start mb-2">
-                    <Ionicons
-                      name="location-outline"
-                      size={18}
-                      color="#666"
-                      style={{ marginTop: 2 }}
-                    />
-                    <View className="flex-1">
-                      <Text className="text-gray-700 ml-2">
-                        {selectedEvent.location}
-                      </Text>
-                      {selectedEvent.city && (
-                        <Text className="text-gray-500 ml-2">
-                          {selectedEvent.city}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-
-                  {selectedEvent.organizer_name && (
+                  {selectedEvent.duration && (
                     <View className="flex-row items-center mb-2">
-                      <Ionicons name="people-outline" size={18} color="#666" />
+                      <Ionicons name="hourglass-outline" size={18} color="#666" />
                       <Text className="text-gray-700 ml-2">
-                        {selectedEvent.organizer_name}
+                        Duration: {formatDuration(selectedEvent.duration)}
                       </Text>
+                    </View>
+                  )}
+
+                  {selectedEvent.organizers && selectedEvent.organizers.length > 0 && (
+                    <View className="flex-row items-start mb-2">
+                      <Ionicons
+                        name="people-outline"
+                        size={18}
+                        color="#666"
+                        style={{ marginTop: 2 }}
+                      />
+                      <View className="flex-1">
+                        <Text className="text-gray-700 ml-2">
+                          Organizers: {selectedEvent.organizers.join(", ")}
+                        </Text>
+                      </View>
                     </View>
                   )}
 

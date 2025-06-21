@@ -15,36 +15,36 @@ import React from "react";
 
 type Event = {
   id: string;
-  image: string;
-  title: string;
+  user_id: string;
+  name: string;
   description: string;
-  event_date: string;
-  start_time: string;
-  end_time: string;
+  created_at: string;
+  start_at: string;
+  duration: string;
+  organizers: string[];
+  submitted_at: string;
+  image_url: string;
   location: string;
   city: string;
-  organizer_name: string;
   contact_email: string;
   contact_phone: string;
   website: string;
-  created_at: string;
+  image?: string; // For backward compatibility with useEvents hook
 };
 
 export default function EventsCarousel({ onViewAll }) {
   const { data: events, loading, error } = useEvents();
   const eventScrollViewRef = useRef(null);
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showEventDetails, setShowEventDetails] = useState(false);
   const screenWidth = Dimensions.get("window").width;
 
-  // Add the missing handleEventPress function
-  const handleEventPress = (event) => {
+  const handleEventPress = (event: Event) => {
     setSelectedEvent(event);
     setShowEventDetails(true);
   };
 
-  // Add the missing closeEventDetails function
   const closeEventDetails = () => {
     setShowEventDetails(false);
     setSelectedEvent(null);
@@ -55,7 +55,7 @@ export default function EventsCarousel({ onViewAll }) {
     ? [...events]
         .sort(
           (a, b) =>
-            new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
+            new Date(b.start_at).getTime() - new Date(a.start_at).getTime()
         )
         .slice(0, 5)
     : [];
@@ -67,7 +67,7 @@ export default function EventsCarousel({ onViewAll }) {
     const intervalId = setInterval(() => {
       if (eventScrollViewRef.current) {
         const nextIndex = (currentEventIndex + 1) % recentEvents.length;
-        const scrollX = nextIndex * (screenWidth - 20); // Account for padding
+        const scrollX = nextIndex * (screenWidth - 20);
         eventScrollViewRef.current.scrollTo({ x: scrollX, animated: true });
         setCurrentEventIndex(nextIndex);
       }
@@ -76,7 +76,7 @@ export default function EventsCarousel({ onViewAll }) {
     return () => clearInterval(intervalId);
   }, [currentEventIndex, recentEvents, screenWidth]);
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -86,14 +86,14 @@ export default function EventsCarousel({ onViewAll }) {
     });
   };
 
-  const formatTime = (timeString) => {
-    if (!timeString) return "";
-    // Handle time format from database (HH:MM:SS)
-    const [hours, minutes] = timeString.split(":");
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
+  const formatTime = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
   };
 
   // Handle manual scroll end to update current index
@@ -101,7 +101,7 @@ export default function EventsCarousel({ onViewAll }) {
     if (!recentEvents || recentEvents.length === 0) return;
 
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const newIndex = Math.round(contentOffsetX / (screenWidth - 20)); // Account for padding
+    const newIndex = Math.round(contentOffsetX / (screenWidth - 20));
     if (
       newIndex !== currentEventIndex &&
       newIndex >= 0 &&
@@ -112,24 +112,83 @@ export default function EventsCarousel({ onViewAll }) {
   };
 
   // Format date and time for display
-  const formatEventTime = (event) => {
+  const formatEventTime = (event: Event) => {
     try {
-      const date = new Date(event.event_date);
-      const month = date.toLocaleString("default", { month: "short" });
-      const day = date.getDate();
+      const startDate = new Date(event.start_at);
+      const month = startDate.toLocaleString("default", { month: "short" });
+      const day = startDate.getDate();
+      const time = startDate.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
 
-      // Format time if available
-      let timeInfo = "";
-      if (event.start_time) {
-        timeInfo = ` • ${event.start_time}`;
-        if (event.end_time) {
-          timeInfo += ` - ${event.end_time}`;
-        }
-      }
-
-      return `${month} ${day}${timeInfo}`;
+      return `${month} ${day} • ${time}`;
     } catch (e) {
-      return event.event_date || "Date TBD";
+      return event.start_at || "Date TBD";
+    }
+  };
+
+  // Format duration from interval string
+  const formatDuration = (duration: string) => {
+    if (!duration) return "";
+    
+    // Parse PostgreSQL interval format (e.g., "02:00:00" or "1 day 02:00:00")
+    const timeMatch = duration.match(/(\d{1,2}):(\d{2}):(\d{2})/);
+    const dayMatch = duration.match(/(\d+)\s+day/);
+    
+    if (timeMatch) {
+      const hours = parseInt(timeMatch[1], 10);
+      const minutes = parseInt(timeMatch[2], 10);
+      let result = "";
+      
+      if (dayMatch) {
+        const days = parseInt(dayMatch[1], 10);
+        result += `${days} day${days > 1 ? 's' : ''} `;
+      }
+      
+      if (hours > 0) {
+        result += `${hours}h `;
+      }
+      if (minutes > 0) {
+        result += `${minutes}m`;
+      }
+      
+      return result.trim();
+    }
+    
+    return duration;
+  };
+
+  // Calculate end time from start time and duration
+  const getEndTime = (startAt: string, duration: string) => {
+    if (!startAt || !duration) return null;
+    
+    try {
+      const start = new Date(startAt);
+      const timeMatch = duration.match(/(\d{1,2}):(\d{2}):(\d{2})/);
+      const dayMatch = duration.match(/(\d+)\s+day/);
+      
+      let totalMinutes = 0;
+      
+      if (dayMatch) {
+        totalMinutes += parseInt(dayMatch[1], 10) * 24 * 60;
+      }
+      
+      if (timeMatch) {
+        const hours = parseInt(timeMatch[1], 10);
+        const minutes = parseInt(timeMatch[2], 10);
+        totalMinutes += hours * 60 + minutes;
+      }
+      
+      const end = new Date(start.getTime() + totalMinutes * 60000);
+      return end.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch (e) {
+      return null;
     }
   };
 
@@ -196,7 +255,7 @@ export default function EventsCarousel({ onViewAll }) {
           >
             <View className="h-[200px] rounded-2xl overflow-hidden shadow-md">
               <Image
-                source={{ uri: event.image }}
+                source={{ uri: event.image || event.image_url }}
                 className="w-full h-full"
                 resizeMode="cover"
               />
@@ -213,9 +272,9 @@ export default function EventsCarousel({ onViewAll }) {
                 }}
               >
                 <Text className="text-white font-bold text-xl">
-                  {event.title}
+                  {event.name}
                 </Text>
-                <Text className="text-white/90 text-sm mt-1">
+                <Text className="text-white/90 text-sm mt-1" numberOfLines={2}>
                   {event.description}
                 </Text>
                 <View className="flex-row items-center mt-2">
@@ -254,14 +313,14 @@ export default function EventsCarousel({ onViewAll }) {
               >
                 {/* Event Image */}
                 <Image
-                  source={{ uri: selectedEvent.image }}
+                  source={{ uri: selectedEvent.image || selectedEvent.image_url }}
                   className="w-full h-48 rounded-xl mb-4"
                   resizeMode="cover"
                 />
 
                 {/* Event Title */}
                 <Text className="text-2xl font-bold text-gray-800 mb-2">
-                  {selectedEvent.title}
+                  {selectedEvent.name}
                 </Text>
 
                 {/* Event Details */}
@@ -269,24 +328,29 @@ export default function EventsCarousel({ onViewAll }) {
                   <View className="flex-row items-center mb-2">
                     <Ionicons name="calendar-outline" size={18} color="#666" />
                     <Text className="text-gray-700 ml-2">
-                      {selectedEvent.event_date
-                        ? formatDate(selectedEvent.event_date)
-                        : selectedEvent.date}
+                      {formatDate(selectedEvent.start_at)}
                     </Text>
                   </View>
 
                   <View className="flex-row items-center mb-2">
                     <Ionicons name="time-outline" size={18} color="#666" />
                     <Text className="text-gray-700 ml-2">
-                      {selectedEvent.start_time
-                        ? formatTime(selectedEvent.start_time)
-                        : selectedEvent.time}
-                      {selectedEvent.end_time
-                        ? ` - ${formatTime(selectedEvent.end_time)}`
-                        : ""}
+                      {formatTime(selectedEvent.start_at)}
+                      {selectedEvent.duration && getEndTime(selectedEvent.start_at, selectedEvent.duration) && (
+                        ` - ${getEndTime(selectedEvent.start_at, selectedEvent.duration)}`
+                      )}
                     </Text>
                   </View>
 
+                  {selectedEvent.duration && (
+                    <View className="flex-row items-center mb-2">
+                      <Ionicons name="hourglass-outline" size={18} color="#666" />
+                      <Text className="text-gray-700 ml-2">
+                        Duration: {formatDuration(selectedEvent.duration)}
+                      </Text>
+                    </View>
+                  )}
+{/* 
                   <View className="flex-row items-start mb-2">
                     <Ionicons
                       name="location-outline"
@@ -304,14 +368,21 @@ export default function EventsCarousel({ onViewAll }) {
                         </Text>
                       )}
                     </View>
-                  </View>
+                  </View> */}
 
-                  {selectedEvent.organizer_name && (
-                    <View className="flex-row items-center mb-2">
-                      <Ionicons name="people-outline" size={18} color="#666" />
-                      <Text className="text-gray-700 ml-2">
-                        {selectedEvent.organizer_name}
-                      </Text>
+                  {selectedEvent.organizers && selectedEvent.organizers.length > 0 && (
+                    <View className="flex-row items-start mb-2">
+                      <Ionicons
+                        name="people-outline"
+                        size={18}
+                        color="#666"
+                        style={{ marginTop: 2 }}
+                      />
+                      <View className="flex-1">
+                        <Text className="text-gray-700 ml-2">
+                          Organizers: {selectedEvent.organizers.join(", ")}
+                        </Text>
+                      </View>
                     </View>
                   )}
 
